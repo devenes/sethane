@@ -42,8 +42,9 @@ export const EXERCISES_CATALOG: Exercise[] = [
       tr: 'Dambıl olmadan vücut ağırlığıyla squat yapıp kolları yukarı uzatın veya daha hafif ağırlık seçin.',
     },
     media: {
-      type: 'svg',
-      src: 'assets/exercises/dumbbell-thruster.svg',
+      type: 'gif',
+      src: 'assets/exercises/dumbbell-thruster.gif',
+      posterSrc: 'assets/exercises/dumbbell-thruster-poster.png',
       alt: {
         en: 'Athlete squatting with dumbbells at shoulders and pressing them overhead.',
         tr: 'Omuzlarda dambılla squat yapıp baş üstüne pres yapan sporcu illüstrasyonu.',
@@ -89,8 +90,9 @@ export const EXERCISES_CATALOG: Exercise[] = [
       tr: 'Tempoyu düşürerek dizleri tek tek çekin veya ellerinizi sağlam bir yükseltiye koyun.',
     },
     media: {
-      type: 'svg',
-      src: 'assets/exercises/mountain-climbers.svg',
+      type: 'gif',
+      src: 'assets/exercises/mountain-climbers.gif',
+      posterSrc: 'assets/exercises/mountain-climbers-poster.png',
       alt: {
         en: 'Athlete in high plank position driving one knee toward the chest.',
         tr: 'Yüksek plank pozisyonunda bir dizini göğsüne çeken sporcu illüstrasyonu.',
@@ -138,8 +140,9 @@ export const EXERCISES_CATALOG: Exercise[] = [
       tr: 'Çekiş eklemeden sadece kalça menteşesi yapın veya eğilme açısını azaltın.',
     },
     media: {
-      type: 'svg',
-      src: 'assets/exercises/romanian-deadlift-row.svg',
+      type: 'gif',
+      src: 'assets/exercises/romanian-deadlift-row.gif',
+      posterSrc: 'assets/exercises/romanian-deadlift-row-poster.png',
       alt: {
         en: 'Athlete hinged at the hips rowing two dumbbells toward the torso.',
         tr: 'Kalçadan öne eğilmiş pozisyonda iki dambılı gövdesine çeken sporcu illüstrasyonu.',
@@ -187,8 +190,9 @@ export const EXERCISES_CATALOG: Exercise[] = [
       tr: 'Sıçramak yerine geniş yan adımlar atın ve denge için arka ayak ucunu yere dokundurun.',
     },
     media: {
-      type: 'svg',
-      src: 'assets/exercises/skater-jumps.svg',
+      type: 'gif',
+      src: 'assets/exercises/skater-jumps.gif',
+      posterSrc: 'assets/exercises/skater-jumps-poster.png',
       alt: {
         en: 'Athlete bounding laterally from one leg to the other in a speed-skater motion.',
         tr: 'Bir bacaktan diğerine yana doğru patenci sıçrayışı yapan sporcu illüstrasyonu.',
@@ -236,8 +240,9 @@ export const EXERCISES_CATALOG: Exercise[] = [
       tr: 'Daha az derinlikte geriye hamle yapın ve diz çekmeden önce iki ayağı yan yana getirerek dengelenin.',
     },
     media: {
-      type: 'svg',
-      src: 'assets/exercises/reverse-lunge-knee-drive.svg',
+      type: 'gif',
+      src: 'assets/exercises/reverse-lunge-knee-drive.gif',
+      posterSrc: 'assets/exercises/reverse-lunge-knee-drive-poster.png',
       alt: {
         en: 'Athlete stepping back into a reverse lunge and driving the knee upward.',
         tr: 'Geriye lunge hamlesinden kalkarken dizini yukarı çeken sporcu illüstrasyonu.',
@@ -285,8 +290,9 @@ export const EXERCISES_CATALOG: Exercise[] = [
       tr: 'Sıçramasız Burpee: ayakları tek tek geriye ve öne adımlayın, sonunda sıçramak yerine parmak ucuna yükselin.',
     },
     media: {
-      type: 'svg',
-      src: 'assets/exercises/burpees.svg',
+      type: 'gif',
+      src: 'assets/exercises/burpees.gif',
+      posterSrc: 'assets/exercises/burpees-poster.png',
       alt: {
         en: 'Sequence of plank drop and explosive vertical jump for a burpee.',
         tr: 'Plank ve dikey sıçrama aşamalarını gösteren burpee illüstrasyonu.',
@@ -332,8 +338,9 @@ export const EXERCISES_CATALOG: Exercise[] = [
       tr: 'Ellerinizi bir sehpa/duvara koyarak eğimli şınav çekin veya dizlerinizi mata koyun.',
     },
     media: {
-      type: 'svg',
-      src: 'assets/exercises/push-ups.svg',
+      type: 'gif',
+      src: 'assets/exercises/push-ups.gif',
+      posterSrc: 'assets/exercises/push-ups-poster.png',
       alt: {
         en: 'Athlete performing a push-up with a straight body line from head to heels.',
         tr: 'Baştan topuklara düz bir vücut hattıyla şınav çeken sporcu illüstrasyonu.',
@@ -379,8 +386,9 @@ export const EXERCISES_CATALOG: Exercise[] = [
       tr: 'Kutu Squat: arkanızdaki bir sandalye veya sehpaya hafifçe dokunup tekrar ayağa kalkın.',
     },
     media: {
-      type: 'svg',
-      src: 'assets/exercises/air-squats.svg',
+      type: 'gif',
+      src: 'assets/exercises/air-squats.gif',
+      posterSrc: 'assets/exercises/air-squats-poster.png',
       alt: {
         en: 'Athlete performing a deep bodyweight squat with arms extended forward for balance.',
         tr: 'Denge için kolları önde derin squat yapan sporcu illüstrasyonu.',
@@ -426,8 +434,9 @@ export const EXERCISES_CATALOG: Exercise[] = [
       tr: 'Omuzlardan dizlere düz çizgiyi koruyarak dizlerinizi mata koyun.',
     },
     media: {
-      type: 'svg',
-      src: 'assets/exercises/plank-hold.svg',
+      type: 'gif',
+      src: 'assets/exercises/plank-hold.gif',
+      posterSrc: 'assets/exercises/plank-hold-poster.png',
       alt: {
         en: 'Athlete holding an isometric forearm plank with engaged core.',
         tr: 'Ön kolları üzerinde izometrik plank duruşu yapan sporcu illüstrasyonu.',
@@ -473,8 +482,9 @@ export const EXERCISES_CATALOG: Exercise[] = [
       tr: 'Step Jack: sıçramadan sırayla bir ayağınızı yana açarken kollarınızı yukarı kaldırın.',
     },
     media: {
-      type: 'svg',
-      src: 'assets/exercises/jumping-jacks.svg',
+      type: 'gif',
+      src: 'assets/exercises/jumping-jacks.gif',
+      posterSrc: 'assets/exercises/jumping-jacks-poster.png',
       alt: {
         en: 'Athlete performing jumping jacks with feet wide and arms overhead.',
         tr: 'Kollar baş üstünde ve bacaklar açık jumping jack yapan sporcu illüstrasyonu.',
@@ -520,8 +530,9 @@ export const EXERCISES_CATALOG: Exercise[] = [
       tr: 'Daha hafif bir dambıl kullanın veya vücut ağırlığıyla squat yapın.',
     },
     media: {
-      type: 'svg',
-      src: 'assets/exercises/dumbbell-goblet-squat.svg',
+      type: 'gif',
+      src: 'assets/exercises/dumbbell-goblet-squat.gif',
+      posterSrc: 'assets/exercises/dumbbell-goblet-squat-poster.png',
       alt: {
         en: 'Athlete holding one vertical dumbbell at chest height while squatting.',
         tr: 'Göğüs hizasında dikey dambıl tutarak squat yapan sporcu illüstrasyonu.',
@@ -569,8 +580,9 @@ export const EXERCISES_CATALOG: Exercise[] = [
       tr: 'Ayaklarınızı yerde tutun ve karşı omzunuzu döndürürken her seferinde tek dizinizi kaldırın.',
     },
     media: {
-      type: 'svg',
-      src: 'assets/exercises/bicycle-crunches.svg',
+      type: 'gif',
+      src: 'assets/exercises/bicycle-crunches.gif',
+      posterSrc: 'assets/exercises/bicycle-crunches-poster.png',
       alt: {
         en: 'Athlete lying on mat rotating torso to touch elbow to opposite knee.',
         tr: 'Mat üzerinde gövdesini döndürerek dirseğini çapraz dizine yaklaştıran sporcu illüstrasyonu.',
@@ -616,8 +628,9 @@ export const EXERCISES_CATALOG: Exercise[] = [
       tr: 'Hareket açıklığını azaltarak pelvik tilt ve kalça sıkıştırmaya odaklanın.',
     },
     media: {
-      type: 'svg',
-      src: 'assets/exercises/glute-bridges.svg',
+      type: 'gif',
+      src: 'assets/exercises/glute-bridges.gif',
+      posterSrc: 'assets/exercises/glute-bridges-poster.png',
       alt: {
         en: 'Athlete lying supine with knees bent and hips lifted into a bridge.',
         tr: 'Sırtüstü yatarken kalçasını yukarı kaldırarak köprü kuran sporcu illüstrasyonu.',
@@ -663,8 +676,9 @@ export const EXERCISES_CATALOG: Exercise[] = [
       tr: 'Yüksek Diz Yürüyüşü: sıçramadan, tempolu yürüyüşle dizleri sırayla yukarı çekin.',
     },
     media: {
-      type: 'svg',
-      src: 'assets/exercises/high-knees.svg',
+      type: 'gif',
+      src: 'assets/exercises/high-knees.gif',
+      posterSrc: 'assets/exercises/high-knees-poster.png',
       alt: {
         en: 'Athlete sprinting in place driving one knee high above waist level.',
         tr: 'Olduğu yerde dizlerini bel hizasına çekerek koşan sporcu illüstrasyonu.',
@@ -712,8 +726,9 @@ export const EXERCISES_CATALOG: Exercise[] = [
       tr: 'Alternatif çekişleri yaparken dizlerinizi mata koyarak destekli plank pozisyonunda çalışın.',
     },
     media: {
-      type: 'svg',
-      src: 'assets/exercises/dumbbell-renegade-row.svg',
+      type: 'gif',
+      src: 'assets/exercises/dumbbell-renegade-row.gif',
+      posterSrc: 'assets/exercises/dumbbell-renegade-row-poster.png',
       alt: {
         en: 'Athlete in wide-stance plank rowing one dumbbell while stabilizing on the other.',
         tr: 'Geniş ayaklı plank pozisyonunda tek kolla dambıl çekişi yapan sporcu illüstrasyonu.',
@@ -759,8 +774,9 @@ export const EXERCISES_CATALOG: Exercise[] = [
       tr: 'Her iki ayağınızı mata tam basın ve geriye yaslanma açısını azaltın.',
     },
     media: {
-      type: 'svg',
-      src: 'assets/exercises/russian-twists.svg',
+      type: 'gif',
+      src: 'assets/exercises/russian-twists.gif',
+      posterSrc: 'assets/exercises/russian-twists-poster.png',
       alt: {
         en: 'Athlete seated in V-sit position rotating torso side to side.',
         tr: 'V-oturuş pozisyonunda gövdesini sağa ve sola döndüren sporcu illüstrasyonu.',
@@ -806,8 +822,9 @@ export const EXERCISES_CATALOG: Exercise[] = [
       tr: 'Tam gövde rotasyonuna ve nefese odaklanarak orta tempoda yumruk çıkarın.',
     },
     media: {
-      type: 'svg',
-      src: 'assets/exercises/shadow-boxing-punches.svg',
+      type: 'gif',
+      src: 'assets/exercises/shadow-boxing-punches.gif',
+      posterSrc: 'assets/exercises/shadow-boxing-punches-poster.png',
       alt: {
         en: 'Athlete in athletic stance throwing rapid straight punches.',
         tr: 'Atletik duruşta hızlı düz yumruklar çıkaran sporcu illüstrasyonu.',
@@ -855,8 +872,9 @@ export const EXERCISES_CATALOG: Exercise[] = [
       tr: 'Yere inerken ve kalkarken dizlerinizi rahatça bükün.',
     },
     media: {
-      type: 'svg',
-      src: 'assets/exercises/inchworm-walkout.svg',
+      type: 'gif',
+      src: 'assets/exercises/inchworm-walkout.gif',
+      posterSrc: 'assets/exercises/inchworm-walkout-poster.png',
       alt: {
         en: 'Athlete walking hands forward from standing fold into a high plank.',
         tr: 'Ayakta duruştan elleriyle yürüyerek yüksek plank pozisyonuna geçen sporcu illüstrasyonu.',
@@ -902,8 +920,9 @@ export const EXERCISES_CATALOG: Exercise[] = [
       tr: 'Omurga yükünü azaltmak için dambılları sırayla (alternatif) yukarı itin.',
     },
     media: {
-      type: 'svg',
-      src: 'assets/exercises/dumbbell-overhead-press.svg',
+      type: 'gif',
+      src: 'assets/exercises/dumbbell-overhead-press.gif',
+      posterSrc: 'assets/exercises/dumbbell-overhead-press-poster.png',
       alt: {
         en: 'Athlete standing tall pressing two dumbbells straight overhead.',
         tr: 'Dik duruşta iki dambılı baş üstüne presleyen sporcu illüstrasyonu.',
@@ -949,8 +968,9 @@ export const EXERCISES_CATALOG: Exercise[] = [
       tr: 'Belinizi matta düz tutmak için bacaklarınızı yerden 45-60 derece daha yüksek bir açıda çalıştırın.',
     },
     media: {
-      type: 'svg',
-      src: 'assets/exercises/flutter-kicks.svg',
+      type: 'gif',
+      src: 'assets/exercises/flutter-kicks.gif',
+      posterSrc: 'assets/exercises/flutter-kicks-poster.png',
       alt: {
         en: 'Athlete lying on mat performing alternating straight-leg flutter kicks.',
         tr: 'Sırtüstü pozisyonda bacaklarını sırayla aşağı yukarı çırpan sporcu illüstrasyonu.',
@@ -996,8 +1016,9 @@ export const EXERCISES_CATALOG: Exercise[] = [
       tr: 'Omuzlarınız yorulduysa ellerinizi belinize koyarak sadece yan adımlara odaklanın.',
     },
     media: {
-      type: 'svg',
-      src: 'assets/exercises/step-jack-low-impact.svg',
+      type: 'gif',
+      src: 'assets/exercises/step-jack-low-impact.gif',
+      posterSrc: 'assets/exercises/step-jack-low-impact-poster.png',
       alt: {
         en: 'Athlete stepping one foot laterally while reaching both arms overhead.',
         tr: 'Bir ayağını yana adım atarken iki kolunu yukarı uzatan sporcu illüstrasyonu.',
@@ -1043,8 +1064,9 @@ export const EXERCISES_CATALOG: Exercise[] = [
       tr: 'Omuz dokunuşlarını dizler yerde destekli plank pozisyonunda uygulayın.',
     },
     media: {
-      type: 'svg',
-      src: 'assets/exercises/plank-shoulder-taps.svg',
+      type: 'gif',
+      src: 'assets/exercises/plank-shoulder-taps.gif',
+      posterSrc: 'assets/exercises/plank-shoulder-taps-poster.png',
       alt: {
         en: 'Athlete in high plank tapping opposite shoulder with one hand while hips stay level.',
         tr: 'Kalçasını sabit tutarak plank pozisyonunda çapraz omzuna dokunan sporcu illüstrasyonu.',
@@ -1090,8 +1112,9 @@ export const EXERCISES_CATALOG: Exercise[] = [
       tr: 'Gerilimi azaltmak için her tekrarda tam ayağa kalkarak normal sumo squat yapın.',
     },
     media: {
-      type: 'svg',
-      src: 'assets/exercises/sumo-squat-pulse.svg',
+      type: 'gif',
+      src: 'assets/exercises/sumo-squat-pulse.gif',
+      posterSrc: 'assets/exercises/sumo-squat-pulse-poster.png',
       alt: {
         en: 'Athlete in wide sumo squat stance pulsing at the bottom of the movement.',
         tr: 'Geniş sumo squat duruşunda alt noktada yaylanma yapan sporcu illüstrasyonu.',
@@ -1137,8 +1160,9 @@ export const EXERCISES_CATALOG: Exercise[] = [
       tr: 'Hareketi sağ ve sol kolla sırayla yapın veya daha hafif dambıl kullanın.',
     },
     media: {
-      type: 'svg',
-      src: 'assets/exercises/dumbbell-bicep-curl-press.svg',
+      type: 'gif',
+      src: 'assets/exercises/dumbbell-bicep-curl-press.gif',
+      posterSrc: 'assets/exercises/dumbbell-bicep-curl-press-poster.png',
       alt: {
         en: 'Athlete curling dumbbells to shoulders and pressing them overhead.',
         tr: 'Dambılları omuzlarına curl yapıp baş üstüne presleyen sporcu illüstrasyonu.',

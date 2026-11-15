@@ -4,6 +4,7 @@ test.describe('SetHane Production Build E2E (/sethane/ subpath)', () => {
   test('loads dashboard under /sethane/, switches TR/EN, and runs workout timer transitions', async ({
     page,
   }) => {
+    await page.emulateMedia({ reducedMotion: 'no-preference' });
     await page.goto('/sethane/');
 
     await expect(page).toHaveTitle(/SetHane/);
@@ -11,7 +12,7 @@ test.describe('SetHane Production Build E2E (/sethane/ subpath)', () => {
       /Sesli ve Görsel Rehberli Akıllı HIIT Antrenmanı|Train Smarter with Guided HIIT Intervals/
     );
 
-    // Navigate to Exercises page and verify 24 SVG exercise illustrations render
+    // Navigate to Exercises page and verify 24 animated GIF exercise demonstrations + Pause/Play toggle
     await page.locator('header nav a[href="#/exercises"]').click();
     const cards = page.locator('[data-testid^="exercise-card-"]');
     await expect(cards).toHaveCount(24);
@@ -23,6 +24,14 @@ test.describe('SetHane Production Build E2E (/sethane/ subpath)', () => {
         firstImg.evaluate((el: HTMLImageElement) => el.complete && el.naturalWidth > 0)
       )
       .toBe(true);
+
+    // Verify WCAG 2.2.2 Pause / Play Animations toggle switches between animated GIF and static PNG poster
+    const motionBtn = page.getByTestId('toggle-exercise-animations');
+    await expect(motionBtn).toBeVisible();
+    await motionBtn.click();
+    await expect(firstImg).toHaveAttribute('src', /-poster\.png$/);
+    await motionBtn.click();
+    await expect(firstImg).toHaveAttribute('src', /\.gif$/);
 
     // Navigate to Builder, create & save a custom workout, and verify IndexedDB persistence
     await page.locator('header nav a[href="#/builder"]').click();

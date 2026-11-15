@@ -18,7 +18,8 @@ export default defineConfig({
         'icons/icon-192.svg',
         'icons/icon-512.svg',
         'icons/icon-maskable.svg',
-        'assets/exercises/*.svg',
+        'assets/exercises/*.gif',
+        'assets/exercises/*.png',
       ],
       manifest: {
         name: 'SetHane — Workout & HIIT Trainer',
@@ -54,7 +55,8 @@ export default defineConfig({
         ],
       },
       workbox: {
-        globPatterns: ['**/*.{js,css,html,svg,png,webp,woff2,json}'],
+        globPatterns: ['**/*.{js,css,html,svg,png,gif,webp,woff2,json}'],
+        maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
         cleanupOutdatedCaches: true,
         clientsClaim: true,
         skipWaiting: true,

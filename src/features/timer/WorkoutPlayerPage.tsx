@@ -19,13 +19,13 @@ import {
 } from 'lucide-react';
 import { WorkoutTimerEngine } from '../../engine/timer-engine';
 import type { EngineEvent, SessionMachineState, WorkoutPhase } from '../../engine/types';
+import { ExerciseVisual, MotionToggleButton } from '../../components/common/ExerciseVisual';
 import { getExerciseById } from '../../data/exercises/catalog';
 import { soundService } from '../../services/audio/sound-service';
 import { speechService } from '../../services/speech/speech-service';
 import { wakeLockService } from '../../services/wake-lock/wake-lock-service';
 import { useSettingsStore } from '../../stores/settings-store';
 import { useWorkoutStore } from '../../stores/workout-store';
-import { resolveAssetUrl } from '../../utils/assets';
 import { formatClock, formatHumanDuration } from '../../utils/format';
 import { getPhaseDisplayLabel, UI_STRINGS } from '../../utils/i18n';
 
@@ -608,14 +608,18 @@ export const WorkoutPlayerPage: React.FC = () => {
             {(sessionState.phase === 'rest' || sessionState.phase === 'round-rest') &&
             nextExercise ? (
               <>
-                <div className="text-xs font-bold uppercase tracking-wider text-cyan-400">
-                  {t.upNext}: {nextExercise.name[locale]}
+                <div className="flex items-center justify-between gap-2">
+                  <div className="text-xs font-bold uppercase tracking-wider text-cyan-400">
+                    {t.upNext}: {nextExercise.name[locale]}
+                  </div>
+                  <MotionToggleButton locale={locale} variant="dark" />
                 </div>
-                <div className="rounded-2xl overflow-hidden border border-slate-800 bg-slate-950">
-                  <img
-                    src={resolveAssetUrl(nextExercise.media.src)}
-                    alt={nextExercise.media.alt[locale]}
-                    className="w-full h-48 sm:h-56 object-contain mx-auto"
+                <div className="rounded-2xl overflow-hidden border border-slate-800 bg-slate-950 p-1.5">
+                  <ExerciseVisual
+                    media={nextExercise.media}
+                    locale={locale}
+                    staticOnly={sessionState.status === 'paused'}
+                    className="w-full h-48 sm:h-56 object-contain mx-auto rounded-xl"
                   />
                 </div>
                 <div className="space-y-1.5">
@@ -629,14 +633,18 @@ export const WorkoutPlayerPage: React.FC = () => {
               </>
             ) : currentExercise ? (
               <>
-                <div className="text-xs font-bold uppercase tracking-wider text-emerald-400">
-                  {currentExercise.name[locale]}
+                <div className="flex items-center justify-between gap-2">
+                  <div className="text-xs font-bold uppercase tracking-wider text-emerald-400">
+                    {currentExercise.name[locale]}
+                  </div>
+                  <MotionToggleButton locale={locale} variant="dark" />
                 </div>
-                <div className="rounded-2xl overflow-hidden border border-slate-800 bg-slate-950">
-                  <img
-                    src={resolveAssetUrl(currentExercise.media.src)}
-                    alt={currentExercise.media.alt[locale]}
-                    className="w-full h-48 sm:h-56 object-contain mx-auto"
+                <div className="rounded-2xl overflow-hidden border border-slate-800 bg-slate-950 p-1.5">
+                  <ExerciseVisual
+                    media={currentExercise.media}
+                    locale={locale}
+                    staticOnly={sessionState.status === 'paused'}
+                    className="w-full h-48 sm:h-56 object-contain mx-auto rounded-xl"
                   />
                 </div>
                 <div className="space-y-1.5">

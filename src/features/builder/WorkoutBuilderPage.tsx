@@ -95,8 +95,11 @@ const SortableBuilderRow: React.FC<SortableBuilderRowProps> = ({
 
         {exercise && (
           <img
-            src={resolveAssetUrl(exercise.media.src)}
+            src={resolveAssetUrl(exercise.media.posterSrc ?? exercise.media.src)}
             alt={exercise.media.alt[locale]}
+            width={480}
+            height={336}
+            loading="lazy"
             className="w-12 h-10 rounded-lg object-contain bg-slate-950 border border-slate-800 shrink-0"
           />
         )}
@@ -584,8 +587,11 @@ export const WorkoutBuilderPage: React.FC = () => {
               >
                 <div className="flex items-center gap-2.5">
                   <img
-                    src={resolveAssetUrl(ex.media.src)}
+                    src={resolveAssetUrl(ex.media.posterSrc ?? ex.media.src)}
                     alt={ex.media.alt[locale]}
+                    width={480}
+                    height={336}
+                    loading="lazy"
                     className="w-11 h-9 rounded-lg object-contain bg-slate-950 border border-slate-800 shrink-0"
                   />
                   <div>

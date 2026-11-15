@@ -90,7 +90,7 @@ export const UI_STRINGS = {
     exercises: {
       title: 'Visual Exercise Library',
       subtitle:
-        'Explore 24 original SVG-illustrated exercises with step-by-step form coaching, common mistakes, and low-impact regressions.',
+        'Explore 24 animated movement guides with step-by-step form coaching, common mistakes, and low-impact regressions.',
       searchPlaceholder: 'Search exercise name or muscle group...',
       allCategories: 'All Categories',
       allEquipment: 'All Equipment',
@@ -102,6 +102,8 @@ export const UI_STRINGS = {
       defaultTiming: 'Recommended Interval',
       closeDialog: 'Close',
       resultsCount: 'exercises shown',
+      pauseAnimations: 'Pause Animations',
+      playAnimations: 'Play Animations',
     },
     builder: {
       title: 'Workout Builder',
@@ -256,7 +258,7 @@ export const UI_STRINGS = {
     exercises: {
       title: 'Görsel Hareket Kütüphanesi',
       subtitle:
-        'Adım adım uygulanış, sık yapılan hatalar ve düşük etkili alternatifleriyle 24 orijinal SVG illüstrasyonlu egzersiz.',
+        'Adım adım uygulanış, sık yapılan hatalar ve düşük etkili alternatifleriyle 24 hareketli GIF animasyonlu egzersiz.',
       searchPlaceholder: 'Hareket adı veya kas grubu ara...',
       allCategories: 'Tüm Kategoriler',
       allEquipment: 'Tüm Ekipmanlar',
@@ -268,6 +270,8 @@ export const UI_STRINGS = {
       defaultTiming: 'Önerilen Süre',
       closeDialog: 'Kapat',
       resultsCount: 'hareket listeleniyor',
+      pauseAnimations: 'Animasyonları Duraklat',
+      playAnimations: 'Animasyonları Oynat',
     },
     builder: {
       title: 'Antrenman Oluşturucu',

@@ -1,5 +1,6 @@
 import React, { useEffect, useId, useMemo, useRef, useState } from 'react';
 import { AlertTriangle, BookOpen, CheckCircle2, Search, Sparkles, X } from 'lucide-react';
+import { ExerciseVisual, MotionToggleButton } from '../../components/common/ExerciseVisual';
 import { EXERCISES_CATALOG } from '../../data/exercises/catalog';
 import { useSettingsStore } from '../../stores/settings-store';
 import type {
@@ -8,7 +9,6 @@ import type {
   Exercise,
   ExerciseCategory,
 } from '../../types';
-import { resolveAssetUrl } from '../../utils/assets';
 import {
   getCategoryLabel,
   getDifficultyLabel,
@@ -153,9 +153,12 @@ export const ExercisesPage: React.FC = () => {
             ))}
           </div>
 
-          <span className="text-xs font-bold text-muted-token">
-            {filteredExercises.length} {t.resultsCount}
-          </span>
+          <div className="flex flex-wrap items-center gap-3">
+            <MotionToggleButton locale={locale} />
+            <span className="text-xs font-bold text-muted-token">
+              {filteredExercises.length} {t.resultsCount}
+            </span>
+          </div>
         </div>
       </div>
 
@@ -171,12 +174,12 @@ export const ExercisesPage: React.FC = () => {
             className="surface-card rounded-2xl overflow-hidden flex flex-col justify-between hover:border-emerald-500/40 transition-colors"
           >
             <div>
-              <div className="bg-slate-950 border-b border-[var(--border-subtle)] p-2">
-                <img
-                  src={resolveAssetUrl(exercise.media.src)}
-                  alt={exercise.media.alt[locale]}
+              <div className="bg-slate-950 border-b border-[var(--border-subtle)] p-1.5">
+                <ExerciseVisual
+                  media={exercise.media}
+                  locale={locale}
                   loading="lazy"
-                  className="w-full h-44 object-contain mx-auto"
+                  className="w-full h-48 object-contain mx-auto rounded-xl"
                 />
               </div>
 
@@ -254,12 +257,15 @@ export const ExercisesPage: React.FC = () => {
               </button>
             </div>
 
-            <div className="rounded-2xl overflow-hidden bg-slate-950 border border-slate-800 p-3">
-              <img
-                src={resolveAssetUrl(selectedExercise.media.src)}
-                alt={selectedExercise.media.alt[locale]}
-                className="w-full h-56 object-contain mx-auto"
+            <div className="rounded-2xl overflow-hidden bg-slate-950 border border-slate-800 p-2 space-y-2">
+              <ExerciseVisual
+                media={selectedExercise.media}
+                locale={locale}
+                className="w-full h-60 object-contain mx-auto rounded-xl"
               />
+              <div className="flex justify-end px-1 pb-0.5">
+                <MotionToggleButton locale={locale} variant="dark" />
+              </div>
             </div>
 
             <div className="space-y-2">

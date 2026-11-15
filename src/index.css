@@ -176,13 +176,11 @@ dialog::backdrop {
   color: var(--text-muted);
 }
 
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
+.progress-fill {
+  transition: background-color 150ms ease;
+  @media (prefers-reduced-motion: no-preference) {
+    transition:
+      width 120ms linear,
+      background-color 150ms ease;
   }
 }

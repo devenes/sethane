@@ -19,10 +19,11 @@
    - Web Audio API synthesized sound cues (Work, Rest, 3-2-1 Countdown, Completion fanfare) and Web Speech API spoken coaching in **Turkish (`tr`)** and **English (`en`)**.
    - Screen Wake Lock API integration to keep your display awake while training.
 
-2. **Visual Exercise Library (24 Original SVG Illustrations)**
+2. **Visual Exercise Library (24 Animated GIF Demonstrations + Static Posters)**
    - 24 curated exercises across **Bodyweight**, **Dumbbell**, **Core**, **Cardio**, and **Low-Impact** categories.
+   - Smooth 20fps biomechanical movement GIFs (`public/assets/exercises/*.gif`) showing full range-of-motion execution, paired with static peak-form PNG posters (`*-poster.png`), native `prefers-reduced-motion` support, and a WCAG 2.2.2 **Pause / Play Animations** toggle.
    - Step-by-step execution instructions, common mistakes to avoid, and easier/low-impact variations in both English and Turkish.
-   - 100% original MIT-licensed vector SVG illustrations (`public/assets/exercises/*.svg`).
+   - 100% original MIT-licensed visual assets documented in [`ASSETS-LICENSE.md`](./ASSETS-LICENSE.md).
 
 3. **Drag-and-Drop Workout Builder & 5 Ready-Made Programs**
    - Includes **10-Minute Full Body HIIT**, **15-Minute Dumbbell Workout**, **Bodyweight HIIT**, **Beginner Low-Impact HIIT**, and **Tabata Workout**.
@@ -87,4 +88,4 @@ npm run test:e2e
 
 ## License
 
-Application source code is licensed under the [MIT License](./LICENSE). Original SVG exercise illustrations are documented in [ASSETS-LICENSE.md](./ASSETS-LICENSE.md).
+Application source code is licensed under the [MIT License](./LICENSE). Original animated exercise GIFs and static poster illustrations are documented in [ASSETS-LICENSE.md](./ASSETS-LICENSE.md).

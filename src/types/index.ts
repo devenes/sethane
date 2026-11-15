@@ -30,8 +30,9 @@ export interface LocalizedStringList {
 }
 
 export interface ExerciseMedia {
-  type: 'svg' | 'image';
+  type: 'gif' | 'svg' | 'image';
   src: string;
+  posterSrc?: string;
   alt: LocalizedText;
 }
 

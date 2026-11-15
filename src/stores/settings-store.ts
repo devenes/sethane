@@ -40,18 +40,36 @@ export function applyLocaleToDocument(locale: SupportedLocale): void {
   document.documentElement.lang = locale;
 }
 
+export type MotionPreference = 'auto' | 'play' | 'pause';
+
+function getStoredMotionPreference(): MotionPreference {
+  if (typeof window === 'undefined') return 'auto';
+  try {
+    const raw = localStorage.getItem('sethane-motion-preference');
+    if (raw === 'play' || raw === 'pause' || raw === 'auto') {
+      return raw;
+    }
+  } catch {
+    // Ignore storage restriction errors
+  }
+  return 'auto';
+}
+
 interface SettingsStoreState extends UserSettings {
   hydrated: boolean;
+  motionPreference: MotionPreference;
   hydrate: () => Promise<void>;
   updateSettings: (partial: Partial<Omit<UserSettings, 'id'>>) => Promise<void>;
   setLocale: (locale: SupportedLocale) => Promise<void>;
   setTheme: (theme: ThemeMode) => Promise<void>;
+  setMotionPreference: (pref: MotionPreference) => void;
   toggleHeaderColorScheme: () => Promise<void>;
 }
 
 export const useSettingsStore = create<SettingsStoreState>((set, get) => ({
   ...DEFAULT_USER_SETTINGS,
   hydrated: false,
+  motionPreference: getStoredMotionPreference(),
 
   hydrate: async () => {
     try {
@@ -123,6 +141,19 @@ export const useSettingsStore = create<SettingsStoreState>((set, get) => ({
 
   setTheme: async (theme) => {
     await get().updateSettings({ theme });
+  },
+
+  setMotionPreference: (pref) => {
+    try {
+      if (pref === 'auto') {
+        localStorage.removeItem('sethane-motion-preference');
+      } else {
+        localStorage.setItem('sethane-motion-preference', pref);
+      }
+    } catch {
+      // Ignore storage restriction errors
+    }
+    set({ motionPreference: pref });
   },
 
   /**
