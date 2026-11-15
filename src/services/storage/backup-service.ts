@@ -12,6 +12,12 @@ export const WorkoutExerciseItemSchema = z.object({
 export const WorkoutPlanSchema = z.object({
   id: z.string().min(1),
   name: z.string().min(1).max(120),
+  localizedName: z
+    .object({
+      en: z.string(),
+      tr: z.string(),
+    })
+    .optional(),
   description: z
     .object({
       en: z.string(),

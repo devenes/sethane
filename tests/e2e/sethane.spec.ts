@@ -8,9 +8,7 @@ test.describe('SetHane Production Build E2E (/sethane/ subpath)', () => {
     await page.goto('/sethane/');
 
     await expect(page).toHaveTitle(/SetHane/);
-    await expect(page.locator('h1')).toContainText(
-      /Sesli ve Görsel Rehberli Akıllı HIIT Antrenmanı|Train Smarter with Guided HIIT Intervals/
-    );
+    await expect(page.locator('h1')).toContainText(/Antrenman Seç|Ready to Train/);
 
     // Navigate to Exercises page and verify 24 animated GIF exercise demonstrations + Pause/Play toggle
     await page.locator('header nav a[href="#/exercises"]').click();

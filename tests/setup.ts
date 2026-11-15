@@ -1,6 +1,10 @@
 import '@testing-library/jest-dom/vitest';
 import 'fake-indexeddb/auto';
 
+if (typeof window !== 'undefined') {
+  window.scrollTo = () => {};
+}
+
 // Polyfill HTMLDialogElement methods in JSDOM if missing
 if (typeof HTMLDialogElement !== 'undefined') {
   if (!HTMLDialogElement.prototype.showModal) {

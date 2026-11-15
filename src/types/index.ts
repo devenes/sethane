@@ -61,6 +61,7 @@ export interface WorkoutExerciseItem {
 export interface WorkoutPlan {
   id: string;
   name: string;
+  localizedName?: LocalizedText;
   description?: LocalizedText;
   prepareSeconds?: number;
   warmupSeconds: number;

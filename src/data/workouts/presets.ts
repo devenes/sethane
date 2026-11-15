@@ -4,6 +4,10 @@ export const PRESET_WORKOUTS: WorkoutPlan[] = [
   {
     id: 'full-body-hiit-10',
     name: '10-Minute Full Body HIIT',
+    localizedName: {
+      en: '10-Minute Full Body HIIT',
+      tr: '10 Dk Tam Vücut HIIT',
+    },
     description: {
       en: 'Signature 2-round full-body metabolic conditioning combining dumbbell compound lifts and explosive cardio intervals (10:00 active HIIT + optional warm-up & cooldown).',
       tr: 'Dambıl bileşik hareketleri ile patlayıcı kardiyo intervallerini birleştiren 2 turluk tam vücut HIIT antrenmanı (10:00 net HIIT + ısınma ve soğuma).',
@@ -26,6 +30,10 @@ export const PRESET_WORKOUTS: WorkoutPlan[] = [
   {
     id: 'dumbbell-strength-15',
     name: '15-Minute Dumbbell Workout',
+    localizedName: {
+      en: '15-Minute Dumbbell Workout',
+      tr: '15 Dk Dambıl Kuvvet',
+    },
     description: {
       en: 'Three structured rounds of full-body dumbbell hypertrophy and strength intervals with minimal equipment.',
       tr: 'Minimum ekipmanla tüm vücut kaslarını hedefleyen 3 turluk dambıl kuvvet ve kondisyon programı.',
@@ -48,6 +56,10 @@ export const PRESET_WORKOUTS: WorkoutPlan[] = [
   {
     id: 'bodyweight-hiit',
     name: 'Bodyweight HIIT',
+    localizedName: {
+      en: 'Bodyweight HIIT',
+      tr: 'Ekipmansız Tam Vücut HIIT',
+    },
     description: {
       en: 'Zero-equipment high-intensity bodyweight circuit you can run anywhere—home, hotel room, or park.',
       tr: 'Hiçbir ekipman gerektirmeyen; evde, parkta veya seyahatte uygulayabileceğiniz yüksek yoğunluklu vücut ağırlığı serisi.',
@@ -70,6 +82,10 @@ export const PRESET_WORKOUTS: WorkoutPlan[] = [
   {
     id: 'beginner-low-impact-hiit',
     name: 'Beginner Low-Impact HIIT',
+    localizedName: {
+      en: 'Beginner Low-Impact HIIT',
+      tr: 'Sıçramasız Başlangıç HIIT',
+    },
     description: {
       en: 'Apartment-friendly, joint-gentle intervals with zero jumping—ideal for beginners or active recovery days.',
       tr: 'Apartman dostu, eklemleri yormayan ve sıçrama içermeyen başlangıç/aktif dinlenme antrenmanı.',
@@ -93,6 +109,10 @@ export const PRESET_WORKOUTS: WorkoutPlan[] = [
   {
     id: 'tabata-workout',
     name: 'Tabata Workout',
+    localizedName: {
+      en: 'Tabata Protocol (20/10)',
+      tr: 'Tabata Protokolü (20/10)',
+    },
     description: {
       en: 'Classic 20s all-out work / 10s rest protocol across 4 rounds for peak anaerobic conditioning.',
       tr: 'Maksimum anaerobik kapasite için klasik 20 saniye tam efor / 10 saniye dinlenme protokolü (4 tur).',

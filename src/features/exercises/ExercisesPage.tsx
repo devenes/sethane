@@ -1,14 +1,18 @@
-import React, { useEffect, useId, useMemo, useRef, useState } from 'react';
-import { AlertTriangle, BookOpen, CheckCircle2, Search, Sparkles, X } from 'lucide-react';
+import React, { useId, useMemo, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Play, Search, X } from 'lucide-react';
 import { ExerciseVisual, MotionToggleButton } from '../../components/common/ExerciseVisual';
 import { EXERCISES_CATALOG } from '../../data/exercises/catalog';
+import { soundService } from '../../services/audio/sound-service';
 import { useSettingsStore } from '../../stores/settings-store';
+import { useWorkoutStore } from '../../stores/workout-store';
 import type {
   DifficultyLevel,
   EquipmentType,
   Exercise,
   ExerciseCategory,
 } from '../../types';
+import { useLightDismissDialog } from '../../utils/dialog';
 import {
   getCategoryLabel,
   getDifficultyLabel,
@@ -18,11 +22,12 @@ import {
 } from '../../utils/i18n';
 
 export const ExercisesPage: React.FC = () => {
+  const navigate = useNavigate();
   const locale = useSettingsStore((s) => s.locale);
+  const selectWorkoutForPlayer = useWorkoutStore((s) => s.selectWorkoutForPlayer);
   const t = UI_STRINGS[locale].exercises;
 
   const searchInputId = useId();
-  const categorySelectId = useId();
   const equipmentSelectId = useId();
   const difficultySelectId = useId();
   const dialogTitleId = useId();
@@ -34,15 +39,29 @@ export const ExercisesPage: React.FC = () => {
   const [difficultyFilter, setDifficultyFilter] = useState<DifficultyLevel | 'all'>('all');
   const [selectedExercise, setSelectedExercise] = useState<Exercise | null>(null);
 
-  useEffect(() => {
-    const dialog = dialogRef.current;
-    if (!dialog) return;
-    if (selectedExercise && !dialog.open) {
-      dialog.showModal();
-    } else if (!selectedExercise && dialog.open) {
-      dialog.close();
-    }
-  }, [selectedExercise]);
+  useLightDismissDialog(dialogRef, Boolean(selectedExercise));
+
+  const launchSingleExercise = (exercise: Exercise) => {
+    soundService.unlock();
+    setSelectedExercise(null);
+    selectWorkoutForPlayer({
+      id: `single-${exercise.id}-${Date.now()}`,
+      name: `${exercise.name[locale]} (3×)`,
+      prepareSeconds: 5,
+      warmupSeconds: 0,
+      rounds: 3,
+      restBetweenRounds: exercise.defaultRestSeconds,
+      cooldownSeconds: 0,
+      exercises: [
+        {
+          exerciseId: exercise.id,
+          workSeconds: exercise.defaultWorkSeconds,
+          restSeconds: 0,
+        },
+      ],
+    });
+    navigate('/player');
+  };
 
   const filteredExercises = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -70,33 +89,37 @@ export const ExercisesPage: React.FC = () => {
   ];
 
   return (
-    <div className="space-y-6">
-      <div className="space-y-2">
-        <h1 className="text-2xl sm:text-3xl font-black m-0">{t.title}</h1>
-        <p className="text-sm sm:text-base text-muted-token m-0 max-w-3xl">{t.subtitle}</p>
+    <div className="space-y-4">
+      {/* Compact Header + Motion Control */}
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <div className="flex items-baseline gap-2.5">
+          <h1 className="text-xl sm:text-2xl font-black m-0">{t.title}</h1>
+          <span className="text-xs mono-readout text-muted-token">
+            {filteredExercises.length}/{EXERCISES_CATALOG.length}
+          </span>
+        </div>
+        <MotionToggleButton locale={locale} />
       </div>
 
-      {/* Filter Controls */}
-      <div className="surface-card rounded-2xl p-4 space-y-4">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-          <div className="md:col-span-1">
+      {/* Compact Single-Card Filter Strip */}
+      <div className="surface-card rounded-xl p-3 space-y-2.5">
+        <div className="grid grid-cols-1 sm:grid-cols-4 gap-2">
+          <div className="sm:col-span-2 relative">
             <label htmlFor={searchInputId} className="visually-hidden">
               {t.searchPlaceholder}
             </label>
-            <div className="relative">
-              <Search
-                className="w-4 h-4 text-muted-token absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none"
-                aria-hidden="true"
-              />
-              <input
-                id={searchInputId}
-                type="search"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder={t.searchPlaceholder}
-                className="surface-elevated w-full pl-10 pr-4 py-2.5 rounded-xl text-sm"
-              />
-            </div>
+            <Search
+              className="w-3.5 h-3.5 text-muted-token absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"
+              aria-hidden="true"
+            />
+            <input
+              id={searchInputId}
+              type="search"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder={t.searchPlaceholder}
+              className="surface-elevated w-full pl-8.5 pr-3 py-1.5 rounded-lg text-xs font-medium"
+            />
           </div>
 
           <div>
@@ -107,7 +130,7 @@ export const ExercisesPage: React.FC = () => {
               id={equipmentSelectId}
               value={equipmentFilter}
               onChange={(e) => setEquipmentFilter(e.target.value as EquipmentType | 'all')}
-              className="surface-elevated w-full px-3.5 py-2.5 rounded-xl text-sm font-semibold"
+              className="surface-elevated w-full px-2.5 py-1.5 rounded-lg text-xs font-semibold"
             >
               <option value="all">{t.allEquipment}</option>
               <option value="none">{getEquipmentLabel('none', locale)}</option>
@@ -124,7 +147,7 @@ export const ExercisesPage: React.FC = () => {
               id={difficultySelectId}
               value={difficultyFilter}
               onChange={(e) => setDifficultyFilter(e.target.value as DifficultyLevel | 'all')}
-              className="surface-elevated w-full px-3.5 py-2.5 rounded-xl text-sm font-semibold"
+              className="surface-elevated w-full px-2.5 py-1.5 rounded-lg text-xs font-semibold"
             >
               <option value="all">{t.allDifficulty}</option>
               <option value="beginner">{getDifficultyLabel('beginner', locale)}</option>
@@ -134,116 +157,111 @@ export const ExercisesPage: React.FC = () => {
           </div>
         </div>
 
-        <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
-          <div id={categorySelectId} className="flex flex-wrap gap-1.5">
-            {categories.map((cat) => (
-              <button
-                key={cat}
-                type="button"
-                onClick={() => setCategoryFilter(cat)}
-                aria-pressed={categoryFilter === cat}
-                className={`px-3 py-1.5 rounded-xl text-xs font-bold cursor-pointer transition-colors ${
-                  categoryFilter === cat
-                    ? 'bg-emerald-500 text-slate-950'
-                    : 'surface-elevated text-muted-token hover:text-emerald-500'
-                }`}
-              >
-                {cat === 'all' ? t.allCategories : getCategoryLabel(cat, locale)}
-              </button>
-            ))}
-          </div>
-
-          <div className="flex flex-wrap items-center gap-3">
-            <MotionToggleButton locale={locale} />
-            <span className="text-xs font-bold text-muted-token">
-              {filteredExercises.length} {t.resultsCount}
-            </span>
-          </div>
+        <div className="flex flex-wrap gap-1">
+          {categories.map((cat) => (
+            <button
+              key={cat}
+              type="button"
+              onClick={() => setCategoryFilter(cat)}
+              aria-pressed={categoryFilter === cat}
+              className={`px-2.5 py-1 rounded-lg text-xs font-bold cursor-pointer transition-colors ${
+                categoryFilter === cat
+                  ? 'bg-emerald-500 text-slate-950'
+                  : 'surface-elevated text-muted-token hover:text-[var(--text-primary)]'
+              }`}
+            >
+              {cat === 'all' ? t.allCategories : getCategoryLabel(cat, locale)}
+            </button>
+          ))}
         </div>
       </div>
 
-      {/* Exercise Catalog Grid */}
+      {/* Visual-First Exercise Grid */}
       <div
         data-testid="exercise-catalog-grid"
-        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"
+        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3.5"
       >
         {filteredExercises.map((exercise) => (
           <article
             key={exercise.id}
             data-testid={`exercise-card-${exercise.id}`}
-            className="surface-card rounded-2xl overflow-hidden flex flex-col justify-between hover:border-emerald-500/40 transition-colors"
+            className="adaptive-card surface-card rounded-xl overflow-hidden flex flex-col justify-between hover:border-[var(--brand-accent)] transition-colors"
           >
-            <div>
-              <div className="bg-slate-950 border-b border-[var(--border-subtle)] p-1.5">
-                <ExerciseVisual
-                  media={exercise.media}
-                  locale={locale}
-                  loading="lazy"
-                  className="w-full h-48 object-contain mx-auto rounded-xl"
-                />
-              </div>
-
-              <div className="p-4 space-y-3">
-                <div className="flex items-start justify-between gap-2">
-                  <h2 className="text-base font-extrabold m-0">{exercise.name[locale]}</h2>
-                  <span className="shrink-0 px-2 py-0.5 rounded-md bg-emerald-500/15 text-emerald-500 text-[11px] font-bold">
-                    {getDifficultyLabel(exercise.difficulty, locale)}
-                  </span>
-                </div>
-
-                <div className="flex flex-wrap gap-1.5">
-                  <span className="px-2 py-0.5 rounded-md bg-cyan-500/15 text-cyan-500 text-[11px] font-semibold">
-                    {getCategoryLabel(exercise.category, locale)}
-                  </span>
-                  {exercise.muscleGroups.map((m) => (
-                    <span
-                      key={m}
-                      className="surface-elevated px-2 py-0.5 rounded-md text-[11px] font-medium"
-                    >
-                      {getMuscleLabel(m, locale)}
-                    </span>
-                  ))}
-                </div>
-
-                <p className="text-xs text-muted-token m-0 line-clamp-2">
-                  {exercise.instructions[locale][0]}
-                </p>
-              </div>
-            </div>
-
-            <div className="px-4 pb-4 pt-2 flex items-center justify-between border-t border-[var(--border-subtle)]">
-              <span className="text-xs font-bold text-muted-token">
+            {/* Clickable Visual Viewport opens Form Guide */}
+            <button
+              type="button"
+              onClick={() => setSelectedExercise(exercise)}
+              aria-label={`${exercise.name[locale]} — ${t.viewDetails}`}
+              className="relative block w-full bg-[#070b14] border-b border-[var(--border-subtle)] p-1.5 text-left cursor-pointer"
+            >
+              <ExerciseVisual
+                media={exercise.media}
+                locale={locale}
+                loading="lazy"
+                className="w-full aspect-[10/7] object-contain mx-auto rounded-lg"
+              />
+              <span className="absolute bottom-2.5 right-2.5 px-1.5 py-0.5 rounded bg-black/80 border border-slate-800 text-[10px] font-bold mono-readout text-slate-200">
                 {exercise.defaultWorkSeconds}s / {exercise.defaultRestSeconds}s
               </span>
-              <button
-                type="button"
-                onClick={() => setSelectedExercise(exercise)}
-                className="surface-elevated hover:border-emerald-500/50 px-3 py-1.5 rounded-xl text-xs font-bold inline-flex items-center gap-1.5 cursor-pointer"
-              >
-                <BookOpen className="w-3.5 h-3.5 text-emerald-500" aria-hidden="true" />
-                <span>{t.viewDetails}</span>
-              </button>
+            </button>
+
+            <div className="p-3 flex-1 flex flex-col justify-between gap-2.5">
+              <div className="space-y-1.5">
+                <h2 className="text-sm font-extrabold m-0 leading-snug">
+                  {exercise.name[locale]}
+                </h2>
+                <div className="flex flex-wrap items-center gap-1 text-[11px] text-muted-token">
+                  <span className="font-semibold text-[var(--brand-accent)]">
+                    {getCategoryLabel(exercise.category, locale)}
+                  </span>
+                  {exercise.muscleGroups.slice(0, 2).map((m) => (
+                    <span key={m}>· {getMuscleLabel(m, locale)}</span>
+                  ))}
+                </div>
+              </div>
+
+              <footer className="flex items-center gap-1.5 pt-1">
+                <button
+                  type="button"
+                  onClick={() => launchSingleExercise(exercise)}
+                  className="flex-1 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold px-2.5 py-1.5 rounded-lg text-xs inline-flex items-center justify-center gap-1 cursor-pointer transition-colors"
+                >
+                  <Play className="w-3 h-3 fill-current" aria-hidden="true" />
+                  <span>{t.trainSingle}</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setSelectedExercise(exercise)}
+                  className="surface-elevated hover:border-[var(--brand-accent)] px-2.5 py-1.5 rounded-lg text-xs font-bold cursor-pointer transition-colors"
+                >
+                  {t.viewDetails}
+                </button>
+              </footer>
             </div>
           </article>
         ))}
       </div>
 
-      {/* Native Accessible Modal Dialog for Exercise Details */}
+      {/* Light-Dismissable Native Modal Dialog */}
       <dialog
         ref={dialogRef}
+        {...({ closedby: 'any' } as Record<string, unknown>)}
         aria-labelledby={dialogTitleId}
         onClose={() => setSelectedExercise(null)}
-        className="surface-card rounded-3xl p-6 max-w-2xl w-[calc(100%-2rem)] m-auto shadow-2xl"
+        className="surface-card rounded-2xl p-5 max-w-xl w-[calc(100%-1.5rem)] m-auto shadow-2xl"
       >
         {selectedExercise && (
-          <div className="space-y-5">
-            <div className="flex items-start justify-between gap-4">
+          <div className="space-y-4">
+            <div className="flex items-start justify-between gap-3">
               <div>
-                <span className="px-2.5 py-1 rounded-lg bg-emerald-500/15 text-emerald-500 text-xs font-bold">
+                <div className="text-xs font-bold text-[var(--brand-accent)]">
                   {getCategoryLabel(selectedExercise.category, locale)} ·{' '}
-                  {getDifficultyLabel(selectedExercise.difficulty, locale)}
-                </span>
-                <h2 id={dialogTitleId} className="text-2xl font-black m-0 mt-2">
+                  {getDifficultyLabel(selectedExercise.difficulty, locale)} ·{' '}
+                  <span className="mono-readout">
+                    {selectedExercise.defaultWorkSeconds}s/{selectedExercise.defaultRestSeconds}s
+                  </span>
+                </div>
+                <h2 id={dialogTitleId} className="text-xl font-black m-0 mt-0.5">
                   {selectedExercise.name[locale]}
                 </h2>
               </div>
@@ -251,64 +269,79 @@ export const ExercisesPage: React.FC = () => {
                 type="button"
                 onClick={() => setSelectedExercise(null)}
                 aria-label={t.closeDialog}
-                className="surface-elevated p-2 rounded-xl cursor-pointer"
+                className="surface-elevated p-1.5 rounded-lg cursor-pointer"
               >
-                <X className="w-5 h-5" aria-hidden="true" />
+                <X className="w-4 h-4" aria-hidden="true" />
               </button>
             </div>
 
-            <div className="rounded-2xl overflow-hidden bg-slate-950 border border-slate-800 p-2 space-y-2">
+            <div className="rounded-xl overflow-hidden bg-[#070b14] border border-slate-800 p-2 space-y-2">
               <ExerciseVisual
                 media={selectedExercise.media}
                 locale={locale}
-                className="w-full h-60 object-contain mx-auto rounded-xl"
+                className="w-full h-56 sm:h-64 object-contain mx-auto rounded-lg"
               />
-              <div className="flex justify-end px-1 pb-0.5">
+              <div className="flex items-center justify-between px-1 pb-0.5">
+                <div className="flex flex-wrap gap-1">
+                  {selectedExercise.muscleGroups.map((m) => (
+                    <span
+                      key={m}
+                      className="px-2 py-0.5 rounded bg-slate-900 text-slate-300 text-[11px] font-semibold"
+                    >
+                      {getMuscleLabel(m, locale)}
+                    </span>
+                  ))}
+                </div>
                 <MotionToggleButton locale={locale} variant="dark" />
               </div>
             </div>
 
-            <div className="space-y-2">
-              <h3 className="text-sm font-extrabold uppercase tracking-wider text-emerald-500 flex items-center gap-1.5 m-0">
-                <CheckCircle2 className="w-4 h-4" aria-hidden="true" />
-                <span>{t.instructionsTitle}</span>
+            <div className="space-y-1.5">
+              <h3 className="text-xs font-extrabold uppercase tracking-wider text-muted-token m-0">
+                {t.instructionsTitle}
               </h3>
-              <ol className="text-sm space-y-1.5 pl-5 m-0">
+              <ol className="text-sm space-y-1 pl-5 m-0">
                 {selectedExercise.instructions[locale].map((inst, idx) => (
                   <li key={idx}>{inst}</li>
                 ))}
               </ol>
             </div>
 
-            <div className="space-y-2">
-              <h3 className="text-sm font-extrabold uppercase tracking-wider text-amber-500 flex items-center gap-1.5 m-0">
-                <AlertTriangle className="w-4 h-4" aria-hidden="true" />
-                <span>{t.mistakesTitle}</span>
-              </h3>
-              <ul className="text-sm space-y-1.5 pl-5 m-0">
-                {selectedExercise.commonMistakes[locale].map((mistake, idx) => (
-                  <li key={idx}>{mistake}</li>
-                ))}
-              </ul>
-            </div>
-
-            {selectedExercise.easierVariation && (
-              <div className="surface-elevated rounded-2xl p-4 space-y-1">
-                <div className="text-xs font-extrabold uppercase tracking-wider text-cyan-500 flex items-center gap-1.5">
-                  <Sparkles className="w-4 h-4" aria-hidden="true" />
-                  <span>{t.easierTitle}</span>
-                </div>
-                <p className="text-sm m-0">{selectedExercise.easierVariation[locale]}</p>
+            {/* Secondary details collapsed on demand per content-first-noise-reduction */}
+            <details className="surface-elevated rounded-xl px-3.5 py-2.5 text-sm">
+              <summary className="font-bold text-xs cursor-pointer select-none">
+                {t.mistakesTitle}
+                {selectedExercise.easierVariation ? ` & ${t.easierTitle}` : ''}
+              </summary>
+              <div className="pt-2.5 space-y-2.5 text-xs">
+                <ul className="space-y-1 pl-4 m-0">
+                  {selectedExercise.commonMistakes[locale].map((mistake, idx) => (
+                    <li key={idx}>{mistake}</li>
+                  ))}
+                </ul>
+                {selectedExercise.easierVariation && (
+                  <p className="m-0 pt-1.5 border-t border-[var(--border-subtle)]">
+                    <strong>{t.easierTitle}:</strong> {selectedExercise.easierVariation[locale]}
+                  </p>
+                )}
               </div>
-            )}
+            </details>
 
-            <div className="flex justify-end pt-2">
+            <div className="flex items-center justify-end gap-2 pt-1">
               <button
                 type="button"
                 onClick={() => setSelectedExercise(null)}
-                className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold px-5 py-2.5 rounded-xl text-sm cursor-pointer"
+                className="surface-elevated px-4 py-2 rounded-lg text-xs font-bold cursor-pointer"
               >
                 {t.closeDialog}
+              </button>
+              <button
+                type="button"
+                onClick={() => launchSingleExercise(selectedExercise)}
+                className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold px-4 py-2 rounded-lg text-xs inline-flex items-center gap-1.5 cursor-pointer transition-colors"
+              >
+                <Play className="w-3.5 h-3.5 fill-current" aria-hidden="true" />
+                <span>{t.trainSingle}</span>
               </button>
             </div>
           </div>

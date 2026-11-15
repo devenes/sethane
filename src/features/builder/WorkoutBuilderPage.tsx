@@ -26,6 +26,7 @@ import {
   Plus,
   RotateCcw,
   Save,
+  Search,
   Trash2,
 } from 'lucide-react';
 import { calculateWorkoutSummary } from '../../engine/phase-resolver';
@@ -80,15 +81,15 @@ const SortableBuilderRow: React.FC<SortableBuilderRowProps> = ({
       ref={setNodeRef}
       style={style}
       data-testid={`builder-item-${index}`}
-      className="surface-elevated rounded-2xl p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+      className="surface-elevated rounded-xl p-2.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5"
     >
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2.5 min-w-0">
         <button
           type="button"
           {...attributes}
           {...listeners}
           aria-label="Drag to reorder"
-          className="p-2 rounded-lg text-muted-token hover:text-emerald-500 cursor-grab active:cursor-grabbing"
+          className="p-1.5 rounded-lg text-muted-token hover:text-[var(--brand-accent)] cursor-grab active:cursor-grabbing shrink-0"
         >
           <GripVertical className="w-4 h-4" aria-hidden="true" />
         </button>
@@ -100,23 +101,24 @@ const SortableBuilderRow: React.FC<SortableBuilderRowProps> = ({
             width={480}
             height={336}
             loading="lazy"
-            className="w-12 h-10 rounded-lg object-contain bg-slate-950 border border-slate-800 shrink-0"
+            className="w-14 h-10 rounded-md object-contain bg-[#070b14] border border-slate-800 shrink-0"
           />
         )}
 
-        <div>
-          <div className="font-bold text-sm">
-            {index + 1}. {exercise ? exercise.name[locale] : item.exerciseId}
+        <div className="min-w-0">
+          <div className="font-bold text-xs sm:text-sm truncate">
+            <span className="mono-readout text-muted-token mr-1">{index + 1}.</span>
+            {exercise ? exercise.name[locale] : item.exerciseId}
           </div>
           {isLast && (
-            <div className="text-[11px] text-amber-500 font-medium">{t.lastExerciseNoRestNote}</div>
+            <div className="text-[10px] text-muted-token">{t.lastExerciseNoRestNote}</div>
           )}
         </div>
       </div>
 
-      <div className="flex flex-wrap items-center gap-2.5">
-        <div className="flex items-center gap-1.5">
-          <label htmlFor={workInputId} className="text-xs font-semibold text-muted-token">
+      <div className="flex flex-wrap items-center gap-2 shrink-0">
+        <div className="flex items-center gap-1">
+          <label htmlFor={workInputId} className="text-[11px] font-semibold text-muted-token">
             {t.workSec}
           </label>
           <input
@@ -128,12 +130,12 @@ const SortableBuilderRow: React.FC<SortableBuilderRowProps> = ({
             onChange={(e) =>
               onUpdate(item.uid, { workSeconds: Math.max(5, Number(e.target.value) || 5) })
             }
-            className="surface-card w-16 px-2 py-1.5 rounded-lg text-xs font-bold text-center"
+            className="surface-card w-14 px-1.5 py-1 rounded-md text-xs font-bold mono-readout text-center"
           />
         </div>
 
-        <div className="flex items-center gap-1.5">
-          <label htmlFor={restInputId} className="text-xs font-semibold text-muted-token">
+        <div className="flex items-center gap-1">
+          <label htmlFor={restInputId} className="text-[11px] font-semibold text-muted-token">
             {t.restSec}
           </label>
           <input
@@ -146,7 +148,7 @@ const SortableBuilderRow: React.FC<SortableBuilderRowProps> = ({
             onChange={(e) =>
               onUpdate(item.uid, { restSeconds: Math.max(0, Number(e.target.value) || 0) })
             }
-            className="surface-card w-16 px-2 py-1.5 rounded-lg text-xs font-bold text-center disabled:opacity-50"
+            className="surface-card w-14 px-1.5 py-1 rounded-md text-xs font-bold mono-readout text-center disabled:opacity-45"
           />
         </div>
 
@@ -156,7 +158,7 @@ const SortableBuilderRow: React.FC<SortableBuilderRowProps> = ({
             onClick={() => onMove(index, -1)}
             disabled={index === 0}
             aria-label={t.moveUp}
-            className="surface-card p-1.5 rounded-lg disabled:opacity-35 cursor-pointer"
+            className="surface-card p-1.5 rounded-md disabled:opacity-35 cursor-pointer"
           >
             <ArrowUp className="w-3.5 h-3.5" aria-hidden="true" />
           </button>
@@ -165,7 +167,7 @@ const SortableBuilderRow: React.FC<SortableBuilderRowProps> = ({
             onClick={() => onMove(index, 1)}
             disabled={isLast}
             aria-label={t.moveDown}
-            className="surface-card p-1.5 rounded-lg disabled:opacity-35 cursor-pointer"
+            className="surface-card p-1.5 rounded-md disabled:opacity-35 cursor-pointer"
           >
             <ArrowDown className="w-3.5 h-3.5" aria-hidden="true" />
           </button>
@@ -173,7 +175,7 @@ const SortableBuilderRow: React.FC<SortableBuilderRowProps> = ({
             type="button"
             onClick={() => onRemove(item.uid)}
             aria-label={t.removeExercise}
-            className="surface-card p-1.5 rounded-lg text-rose-500 hover:border-rose-500/40 cursor-pointer"
+            className="surface-card p-1.5 rounded-md text-rose-500 hover:border-rose-500/50 cursor-pointer"
           >
             <Trash2 className="w-3.5 h-3.5" aria-hidden="true" />
           </button>
@@ -207,6 +209,7 @@ export const WorkoutBuilderPage: React.FC = () => {
   const cooldownInputId = useId();
   const prepareInputId = useId();
   const presetSelectId = useId();
+  const catalogFilterId = useId();
 
   const initialSource = editingWorkout ?? presets[0]!;
 
@@ -214,7 +217,11 @@ export const WorkoutBuilderPage: React.FC = () => {
     editingWorkout && !editingWorkout.isPreset ? editingWorkout.id : `custom-${Date.now()}`
   );
   const [name, setName] = useState<string>(
-    editingWorkout ? editingWorkout.name : locale === 'tr' ? 'Özel HIIT Antrenmanım' : 'My Custom HIIT'
+    editingWorkout
+      ? editingWorkout.name
+      : locale === 'tr'
+        ? 'Özel HIIT Programım'
+        : 'Custom HIIT'
   );
   const [rounds, setRounds] = useState<number>(initialSource.rounds);
   const [restBetweenRounds, setRestBetweenRounds] = useState<number>(
@@ -224,6 +231,7 @@ export const WorkoutBuilderPage: React.FC = () => {
   const [cooldownSeconds, setCooldownSeconds] = useState<number>(initialSource.cooldownSeconds);
   const [prepareSeconds, setPrepareSeconds] = useState<number>(initialSource.prepareSeconds ?? 5);
   const [items, setItems] = useState<BuilderItem[]>(() => toBuilderItems(initialSource.exercises));
+  const [catalogQuery, setCatalogQuery] = useState('');
   const [savedBanner, setSavedBanner] = useState(false);
 
   const sensors = useSensors(
@@ -249,10 +257,27 @@ export const WorkoutBuilderPage: React.FC = () => {
         restSeconds: idx === items.length - 1 ? 0 : item.restSeconds,
       })),
     }),
-    [cooldownSeconds, items, name, prepareSeconds, restBetweenRounds, rounds, warmupSeconds, workoutId]
+    [
+      cooldownSeconds,
+      items,
+      name,
+      prepareSeconds,
+      restBetweenRounds,
+      rounds,
+      warmupSeconds,
+      workoutId,
+    ]
   );
 
   const summary = useMemo(() => calculateWorkoutSummary(draftWorkout), [draftWorkout]);
+
+  const filteredCatalog = useMemo(() => {
+    const q = catalogQuery.trim().toLowerCase();
+    if (!q) return EXERCISES_CATALOG;
+    return EXERCISES_CATALOG.filter(
+      (ex) => ex.name.en.toLowerCase().includes(q) || ex.name.tr.toLowerCase().includes(q)
+    );
+  }, [catalogQuery]);
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
@@ -302,7 +327,7 @@ export const WorkoutBuilderPage: React.FC = () => {
     const found = presets.find((p) => p.id === presetId);
     if (!found) return;
     setWorkoutId(`custom-${Date.now()}`);
-    setName(`${found.name} (Custom)`);
+    setName(`${found.name} (Copy)`);
     setRounds(found.rounds);
     setRestBetweenRounds(found.restBetweenRounds);
     setWarmupSeconds(found.warmupSeconds);
@@ -315,7 +340,7 @@ export const WorkoutBuilderPage: React.FC = () => {
     if (items.length === 0) return;
     const saved = await saveCustomWorkout(draftWorkout);
     setSavedBanner(true);
-    setTimeout(() => setSavedBanner(false), 3000);
+    setTimeout(() => setSavedBanner(false), 2500);
     if (startImmediately) {
       soundService.unlock();
       selectWorkoutForPlayer(saved);
@@ -324,16 +349,26 @@ export const WorkoutBuilderPage: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <div className="space-y-1">
-          <h1 className="text-2xl sm:text-3xl font-black m-0">{t.title}</h1>
-          <p className="text-sm sm:text-base text-muted-token m-0">{t.subtitle}</p>
+    <div className="space-y-4">
+      {/* Compact Header Bar */}
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <h1 className="text-xl sm:text-2xl font-black m-0">{t.title}</h1>
+          {savedBanner && (
+            <span
+              role="status"
+              data-testid="builder-saved-toast"
+              className="px-2.5 py-1 rounded-lg bg-emerald-500/15 border border-emerald-500/40 text-[var(--brand-accent)] text-xs font-bold inline-flex items-center gap-1"
+            >
+              <CheckCircle2 className="w-3.5 h-3.5" aria-hidden="true" />
+              <span>{t.savedSuccess}</span>
+            </span>
+          )}
         </div>
 
-        <div className="flex items-center gap-2">
-          <label htmlFor={presetSelectId} className="text-xs font-bold text-muted-token">
-            {t.loadPresetLabel}:
+        <div className="flex flex-wrap items-center gap-2">
+          <label htmlFor={presetSelectId} className="visually-hidden">
+            {t.loadPresetLabel}
           </label>
           <select
             id={presetSelectId}
@@ -341,10 +376,10 @@ export const WorkoutBuilderPage: React.FC = () => {
             onChange={(e) => {
               if (e.target.value) handleLoadPreset(e.target.value);
             }}
-            className="surface-card px-3 py-2 rounded-xl text-xs font-bold"
+            className="surface-card px-2.5 py-1.5 rounded-lg text-xs font-bold"
           >
             <option value="" disabled>
-              -- Select --
+              {t.loadPresetLabel}...
             </option>
             {presets.map((p) => (
               <option key={p.id} value={p.id}>
@@ -352,25 +387,36 @@ export const WorkoutBuilderPage: React.FC = () => {
               </option>
             ))}
           </select>
+
+          <button
+            type="button"
+            disabled={items.length === 0}
+            onClick={() => void handleSave(false)}
+            data-testid="builder-save-btn"
+            className="surface-card hover:border-[var(--brand-accent)] disabled:opacity-40 font-bold px-3 py-1.5 rounded-lg text-xs inline-flex items-center gap-1.5 cursor-pointer"
+          >
+            <Save className="w-3.5 h-3.5 text-[var(--brand-accent)]" aria-hidden="true" />
+            <span>{t.saveWorkout}</span>
+          </button>
+
+          <button
+            type="button"
+            disabled={items.length === 0}
+            onClick={() => void handleSave(true)}
+            data-testid="builder-save-start-btn"
+            className="bg-emerald-500 hover:bg-emerald-400 disabled:opacity-40 text-slate-950 font-extrabold px-3.5 py-1.5 rounded-lg text-xs inline-flex items-center gap-1.5 cursor-pointer"
+          >
+            <Play className="w-3.5 h-3.5 fill-current" aria-hidden="true" />
+            <span>{t.saveAndStart}</span>
+          </button>
         </div>
       </div>
 
-      {savedBanner && (
-        <div
-          role="status"
-          data-testid="builder-saved-toast"
-          className="rounded-2xl bg-emerald-500/15 border border-emerald-500/40 text-emerald-400 px-4 py-3 text-sm font-bold flex items-center gap-2"
-        >
-          <CheckCircle2 className="w-4 h-4" aria-hidden="true" />
-          <span>{t.savedSuccess}</span>
-        </div>
-      )}
-
-      {/* Program Settings & Duration Preview */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 surface-card rounded-2xl p-5 space-y-4">
-          <div>
-            <label htmlFor={nameInputId} className="block text-xs font-bold mb-1.5">
+      {/* Compact Timing & Summary Strip */}
+      <div className="surface-card rounded-xl p-3.5 space-y-3">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 items-end">
+          <div className="lg:col-span-4">
+            <label htmlFor={nameInputId} className="block text-[11px] font-bold text-muted-token mb-1">
               {t.workoutNameLabel}
             </label>
             <input
@@ -380,14 +426,14 @@ export const WorkoutBuilderPage: React.FC = () => {
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder={t.workoutNamePlaceholder}
-              className="surface-elevated w-full px-3.5 py-2.5 rounded-xl font-bold text-base"
+              className="surface-elevated w-full px-3 py-1.5 rounded-lg font-bold text-sm"
               required
             />
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+          <div className="lg:col-span-5 grid grid-cols-5 gap-2">
             <div>
-              <label htmlFor={roundsInputId} className="block text-xs font-semibold mb-1">
+              <label htmlFor={roundsInputId} className="block text-[11px] font-semibold text-muted-token mb-1 truncate">
                 {t.roundsLabel}
               </label>
               <input
@@ -398,15 +444,12 @@ export const WorkoutBuilderPage: React.FC = () => {
                 max={30}
                 value={rounds}
                 onChange={(e) => setRounds(Math.max(1, Number(e.target.value) || 1))}
-                className="surface-elevated w-full px-3 py-2 rounded-xl font-bold text-sm"
+                className="surface-elevated w-full px-2 py-1.5 rounded-lg font-bold mono-readout text-xs text-center"
               />
             </div>
 
             <div>
-              <label
-                htmlFor={restBetweenRoundsInputId}
-                className="block text-xs font-semibold mb-1"
-              >
+              <label htmlFor={restBetweenRoundsInputId} className="block text-[11px] font-semibold text-muted-token mb-1 truncate">
                 {t.restBetweenRoundsLabel}
               </label>
               <input
@@ -416,12 +459,12 @@ export const WorkoutBuilderPage: React.FC = () => {
                 max={600}
                 value={restBetweenRounds}
                 onChange={(e) => setRestBetweenRounds(Math.max(0, Number(e.target.value) || 0))}
-                className="surface-elevated w-full px-3 py-2 rounded-xl font-bold text-sm"
+                className="surface-elevated w-full px-2 py-1.5 rounded-lg font-bold mono-readout text-xs text-center"
               />
             </div>
 
             <div>
-              <label htmlFor={warmupInputId} className="block text-xs font-semibold mb-1">
+              <label htmlFor={warmupInputId} className="block text-[11px] font-semibold text-muted-token mb-1 truncate">
                 {t.warmupLabel}
               </label>
               <input
@@ -431,12 +474,12 @@ export const WorkoutBuilderPage: React.FC = () => {
                 max={1800}
                 value={warmupSeconds}
                 onChange={(e) => setWarmupSeconds(Math.max(0, Number(e.target.value) || 0))}
-                className="surface-elevated w-full px-3 py-2 rounded-xl font-bold text-sm"
+                className="surface-elevated w-full px-2 py-1.5 rounded-lg font-bold mono-readout text-xs text-center"
               />
             </div>
 
             <div>
-              <label htmlFor={cooldownInputId} className="block text-xs font-semibold mb-1">
+              <label htmlFor={cooldownInputId} className="block text-[11px] font-semibold text-muted-token mb-1 truncate">
                 {t.cooldownLabel}
               </label>
               <input
@@ -446,12 +489,12 @@ export const WorkoutBuilderPage: React.FC = () => {
                 max={1800}
                 value={cooldownSeconds}
                 onChange={(e) => setCooldownSeconds(Math.max(0, Number(e.target.value) || 0))}
-                className="surface-elevated w-full px-3 py-2 rounded-xl font-bold text-sm"
+                className="surface-elevated w-full px-2 py-1.5 rounded-lg font-bold mono-readout text-xs text-center"
               />
             </div>
 
             <div>
-              <label htmlFor={prepareInputId} className="block text-xs font-semibold mb-1">
+              <label htmlFor={prepareInputId} className="block text-[11px] font-semibold text-muted-token mb-1 truncate">
                 {t.prepareLabel}
               </label>
               <input
@@ -461,76 +504,33 @@ export const WorkoutBuilderPage: React.FC = () => {
                 max={60}
                 value={prepareSeconds}
                 onChange={(e) => setPrepareSeconds(Math.max(0, Number(e.target.value) || 0))}
-                className="surface-elevated w-full px-3 py-2 rounded-xl font-bold text-sm"
+                className="surface-elevated w-full px-2 py-1.5 rounded-lg font-bold mono-readout text-xs text-center"
               />
             </div>
           </div>
-        </div>
 
-        {/* Live Summary Card */}
-        <div className="surface-card rounded-2xl p-5 flex flex-col justify-between gap-4">
-          <div className="space-y-3">
-            <div className="surface-elevated rounded-xl p-3">
-              <div className="text-xs font-semibold text-muted-token">{t.summaryCoreHiit}</div>
-              <div
-                data-testid="builder-summary-core"
-                className="text-2xl font-black text-emerald-500"
-              >
+          <div className="lg:col-span-3 flex items-center justify-between gap-2 surface-elevated rounded-lg px-3 py-1.5 text-xs mono-readout">
+            <div>
+              <span className="text-muted-token">{t.summaryCoreHiit}: </span>
+              <strong data-testid="builder-summary-core" className="text-[var(--brand-accent)]">
                 {formatHumanDuration(summary.coreHiitSeconds, locale)}
-              </div>
+              </strong>
             </div>
-
-            <div className="grid grid-cols-2 gap-2.5">
-              <div className="surface-elevated rounded-xl p-3">
-                <div className="text-[11px] font-semibold text-muted-token">
-                  {t.summaryTotalTime}
-                </div>
-                <div data-testid="builder-summary-total" className="text-base font-extrabold">
-                  {formatHumanDuration(summary.totalSeconds, locale)}
-                </div>
-              </div>
-
-              <div className="surface-elevated rounded-xl p-3">
-                <div className="text-[11px] font-semibold text-muted-token">
-                  {t.summaryTotalSteps}
-                </div>
-                <div className="text-base font-extrabold">{summary.totalSteps}</div>
-              </div>
+            <div>
+              <span className="text-muted-token">{t.summaryTotalTime}: </span>
+              <strong data-testid="builder-summary-total">
+                {formatHumanDuration(summary.totalSeconds, locale)}
+              </strong>
             </div>
-          </div>
-
-          <div className="flex flex-wrap gap-2">
-            <button
-              type="button"
-              disabled={items.length === 0}
-              onClick={() => void handleSave(false)}
-              data-testid="builder-save-btn"
-              className="flex-1 surface-elevated hover:border-emerald-500/50 disabled:opacity-40 font-bold px-4 py-2.5 rounded-xl text-xs inline-flex items-center justify-center gap-1.5 cursor-pointer"
-            >
-              <Save className="w-4 h-4 text-emerald-500" aria-hidden="true" />
-              <span>{t.saveWorkout}</span>
-            </button>
-
-            <button
-              type="button"
-              disabled={items.length === 0}
-              onClick={() => void handleSave(true)}
-              data-testid="builder-save-start-btn"
-              className="flex-1 bg-emerald-500 hover:bg-emerald-400 disabled:opacity-40 text-slate-950 font-extrabold px-4 py-2.5 rounded-xl text-xs inline-flex items-center justify-center gap-1.5 cursor-pointer"
-            >
-              <Play className="w-4 h-4 fill-current" aria-hidden="true" />
-              <span>{t.saveAndStart}</span>
-            </button>
           </div>
         </div>
       </div>
 
-      {/* Sequence & Catalog Split View */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Selected Exercises Sequence */}
-        <section className="lg:col-span-7 surface-card rounded-2xl p-5 space-y-4">
+      {/* Sequence & Visual Catalog Split View */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+        <section className="lg:col-span-7 surface-card rounded-xl p-4 space-y-3">
           <div className="flex items-center justify-between">
-            <h2 className="text-lg font-extrabold m-0">
+            <h2 className="text-sm font-extrabold uppercase tracking-wider text-muted-token m-0">
               {t.selectedExercisesHeading} ({items.length})
             </h2>
             <button
@@ -538,13 +538,13 @@ export const WorkoutBuilderPage: React.FC = () => {
               onClick={() => setItems([])}
               className="text-xs font-semibold text-muted-token hover:text-rose-500 inline-flex items-center gap-1 cursor-pointer"
             >
-              <RotateCcw className="w-3.5 h-3.5" aria-hidden="true" />
+              <RotateCcw className="w-3 h-3" aria-hidden="true" />
               <span>{t.resetForm}</span>
             </button>
           </div>
 
           {items.length === 0 ? (
-            <p className="text-sm text-amber-500 font-semibold py-6 text-center m-0">
+            <p className="text-xs text-muted-token font-semibold py-8 text-center m-0">
               {t.emptySequenceWarning}
             </p>
           ) : (
@@ -557,7 +557,7 @@ export const WorkoutBuilderPage: React.FC = () => {
                 items={items.map((i) => i.uid)}
                 strategy={verticalListSortingStrategy}
               >
-                <div className="space-y-2.5">
+                <div className="space-y-2">
                   {items.map((item, idx) => (
                     <SortableBuilderRow
                       key={item.uid}
@@ -576,27 +576,50 @@ export const WorkoutBuilderPage: React.FC = () => {
           )}
         </section>
 
-        {/* Catalog Picker */}
-        <section className="lg:col-span-5 surface-card rounded-2xl p-5 space-y-4">
-          <h2 className="text-lg font-extrabold m-0">{t.addExercisesHeading}</h2>
-          <div className="space-y-2 max-h-[540px] overflow-y-auto pr-1">
-            {EXERCISES_CATALOG.map((ex) => (
+        {/* Visual Catalog Picker with Instant Search */}
+        <section className="lg:col-span-5 surface-card rounded-xl p-4 space-y-3">
+          <div className="flex items-center justify-between gap-2">
+            <h2 className="text-sm font-extrabold uppercase tracking-wider text-muted-token m-0">
+              {t.addExercisesHeading}
+            </h2>
+          </div>
+
+          <div className="relative">
+            <label htmlFor={catalogFilterId} className="visually-hidden">
+              {t.searchCatalogPlaceholder}
+            </label>
+            <Search
+              className="w-3.5 h-3.5 text-muted-token absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"
+              aria-hidden="true"
+            />
+            <input
+              id={catalogFilterId}
+              type="search"
+              value={catalogQuery}
+              onChange={(e) => setCatalogQuery(e.target.value)}
+              placeholder={t.searchCatalogPlaceholder}
+              className="surface-elevated w-full pl-8.5 pr-3 py-1.5 rounded-lg text-xs"
+            />
+          </div>
+
+          <div className="space-y-1.5 max-h-[520px] overflow-y-auto pr-1">
+            {filteredCatalog.map((ex) => (
               <div
                 key={ex.id}
-                className="surface-elevated rounded-xl p-2.5 flex items-center justify-between gap-2"
+                className="surface-elevated rounded-lg p-2 flex items-center justify-between gap-2"
               >
-                <div className="flex items-center gap-2.5">
+                <div className="flex items-center gap-2.5 min-w-0">
                   <img
                     src={resolveAssetUrl(ex.media.posterSrc ?? ex.media.src)}
                     alt={ex.media.alt[locale]}
                     width={480}
                     height={336}
                     loading="lazy"
-                    className="w-11 h-9 rounded-lg object-contain bg-slate-950 border border-slate-800 shrink-0"
+                    className="w-14 h-10 rounded-md object-contain bg-[#070b14] border border-slate-800 shrink-0"
                   />
-                  <div>
-                    <div className="text-xs font-bold">{ex.name[locale]}</div>
-                    <div className="text-[11px] text-muted-token">
+                  <div className="min-w-0">
+                    <div className="text-xs font-bold truncate">{ex.name[locale]}</div>
+                    <div className="text-[10px] mono-readout text-muted-token">
                       {getCategoryLabel(ex.category, locale)} · {ex.defaultWorkSeconds}s/
                       {ex.defaultRestSeconds}s
                     </div>
@@ -607,10 +630,9 @@ export const WorkoutBuilderPage: React.FC = () => {
                   onClick={() => handleAddExercise(ex.id)}
                   data-testid={`add-exercise-${ex.id}`}
                   aria-label={`Add ${ex.name[locale]}`}
-                  className="bg-emerald-500/15 hover:bg-emerald-500 text-emerald-500 hover:text-slate-950 font-bold px-2.5 py-1.5 rounded-lg text-xs inline-flex items-center gap-1 cursor-pointer transition-colors"
+                  className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold p-2 rounded-lg text-xs inline-flex items-center justify-center cursor-pointer transition-colors shrink-0"
                 >
                   <Plus className="w-3.5 h-3.5" aria-hidden="true" />
-                  <span>Add</span>
                 </button>
               </div>
             ))}

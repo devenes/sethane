@@ -90,7 +90,7 @@ describe('UI Integration — Dashboard, Localization & Exercise Catalog', () => 
     render(<App />);
 
     expect(
-      await screen.findByRole('heading', { name: /Train Smarter with Guided HIIT Intervals/i })
+      await screen.findByRole('heading', { name: /Ready to Train/i })
     ).toBeInTheDocument();
 
     // Switch to Turkish
@@ -99,7 +99,7 @@ describe('UI Integration — Dashboard, Localization & Exercise Catalog', () => 
 
     expect(
       await screen.findByRole('heading', {
-        name: /Sesli ve Görsel Rehberli Akıllı HIIT Antrenmanı/i,
+        name: /Antrenman Seç/i,
       })
     ).toBeInTheDocument();
 

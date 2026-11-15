@@ -1,6 +1,7 @@
-import React, { useEffect, useId, useRef, useState } from 'react';
-import { Play, Timer, X } from 'lucide-react';
+import React, { useId, useRef, useState } from 'react';
+import { Play, X } from 'lucide-react';
 import type { SupportedLocale, WorkoutPlan } from '../../types';
+import { useLightDismissDialog } from '../../utils/dialog';
 import { UI_STRINGS } from '../../utils/i18n';
 
 interface QuickTimerModalProps {
@@ -9,6 +10,13 @@ interface QuickTimerModalProps {
   onClose: () => void;
   onStartQuickWorkout: (workout: WorkoutPlan) => void;
 }
+
+const QUICK_PRESETS = [
+  { label: '20/10 ×8', work: 20, rest: 10, rounds: 8 },
+  { label: '35/15 ×6', work: 35, rest: 15, rounds: 6 },
+  { label: '40/20 ×5', work: 40, rest: 20, rounds: 5 },
+  { label: '45/15 ×4', work: 45, rest: 15, rounds: 4 },
+] as const;
 
 export const QuickTimerModal: React.FC<QuickTimerModalProps> = ({
   open,
@@ -30,30 +38,17 @@ export const QuickTimerModal: React.FC<QuickTimerModalProps> = ({
 
   const t = UI_STRINGS[locale].quickTimer;
 
-  useEffect(() => {
-    const dialog = dialogRef.current;
-    if (!dialog) return;
+  useLightDismissDialog(dialogRef, open);
 
-    if (open && !dialog.open) {
-      dialog.showModal();
-    } else if (!open && dialog.open) {
-      dialog.close();
-    }
-  }, [open]);
-
-  const handleLaunch = (e: React.FormEvent) => {
-    e.preventDefault();
-    const safeWork = Math.max(5, Math.min(600, workSeconds));
-    const safeRest = Math.max(0, Math.min(600, restSeconds));
-    const safeRounds = Math.max(1, Math.min(50, rounds));
-    const safePrep = Math.max(0, Math.min(60, prepareSeconds));
+  const launchWith = (w: number, r: number, rnd: number, prep: number) => {
+    const safeWork = Math.max(5, Math.min(600, w));
+    const safeRest = Math.max(0, Math.min(600, r));
+    const safeRounds = Math.max(1, Math.min(50, rnd));
+    const safePrep = Math.max(0, Math.min(60, prep));
 
     const quickWorkout: WorkoutPlan = {
       id: `quick-hiit-${Date.now()}`,
-      name:
-        locale === 'tr'
-          ? `Hızlı HIIT (${safeRounds}× ${safeWork}sn/${safeRest}sn)`
-          : `Quick HIIT (${safeRounds}× ${safeWork}s/${safeRest}s)`,
+      name: `${safeRounds}× ${safeWork}s/${safeRest}s`,
       prepareSeconds: safePrep,
       warmupSeconds: 0,
       rounds: safeRounds,
@@ -72,39 +67,59 @@ export const QuickTimerModal: React.FC<QuickTimerModalProps> = ({
     onStartQuickWorkout(quickWorkout);
   };
 
+  const handleLaunch = (e: React.FormEvent) => {
+    e.preventDefault();
+    launchWith(workSeconds, restSeconds, rounds, prepareSeconds);
+  };
+
   return (
     <dialog
       ref={dialogRef}
+      {...({ closedby: 'any' } as Record<string, unknown>)}
       aria-labelledby={titleId}
       onClose={onClose}
-      className="surface-card rounded-2xl p-6 max-w-md w-[calc(100%-2rem)] m-auto shadow-2xl"
+      className="surface-card rounded-xl p-5 max-w-sm w-[calc(100%-2rem)] m-auto shadow-2xl"
     >
-      <div className="flex items-start justify-between gap-4 mb-4">
-        <div className="flex items-center gap-2.5">
-          <span className="p-2 rounded-xl bg-emerald-500/15 text-emerald-500">
-            <Timer className="w-5 h-5" aria-hidden="true" />
-          </span>
-          <div>
-            <h2 id={titleId} className="text-lg font-bold m-0">
-              {t.title}
-            </h2>
-            <p className="text-xs text-muted-token m-0 mt-0.5">{t.subtitle}</p>
-          </div>
-        </div>
+      <div className="flex items-center justify-between gap-3 mb-3">
+        <h2 id={titleId} className="text-base font-extrabold m-0">
+          {t.title}
+        </h2>
         <button
           type="button"
           onClick={onClose}
           aria-label={t.cancel}
-          className="surface-elevated p-2 rounded-xl cursor-pointer"
+          className="surface-elevated p-1.5 rounded-lg cursor-pointer"
         >
           <X className="w-4 h-4" aria-hidden="true" />
         </button>
       </div>
 
-      <form onSubmit={handleLaunch} className="space-y-4">
-        <div className="grid grid-cols-2 gap-3">
+      {/* 1-Tap Quick Presets */}
+      <div className="grid grid-cols-4 gap-1.5 mb-4">
+        {QUICK_PRESETS.map((p) => (
+          <button
+            key={p.label}
+            type="button"
+            onClick={() => {
+              setWorkSeconds(p.work);
+              setRestSeconds(p.rest);
+              setRounds(p.rounds);
+            }}
+            className={`py-1.5 px-1 rounded-lg text-[11px] font-bold mono-readout cursor-pointer border transition-colors ${
+              workSeconds === p.work && restSeconds === p.rest && rounds === p.rounds
+                ? 'border-[var(--brand-accent)] text-[var(--brand-accent)] surface-elevated'
+                : 'surface-elevated text-muted-token hover:text-[var(--text-primary)]'
+            }`}
+          >
+            {p.label}
+          </button>
+        ))}
+      </div>
+
+      <form onSubmit={handleLaunch} className="space-y-3.5">
+        <div className="grid grid-cols-2 gap-2.5">
           <div>
-            <label htmlFor={workInputId} className="block text-xs font-semibold mb-1">
+            <label htmlFor={workInputId} className="block text-xs font-semibold text-muted-token mb-1">
               {t.workSeconds}
             </label>
             <input
@@ -114,12 +129,12 @@ export const QuickTimerModal: React.FC<QuickTimerModalProps> = ({
               max={600}
               value={workSeconds}
               onChange={(e) => setWorkSeconds(Number(e.target.value))}
-              className="surface-elevated w-full px-3 py-2 rounded-xl font-bold text-base"
+              className="surface-elevated w-full px-3 py-2 rounded-lg font-bold mono-readout text-sm"
               required
             />
           </div>
           <div>
-            <label htmlFor={restInputId} className="block text-xs font-semibold mb-1">
+            <label htmlFor={restInputId} className="block text-xs font-semibold text-muted-token mb-1">
               {t.restSeconds}
             </label>
             <input
@@ -129,12 +144,12 @@ export const QuickTimerModal: React.FC<QuickTimerModalProps> = ({
               max={600}
               value={restSeconds}
               onChange={(e) => setRestSeconds(Number(e.target.value))}
-              className="surface-elevated w-full px-3 py-2 rounded-xl font-bold text-base"
+              className="surface-elevated w-full px-3 py-2 rounded-lg font-bold mono-readout text-sm"
               required
             />
           </div>
           <div>
-            <label htmlFor={roundsInputId} className="block text-xs font-semibold mb-1">
+            <label htmlFor={roundsInputId} className="block text-xs font-semibold text-muted-token mb-1">
               {t.rounds}
             </label>
             <input
@@ -144,12 +159,12 @@ export const QuickTimerModal: React.FC<QuickTimerModalProps> = ({
               max={50}
               value={rounds}
               onChange={(e) => setRounds(Number(e.target.value))}
-              className="surface-elevated w-full px-3 py-2 rounded-xl font-bold text-base"
+              className="surface-elevated w-full px-3 py-2 rounded-lg font-bold mono-readout text-sm"
               required
             />
           </div>
           <div>
-            <label htmlFor={prepInputId} className="block text-xs font-semibold mb-1">
+            <label htmlFor={prepInputId} className="block text-xs font-semibold text-muted-token mb-1">
               {t.prepareSeconds}
             </label>
             <input
@@ -159,25 +174,25 @@ export const QuickTimerModal: React.FC<QuickTimerModalProps> = ({
               max={60}
               value={prepareSeconds}
               onChange={(e) => setPrepareSeconds(Number(e.target.value))}
-              className="surface-elevated w-full px-3 py-2 rounded-xl font-bold text-base"
+              className="surface-elevated w-full px-3 py-2 rounded-lg font-bold mono-readout text-sm"
               required
             />
           </div>
         </div>
 
-        <div className="flex items-center justify-end gap-2 pt-2">
+        <div className="flex items-center justify-end gap-2 pt-1">
           <button
             type="button"
             onClick={onClose}
-            className="surface-elevated px-4 py-2.5 rounded-xl text-sm font-semibold cursor-pointer"
+            className="surface-elevated px-3.5 py-2 rounded-lg text-xs font-semibold cursor-pointer"
           >
             {t.cancel}
           </button>
           <button
             type="submit"
-            className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold px-5 py-2.5 rounded-xl text-sm inline-flex items-center gap-2 cursor-pointer transition-colors"
+            className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold px-4 py-2 rounded-lg text-xs inline-flex items-center gap-1.5 cursor-pointer transition-colors"
           >
-            <Play className="w-4 h-4 fill-current" aria-hidden="true" />
+            <Play className="w-3.5 h-3.5 fill-current" aria-hidden="true" />
             <span>{t.launch}</span>
           </button>
         </div>

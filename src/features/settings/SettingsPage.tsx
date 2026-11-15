@@ -1,13 +1,5 @@
 import React, { useEffect, useId, useRef, useState } from 'react';
-import {
-  AlertCircle,
-  CheckCircle2,
-  Download,
-  Globe,
-  Trash2,
-  Upload,
-  Volume2,
-} from 'lucide-react';
+import { AlertCircle, CheckCircle2, Download, Trash2, Upload, Volume2 } from 'lucide-react';
 import { soundService } from '../../services/audio/sound-service';
 import { speechService } from '../../services/speech/speech-service';
 import {
@@ -63,9 +55,7 @@ export const SettingsPage: React.FC = () => {
     soundService.unlock();
     soundService.playWorkStart(soundVolume);
     speechService.speak(
-      locale === 'tr'
-        ? 'SetHane ses ve konuşma testi başarılı!'
-        : 'SetHane audio and speech test successful!',
+      locale === 'tr' ? 'Ses testi hazır.' : 'Audio check ready.',
       { locale, voiceURI: preferredVoiceURI, volume: soundVolume }
     );
   };
@@ -98,7 +88,7 @@ export const SettingsPage: React.FC = () => {
       await hydrateWorkouts();
       setStatusMessage({
         type: 'success',
-        text: `${t.importSuccess} (${result.workoutsImported} workouts, ${result.historyImported} history items)`,
+        text: `${t.importSuccess} (${result.workoutsImported})`,
       });
     } else {
       setStatusMessage({
@@ -109,19 +99,16 @@ export const SettingsPage: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6 max-w-4xl">
-      <div className="space-y-1">
-        <h1 className="text-2xl sm:text-3xl font-black m-0">{t.title}</h1>
-        <p className="text-sm sm:text-base text-muted-token m-0">{t.subtitle}</p>
-      </div>
+    <div className="space-y-4 max-w-2xl">
+      <h1 className="text-xl sm:text-2xl font-black m-0">{t.title}</h1>
 
       {statusMessage && (
         <div
           role={statusMessage.type === 'error' ? 'alert' : 'status'}
           data-testid="settings-status-banner"
-          className={`rounded-2xl px-4 py-3 text-sm font-bold flex items-center gap-2 border ${
+          className={`rounded-xl px-3.5 py-2.5 text-xs font-bold flex items-center gap-2 border ${
             statusMessage.type === 'success'
-              ? 'bg-emerald-500/15 border-emerald-500/40 text-emerald-400'
+              ? 'bg-emerald-500/15 border-emerald-500/40 text-[var(--brand-accent)]'
               : 'bg-rose-500/15 border-rose-500/40 text-rose-400'
           }`}
         >
@@ -135,15 +122,14 @@ export const SettingsPage: React.FC = () => {
       )}
 
       {/* Appearance & Localization */}
-      <section className="surface-card rounded-2xl p-5 space-y-4">
-        <h2 className="text-lg font-extrabold m-0 flex items-center gap-2">
-          <Globe className="w-5 h-5 text-emerald-500" aria-hidden="true" />
-          <span>{t.appearanceHeading}</span>
+      <section className="surface-card rounded-xl p-4 space-y-3">
+        <h2 className="text-xs font-extrabold uppercase tracking-wider text-muted-token m-0">
+          {t.appearanceHeading}
         </h2>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
-            <label htmlFor={langSelectId} className="block text-xs font-bold mb-1.5">
+            <label htmlFor={langSelectId} className="block text-xs font-bold mb-1">
               {t.languageLabel}
             </label>
             <select
@@ -151,15 +137,15 @@ export const SettingsPage: React.FC = () => {
               data-testid="settings-locale-select"
               value={locale}
               onChange={(e) => void setLocale(e.target.value as SupportedLocale)}
-              className="surface-elevated w-full px-3.5 py-2.5 rounded-xl text-sm font-semibold"
+              className="surface-elevated w-full px-3 py-2 rounded-lg text-xs font-semibold"
             >
-              <option value="tr">Türkçe (TR)</option>
-              <option value="en">English (EN)</option>
+              <option value="tr">Türkçe</option>
+              <option value="en">English</option>
             </select>
           </div>
 
           <div>
-            <label htmlFor={themeSelectId} className="block text-xs font-bold mb-1.5">
+            <label htmlFor={themeSelectId} className="block text-xs font-bold mb-1">
               {t.themeLabel}
             </label>
             <select
@@ -167,7 +153,7 @@ export const SettingsPage: React.FC = () => {
               data-testid="settings-theme-select"
               value={theme}
               onChange={(e) => void setTheme(e.target.value as ThemeMode)}
-              className="surface-elevated w-full px-3.5 py-2.5 rounded-xl text-sm font-semibold"
+              className="surface-elevated w-full px-3 py-2 rounded-lg text-xs font-semibold"
             >
               <option value="system">{t.themeSystem}</option>
               <option value="light">{t.themeLight}</option>
@@ -178,65 +164,64 @@ export const SettingsPage: React.FC = () => {
       </section>
 
       {/* Audio & Voice Settings */}
-      <section className="surface-card rounded-2xl p-5 space-y-4">
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <h2 className="text-lg font-extrabold m-0 flex items-center gap-2">
-            <Volume2 className="w-5 h-5 text-cyan-500" aria-hidden="true" />
-            <span>{t.audioHeading}</span>
+      <section className="surface-card rounded-xl p-4 space-y-3">
+        <div className="flex items-center justify-between gap-2">
+          <h2 className="text-xs font-extrabold uppercase tracking-wider text-muted-token m-0">
+            {t.audioHeading}
           </h2>
-
           <button
             type="button"
             onClick={handleTestAudio}
-            className="surface-elevated hover:border-emerald-500/50 px-3.5 py-2 rounded-xl text-xs font-bold cursor-pointer"
+            className="surface-elevated hover:border-[var(--brand-accent)] px-2.5 py-1.5 rounded-lg text-xs font-bold inline-flex items-center gap-1.5 cursor-pointer"
           >
-            {t.testAudioBtn}
+            <Volume2 className="w-3.5 h-3.5 text-[var(--brand-accent)]" aria-hidden="true" />
+            <span>{t.testAudioBtn}</span>
           </button>
         </div>
 
-        <div className="space-y-3">
-          <label className="surface-elevated rounded-xl p-3.5 flex items-center justify-between gap-3 cursor-pointer">
-            <span className="text-sm font-semibold">{t.soundToggle}</span>
+        <div className="space-y-2">
+          <label className="surface-elevated rounded-lg px-3 py-2.5 flex items-center justify-between gap-3 cursor-pointer">
+            <span className="text-xs font-semibold">{t.soundToggle}</span>
             <input
               type="checkbox"
               checked={soundEnabled}
               onChange={(e) => void updateSettings({ soundEnabled: e.target.checked })}
-              className="w-5 h-5"
+              className="w-4 h-4"
             />
           </label>
 
-          <label className="surface-elevated rounded-xl p-3.5 flex items-center justify-between gap-3 cursor-pointer">
-            <span className="text-sm font-semibold">{t.countdownToggle}</span>
+          <label className="surface-elevated rounded-lg px-3 py-2.5 flex items-center justify-between gap-3 cursor-pointer">
+            <span className="text-xs font-semibold">{t.countdownToggle}</span>
             <input
               type="checkbox"
               checked={countdownBeepsEnabled}
               onChange={(e) => void updateSettings({ countdownBeepsEnabled: e.target.checked })}
-              className="w-5 h-5"
+              className="w-4 h-4"
             />
           </label>
 
-          <label className="surface-elevated rounded-xl p-3.5 flex items-center justify-between gap-3 cursor-pointer">
-            <span className="text-sm font-semibold">{t.speechToggle}</span>
+          <label className="surface-elevated rounded-lg px-3 py-2.5 flex items-center justify-between gap-3 cursor-pointer">
+            <span className="text-xs font-semibold">{t.speechToggle}</span>
             <input
               type="checkbox"
               checked={speechEnabled}
               onChange={(e) => void updateSettings({ speechEnabled: e.target.checked })}
-              className="w-5 h-5"
+              className="w-4 h-4"
             />
           </label>
 
-          <label className="surface-elevated rounded-xl p-3.5 flex items-center justify-between gap-3 cursor-pointer">
-            <span className="text-sm font-semibold">{t.wakeLockToggle}</span>
+          <label className="surface-elevated rounded-lg px-3 py-2.5 flex items-center justify-between gap-3 cursor-pointer">
+            <span className="text-xs font-semibold">{t.wakeLockToggle}</span>
             <input
               type="checkbox"
               checked={wakeLockEnabled}
               onChange={(e) => void updateSettings({ wakeLockEnabled: e.target.checked })}
-              className="w-5 h-5"
+              className="w-4 h-4"
             />
           </label>
 
-          <div>
-            <label htmlFor={voiceSelectId} className="block text-xs font-bold mb-1.5">
+          <div className="pt-1">
+            <label htmlFor={voiceSelectId} className="block text-xs font-bold mb-1">
               {t.voiceSelectLabel}
             </label>
             <select
@@ -245,7 +230,7 @@ export const SettingsPage: React.FC = () => {
               onChange={(e) =>
                 void updateSettings({ preferredVoiceURI: e.target.value || null })
               }
-              className="surface-elevated w-full px-3.5 py-2.5 rounded-xl text-sm font-semibold"
+              className="surface-elevated w-full px-3 py-2 rounded-lg text-xs font-semibold"
             >
               <option value="">{t.voiceAuto}</option>
               {voices.map((v) => (
@@ -259,18 +244,19 @@ export const SettingsPage: React.FC = () => {
       </section>
 
       {/* Local Data Backup (Export / Import JSON) */}
-      <section className="surface-card rounded-2xl p-5 space-y-4">
-        <h2 className="text-lg font-extrabold m-0">{t.backupHeading}</h2>
-        <p className="text-sm text-muted-token m-0 leading-relaxed">{t.backupDescription}</p>
+      <section className="surface-card rounded-xl p-4 space-y-3">
+        <h2 className="text-xs font-extrabold uppercase tracking-wider text-muted-token m-0">
+          {t.backupHeading}
+        </h2>
 
-        <div className="flex flex-wrap items-center gap-3 pt-1">
+        <div className="flex flex-wrap items-center gap-2">
           <button
             type="button"
             onClick={() => void handleExportBackup()}
             data-testid="btn-export-json"
-            className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold px-4 py-2.5 rounded-xl text-xs inline-flex items-center gap-2 cursor-pointer"
+            className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold px-3.5 py-2 rounded-lg text-xs inline-flex items-center gap-1.5 cursor-pointer"
           >
-            <Download className="w-4 h-4" aria-hidden="true" />
+            <Download className="w-3.5 h-3.5" aria-hidden="true" />
             <span>{t.exportBtn}</span>
           </button>
 
@@ -285,9 +271,9 @@ export const SettingsPage: React.FC = () => {
             type="button"
             onClick={() => mergeFileInputRef.current?.click()}
             data-testid="btn-import-merge"
-            className="surface-elevated hover:border-emerald-500/50 font-bold px-4 py-2.5 rounded-xl text-xs inline-flex items-center gap-2 cursor-pointer"
+            className="surface-elevated hover:border-[var(--brand-accent)] font-bold px-3 py-2 rounded-lg text-xs inline-flex items-center gap-1.5 cursor-pointer"
           >
-            <Upload className="w-4 h-4 text-cyan-500" aria-hidden="true" />
+            <Upload className="w-3.5 h-3.5" aria-hidden="true" />
             <span>{t.importMergeBtn}</span>
           </button>
 
@@ -301,9 +287,9 @@ export const SettingsPage: React.FC = () => {
           <button
             type="button"
             onClick={() => replaceFileInputRef.current?.click()}
-            className="surface-elevated hover:border-amber-500/50 font-bold px-4 py-2.5 rounded-xl text-xs inline-flex items-center gap-2 cursor-pointer"
+            className="surface-elevated hover:border-[var(--brand-accent)] font-bold px-3 py-2 rounded-lg text-xs inline-flex items-center gap-1.5 cursor-pointer"
           >
-            <Upload className="w-4 h-4 text-amber-500" aria-hidden="true" />
+            <Upload className="w-3.5 h-3.5" aria-hidden="true" />
             <span>{t.importReplaceBtn}</span>
           </button>
 
@@ -313,12 +299,19 @@ export const SettingsPage: React.FC = () => {
               void clearHistory();
               setStatusMessage({ type: 'success', text: t.historyCleared });
             }}
-            className="surface-elevated hover:border-rose-500/50 text-rose-500 font-bold px-4 py-2.5 rounded-xl text-xs inline-flex items-center gap-2 cursor-pointer"
+            className="surface-elevated hover:border-rose-500/50 text-rose-500 font-bold px-3 py-2 rounded-lg text-xs inline-flex items-center gap-1.5 cursor-pointer"
           >
-            <Trash2 className="w-4 h-4" aria-hidden="true" />
+            <Trash2 className="w-3.5 h-3.5" aria-hidden="true" />
             <span>{t.clearHistoryBtn}</span>
           </button>
         </div>
+
+        <details className="text-xs text-muted-token">
+          <summary className="cursor-pointer font-semibold select-none">
+            {t.backupDetailsSummary}
+          </summary>
+          <p className="m-0 pt-1.5 leading-relaxed">{t.backupDescription}</p>
+        </details>
       </section>
     </div>
   );

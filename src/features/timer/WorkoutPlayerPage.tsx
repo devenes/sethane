@@ -4,6 +4,8 @@ import {
   CheckCircle2,
   ChevronRight,
   Maximize2,
+  MessageSquare,
+  MessageSquareOff,
   Minimize2,
   Pause,
   Play,
@@ -11,15 +13,13 @@ import {
   SkipBack,
   SkipForward,
   Smartphone,
-  Square,
   Volume2,
   VolumeX,
-  MessageSquare,
-  MessageSquareOff,
+  X,
 } from 'lucide-react';
+import { ExerciseVisual, MotionToggleButton } from '../../components/common/ExerciseVisual';
 import { WorkoutTimerEngine } from '../../engine/timer-engine';
 import type { EngineEvent, SessionMachineState, WorkoutPhase } from '../../engine/types';
-import { ExerciseVisual, MotionToggleButton } from '../../components/common/ExerciseVisual';
 import { getExerciseById } from '../../data/exercises/catalog';
 import { soundService } from '../../services/audio/sound-service';
 import { speechService } from '../../services/speech/speech-service';
@@ -32,53 +32,46 @@ import { getPhaseDisplayLabel, UI_STRINGS } from '../../utils/i18n';
 function getPhaseColorClasses(phase: WorkoutPhase): {
   bannerBg: string;
   accentText: string;
-  ringColor: string;
   progressBar: string;
 } {
   switch (phase) {
     case 'work':
       return {
-        bannerBg: 'bg-emerald-500/20 border-emerald-500/40 text-emerald-400',
+        bannerBg: 'bg-emerald-500 text-slate-950',
         accentText: 'text-emerald-400',
-        ringColor: 'border-emerald-500/50',
         progressBar: 'bg-emerald-500',
       };
     case 'rest':
     case 'round-rest':
       return {
-        bannerBg: 'bg-cyan-500/20 border-cyan-500/40 text-cyan-300',
-        accentText: 'text-cyan-400',
-        ringColor: 'border-cyan-500/50',
-        progressBar: 'bg-cyan-400',
+        bannerBg: 'bg-sky-400 text-slate-950',
+        accentText: 'text-sky-400',
+        progressBar: 'bg-sky-400',
       };
     case 'prepare':
     case 'warmup':
       return {
-        bannerBg: 'bg-amber-500/20 border-amber-500/40 text-amber-300',
+        bannerBg: 'bg-amber-400 text-slate-950',
         accentText: 'text-amber-400',
-        ringColor: 'border-amber-500/50',
         progressBar: 'bg-amber-400',
       };
     case 'cooldown':
       return {
-        bannerBg: 'bg-indigo-500/20 border-indigo-500/40 text-indigo-300',
-        accentText: 'text-indigo-400',
-        ringColor: 'border-indigo-500/50',
-        progressBar: 'bg-indigo-400',
+        bannerBg: 'bg-slate-300 text-slate-950',
+        accentText: 'text-slate-200',
+        progressBar: 'bg-slate-300',
       };
     case 'completed':
       return {
-        bannerBg: 'bg-emerald-500/25 border-emerald-400/50 text-emerald-300',
+        bannerBg: 'bg-emerald-500 text-slate-950',
         accentText: 'text-emerald-400',
-        ringColor: 'border-emerald-400/60',
         progressBar: 'bg-emerald-400',
       };
     case 'idle':
       return {
-        bannerBg: 'bg-slate-800 border-slate-700 text-slate-300',
-        accentText: 'text-slate-200',
-        ringColor: 'border-slate-700',
-        progressBar: 'bg-slate-500',
+        bannerBg: 'bg-slate-800 text-slate-200',
+        accentText: 'text-slate-100',
+        progressBar: 'bg-slate-600',
       };
   }
 }
@@ -192,6 +185,10 @@ export const WorkoutPlayerPage: React.FC = () => {
   );
 
   useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
+  useEffect(() => {
     completionRecordedRef.current = false;
     const engine = new WorkoutTimerEngine(activeWorkout, {
       tickIntervalMs: 100,
@@ -219,7 +216,6 @@ export const WorkoutPlayerPage: React.FC = () => {
     }
   }, [handleEngineEvent]);
 
-  // Synchronize Wake Lock and tab visibility resync
   useEffect(() => {
     const syncWakeLock = async () => {
       if (sessionState.status === 'running' && wakeLockEnabled) {
@@ -246,43 +242,83 @@ export const WorkoutPlayerPage: React.FC = () => {
     return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
   }, [wakeLockEnabled]);
 
-  const handleStart = () => {
+  const handleStart = useCallback(() => {
     soundService.unlock();
     completionRecordedRef.current = false;
     engineRef.current?.start();
-  };
+  }, []);
 
-  const handlePause = () => {
+  const handlePause = useCallback(() => {
     speechService.cancel();
     engineRef.current?.pause();
-  };
+  }, []);
 
-  const handleResume = () => {
+  const handleResume = useCallback(() => {
     soundService.unlock();
     engineRef.current?.resume();
-  };
+  }, []);
 
-  const handleSkip = () => {
+  const handleSkip = useCallback(() => {
     soundService.unlock();
     engineRef.current?.skip();
-  };
+  }, []);
 
-  const handlePrevious = () => {
+  const handlePrevious = useCallback(() => {
     soundService.unlock();
     engineRef.current?.previous();
-  };
+  }, []);
 
-  const handleRestart = () => {
+  const handleRestart = useCallback(() => {
     soundService.unlock();
     completionRecordedRef.current = false;
     engineRef.current?.restart();
-  };
+  }, []);
 
   const handleExit = () => {
     speechService.cancel();
     engineRef.current?.stop();
     navigate('/');
   };
+
+  // Keyboard transport shortcuts (Space = Start/Pause/Resume, Arrows = Prev/Skip, R = Restart)
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+      const target = e.target as HTMLElement | null;
+      if (
+        target &&
+        (target.tagName === 'BUTTON' ||
+          target.tagName === 'INPUT' ||
+          target.tagName === 'SELECT' ||
+          target.tagName === 'TEXTAREA' ||
+          target.tagName === 'A')
+      ) {
+        return;
+      }
+
+      const st = engineRef.current?.getState();
+      if (!st) return;
+
+      if (e.code === 'Space') {
+        e.preventDefault();
+        if (st.status === 'idle') handleStart();
+        else if (st.status === 'running') handlePause();
+        else if (st.status === 'paused') handleResume();
+      } else if (e.code === 'ArrowRight' && st.status !== 'idle') {
+        e.preventDefault();
+        handleSkip();
+      } else if (e.code === 'ArrowLeft' && st.status !== 'idle') {
+        e.preventDefault();
+        handlePrevious();
+      } else if (e.code === 'KeyR') {
+        e.preventDefault();
+        handleRestart();
+      }
+    };
+
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [handlePause, handlePrevious, handleRestart, handleResume, handleSkip, handleStart]);
 
   const toggleFullscreen = async () => {
     if (!document.fullscreenElement) {
@@ -313,40 +349,53 @@ export const WorkoutPlayerPage: React.FC = () => {
     ? getExerciseById(currentStep.nextExerciseId)
     : undefined;
 
+  const isRestPreview =
+    (sessionState.phase === 'rest' || sessionState.phase === 'round-rest') && Boolean(nextExercise);
+  const visualExercise = isRestPreview ? nextExercise : currentExercise;
+
   const phaseStyle = getPhaseColorClasses(sessionState.phase);
   const stepProgressPct =
     sessionState.stepDurationMs > 0
       ? Math.min(
           100,
-          Math.max(0, ((sessionState.stepDurationMs - sessionState.remainingMs) / sessionState.stepDurationMs) * 100)
+          Math.max(
+            0,
+            ((sessionState.stepDurationMs - sessionState.remainingMs) /
+              sessionState.stepDurationMs) *
+              100
+          )
         )
       : 0;
   const totalProgressPct = Math.round(sessionState.progressRatio * 100);
+
+  const workoutDisplayName = activeWorkout.localizedName?.[locale] ?? activeWorkout.name;
 
   return (
     <div
       ref={containerRef}
       data-testid="workout-player"
-      className="rounded-3xl bg-slate-950 text-white border border-slate-800 p-4 sm:p-6 md:p-8 shadow-2xl space-y-6"
+      className="rounded-2xl bg-[#090d14] text-white border border-slate-800 p-3.5 sm:p-5 space-y-3 sm:space-y-4"
     >
-      {/* Centralized Screen Reader Live Region */}
+      {/* Screen Reader Live Region */}
       <div className="visually-hidden" aria-live="polite" aria-atomic="true">
         {liveAnnouncement}
       </div>
 
-      {/* Top Controls Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-4">
-        <div>
-          <h1 className="text-lg sm:text-xl font-extrabold m-0 text-white">{activeWorkout.name}</h1>
-          <div className="text-xs text-slate-400 flex items-center gap-3 mt-0.5">
+      {/* Compact Top Instrument Bar */}
+      <div className="flex flex-wrap items-center justify-between gap-2 pb-2.5 border-b border-slate-800/90">
+        <div className="min-w-0">
+          <h1 className="text-sm sm:text-base font-extrabold m-0 text-white truncate">
+            {workoutDisplayName}
+          </h1>
+          <div className="text-xs mono-readout text-slate-400 flex items-center gap-2.5 mt-0.5">
             {currentStep?.round && currentStep?.totalRounds && (
               <span data-testid="player-round-indicator">
-                {t.roundCounter} {currentStep.round} / {currentStep.totalRounds}
+                {t.roundCounter} {currentStep.round}/{currentStep.totalRounds}
               </span>
             )}
             {currentStep?.exerciseIndex && currentStep?.totalExercisesInRound && (
               <span data-testid="player-exercise-indicator">
-                {t.exerciseCounter} {currentStep.exerciseIndex} /{' '}
+                {t.exerciseCounter} {currentStep.exerciseIndex}/
                 {currentStep.totalExercisesInRound}
               </span>
             )}
@@ -354,47 +403,51 @@ export const WorkoutPlayerPage: React.FC = () => {
           </div>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-wrap items-center gap-1.5">
           <button
             type="button"
             onClick={() => void updateSettings({ soundEnabled: !soundEnabled })}
             aria-pressed={soundEnabled}
-            className={`px-3 py-2 rounded-xl text-xs font-bold inline-flex items-center gap-1.5 border cursor-pointer transition-colors ${
+            className={`px-2.5 py-1.5 rounded-lg text-xs font-bold inline-flex items-center gap-1 border cursor-pointer transition-colors ${
               soundEnabled
-                ? 'bg-emerald-500/15 border-emerald-500/40 text-emerald-300'
+                ? 'bg-slate-900 border-emerald-500/50 text-emerald-400'
                 : 'bg-slate-900 border-slate-800 text-slate-400'
             }`}
           >
             {soundEnabled ? (
-              <Volume2 className="w-4 h-4" aria-hidden="true" />
+              <Volume2 className="w-3.5 h-3.5" aria-hidden="true" />
             ) : (
-              <VolumeX className="w-4 h-4" aria-hidden="true" />
+              <VolumeX className="w-3.5 h-3.5" aria-hidden="true" />
             )}
-            <span>{soundEnabled ? t.soundOn : t.soundOff}</span>
+            <span className="hidden sm:inline">{soundEnabled ? t.soundOn : t.soundOff}</span>
           </button>
 
           <button
             type="button"
             onClick={() => void updateSettings({ speechEnabled: !speechEnabled })}
             aria-pressed={speechEnabled}
-            className={`px-3 py-2 rounded-xl text-xs font-bold inline-flex items-center gap-1.5 border cursor-pointer transition-colors ${
+            className={`px-2.5 py-1.5 rounded-lg text-xs font-bold inline-flex items-center gap-1 border cursor-pointer transition-colors ${
               speechEnabled
-                ? 'bg-cyan-500/15 border-cyan-500/40 text-cyan-300'
+                ? 'bg-slate-900 border-emerald-500/50 text-emerald-400'
                 : 'bg-slate-900 border-slate-800 text-slate-400'
             }`}
           >
             {speechEnabled ? (
-              <MessageSquare className="w-4 h-4" aria-hidden="true" />
+              <MessageSquare className="w-3.5 h-3.5" aria-hidden="true" />
             ) : (
-              <MessageSquareOff className="w-4 h-4" aria-hidden="true" />
+              <MessageSquareOff className="w-3.5 h-3.5" aria-hidden="true" />
             )}
-            <span>{speechEnabled ? t.voiceOn : t.voiceOff}</span>
+            <span className="hidden sm:inline">{speechEnabled ? t.voiceOn : t.voiceOff}</span>
           </button>
 
+          <MotionToggleButton locale={locale} variant="dark" />
+
           {wakeLockActive && (
-            <span className="px-2.5 py-2 rounded-xl text-xs font-semibold bg-amber-500/15 border border-amber-500/30 text-amber-300 inline-flex items-center gap-1">
-              <Smartphone className="w-3.5 h-3.5" aria-hidden="true" />
-              <span className="hidden sm:inline">{t.wakeLockActive}</span>
+            <span
+              title={t.wakeLockActive}
+              className="px-2 py-1.5 rounded-lg text-xs font-semibold bg-slate-900 border border-slate-800 text-slate-300 inline-flex items-center gap-1"
+            >
+              <Smartphone className="w-3.5 h-3.5 text-emerald-400" aria-hidden="true" />
             </span>
           )}
 
@@ -402,266 +455,258 @@ export const WorkoutPlayerPage: React.FC = () => {
             type="button"
             onClick={() => void toggleFullscreen()}
             aria-label={isFullscreen ? t.exitFullscreen : t.fullscreen}
-            className="p-2 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 hover:border-slate-600 cursor-pointer"
+            className="p-1.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-300 hover:border-slate-600 cursor-pointer"
           >
             {isFullscreen ? (
-              <Minimize2 className="w-4 h-4" aria-hidden="true" />
+              <Minimize2 className="w-3.5 h-3.5" aria-hidden="true" />
             ) : (
-              <Maximize2 className="w-4 h-4" aria-hidden="true" />
+              <Maximize2 className="w-3.5 h-3.5" aria-hidden="true" />
             )}
           </button>
 
           <button
             type="button"
             onClick={handleExit}
-            className="px-3 py-2 rounded-xl text-xs font-bold bg-rose-500/15 border border-rose-500/30 text-rose-300 hover:bg-rose-500/25 inline-flex items-center gap-1.5 cursor-pointer"
+            className="px-2.5 py-1.5 rounded-lg text-xs font-bold bg-slate-900 border border-slate-800 text-rose-400 hover:border-rose-500/50 inline-flex items-center gap-1 cursor-pointer"
           >
-            <Square className="w-3.5 h-3.5 fill-current" aria-hidden="true" />
+            <X className="w-3.5 h-3.5" aria-hidden="true" />
             <span>{t.stop}</span>
           </button>
         </div>
       </div>
 
-      {/* Overall Session Progress Bar */}
-      <div className="w-full h-2 bg-slate-900 rounded-full overflow-hidden">
+      {/* Session Progress Line */}
+      <div className="w-full h-1.5 bg-slate-900 rounded-full overflow-hidden">
         <div
-          className="h-full bg-gradient-to-r from-emerald-500 to-cyan-400 transition-all duration-150"
+          className="h-full bg-emerald-500 progress-fill"
           style={{ width: `${totalProgressPct}%` }}
         />
       </div>
 
       {sessionState.status === 'completed' ? (
-        /* Completed Celebration Screen */
         <div
           data-testid="workout-completed-view"
-          className="py-10 px-4 text-center space-y-6 max-w-xl mx-auto"
+          className="py-8 px-4 text-center space-y-5 max-w-md mx-auto"
         >
-          <div className="w-20 h-20 rounded-3xl bg-emerald-500/20 border border-emerald-400/40 text-emerald-400 inline-flex items-center justify-center mx-auto">
-            <CheckCircle2 className="w-12 h-12" aria-hidden="true" />
+          <div className="w-14 h-14 rounded-2xl bg-emerald-500/15 border border-emerald-500/40 text-emerald-400 inline-flex items-center justify-center mx-auto">
+            <CheckCircle2 className="w-8 h-8" aria-hidden="true" />
           </div>
-          <div className="space-y-2">
-            <div className="inline-block px-4 py-1 rounded-full text-xs font-black tracking-widest uppercase bg-emerald-500/20 text-emerald-300">
-              {t.phaseCompleted}
-            </div>
-            <h2 className="text-3xl sm:text-4xl font-black m-0">{t.completedHeadline}</h2>
-            <p className="text-slate-400 text-sm sm:text-base m-0">{t.completedSub}</p>
+          <div className="space-y-1">
+            <h2 className="text-2xl sm:text-3xl font-black m-0">{t.completedHeadline}</h2>
+            <p className="text-slate-400 text-xs sm:text-sm m-0">{t.completedSub}</p>
           </div>
 
-          <div className="grid grid-cols-2 gap-3 max-w-sm mx-auto">
-            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4">
-              <div className="text-xs text-slate-400 font-semibold">{t.roundCounter}</div>
-              <div className="text-2xl font-black text-emerald-400">{activeWorkout.rounds}</div>
+          <div className="grid grid-cols-2 gap-2.5">
+            <div className="bg-slate-900 border border-slate-800 rounded-xl p-3">
+              <div className="text-[11px] text-slate-400 font-semibold">{t.roundCounter}</div>
+              <div className="text-xl font-black mono-readout text-emerald-400">
+                {activeWorkout.rounds}
+              </div>
             </div>
-            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4">
-              <div className="text-xs text-slate-400 font-semibold">Total</div>
-              <div className="text-2xl font-black text-cyan-400">
+            <div className="bg-slate-900 border border-slate-800 rounded-xl p-3">
+              <div className="text-[11px] text-slate-400 font-semibold">Total</div>
+              <div className="text-xl font-black mono-readout text-white">
                 {formatHumanDuration(Math.round(sessionState.totalDurationMs / 1000), locale)}
               </div>
             </div>
           </div>
 
-          <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+          <div className="flex flex-wrap items-center justify-center gap-2.5 pt-1">
             <button
               type="button"
               onClick={handleRestart}
-              className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold px-6 py-3.5 rounded-2xl text-sm inline-flex items-center gap-2 cursor-pointer"
+              className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold px-5 py-2.5 rounded-xl text-xs inline-flex items-center gap-1.5 cursor-pointer"
             >
-              <RotateCcw className="w-4 h-4" aria-hidden="true" />
+              <RotateCcw className="w-3.5 h-3.5" aria-hidden="true" />
               <span>{t.playAgain}</span>
             </button>
             <button
               type="button"
               onClick={() => navigate('/')}
-              className="bg-slate-800 hover:bg-slate-700 text-white font-bold px-6 py-3.5 rounded-2xl text-sm cursor-pointer"
+              className="bg-slate-800 hover:bg-slate-700 text-white font-bold px-5 py-2.5 rounded-xl text-xs cursor-pointer"
             >
               {t.backToDashboard}
             </button>
           </div>
         </div>
       ) : (
-        /* Active / Paused / Idle Player Layout */
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
-          {/* Left Column: Giant Timer & Phase State */}
-          <div className="lg:col-span-7 flex flex-col items-center justify-center text-center p-6 sm:p-8 rounded-3xl bg-slate-900/90 border-2 border-slate-800 space-y-5">
+        /* Active Layout: Visual Exercise Viewport First on Mobile, Balanced Split on Desktop */
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-3.5 sm:gap-4 items-stretch">
+          {/* Visual Movement Viewport */}
+          {visualExercise && (
+            <div className="lg:col-span-6 bg-[#070b14] border border-slate-800/90 rounded-xl p-2.5 sm:p-3 flex flex-col justify-between gap-2">
+              <div className="flex items-center justify-between gap-2 px-1">
+                <span className="text-xs font-extrabold uppercase tracking-wider text-slate-200 truncate">
+                  {isRestPreview
+                    ? `${t.upNext}: ${visualExercise.name[locale]}`
+                    : visualExercise.name[locale]}
+                </span>
+                <span className="text-[11px] mono-readout text-slate-400 shrink-0">
+                  {visualExercise.defaultWorkSeconds}s
+                </span>
+              </div>
+
+              <ExerciseVisual
+                media={visualExercise.media}
+                locale={locale}
+                staticOnly={sessionState.status === 'paused'}
+                className="w-full h-44 sm:h-60 lg:h-72 object-contain mx-auto rounded-lg"
+              />
+
+              {/* Desktop inline cues; Mobile compact <details> so timer stays above fold */}
+              <ol className="hidden lg:block text-xs text-slate-300 space-y-1 pl-4 m-0 border-t border-slate-800/80 pt-2">
+                {visualExercise.instructions[locale].slice(0, 2).map((step, i) => (
+                  <li key={i}>{step}</li>
+                ))}
+              </ol>
+              <details className="lg:hidden border-t border-slate-800/80 pt-1.5 text-xs text-slate-300">
+                <summary className="cursor-pointer font-bold text-[11px] text-slate-400 select-none">
+                  {t.formTips}
+                </summary>
+                <ol className="space-y-1 pl-4 m-0 pt-1.5">
+                  {visualExercise.instructions[locale].slice(0, 2).map((step, i) => (
+                    <li key={i}>{step}</li>
+                  ))}
+                </ol>
+              </details>
+            </div>
+          )}
+
+          {/* Precision Countdown & Transport Panel */}
+          <div
+            className={`${
+              visualExercise ? 'lg:col-span-6' : 'lg:col-span-12'
+            } flex flex-col items-center justify-between text-center p-4 sm:p-6 rounded-xl bg-slate-900/85 border border-slate-800 space-y-3 sm:space-y-4`}
+          >
             <div
               data-testid="player-phase-badge"
-              className={`px-5 py-1.5 rounded-full border text-sm sm:text-base font-black tracking-widest uppercase ${phaseStyle.bannerBg}`}
+              className={`px-3.5 py-1 rounded-md text-xs font-black tracking-widest uppercase ${phaseStyle.bannerBg}`}
             >
               {getPhaseDisplayLabel(sessionState.phase, locale)}
             </div>
 
-            <div
-              data-testid="player-countdown"
-              className={`text-7xl sm:text-8xl md:text-9xl font-black tracking-tight tabular-nums leading-none ${phaseStyle.accentText}`}
-            >
-              {formatClock(sessionState.remainingSeconds)}
-            </div>
-
-            <div className="w-full max-w-md h-3 bg-slate-800 rounded-full overflow-hidden">
+            <div className="w-full space-y-2.5">
               <div
-                className={`h-full transition-all duration-100 ${phaseStyle.progressBar}`}
-                style={{ width: `${stepProgressPct}%` }}
-              />
-            </div>
-
-            <div className="space-y-1">
-              <h2
-                data-testid="player-current-exercise"
-                className="text-2xl sm:text-3xl font-extrabold m-0 text-white"
+                data-testid="player-countdown"
+                className={`text-6xl sm:text-8xl font-black mono-readout leading-none ${phaseStyle.accentText}`}
               >
-                {sessionState.phase === 'warmup'
-                  ? t.phaseWarmup
-                  : sessionState.phase === 'cooldown'
-                    ? t.phaseCooldown
-                    : sessionState.phase === 'rest' || sessionState.phase === 'round-rest'
-                      ? `${getPhaseDisplayLabel(sessionState.phase, locale)}`
-                      : currentExercise
-                        ? currentExercise.name[locale]
-                        : activeWorkout.name}
-              </h2>
-              {nextExercise && (
+                {formatClock(sessionState.remainingSeconds)}
+              </div>
+
+              <div className="w-full max-w-sm mx-auto h-2 bg-slate-800 rounded-full overflow-hidden">
                 <div
-                  data-testid="player-next-exercise"
-                  className="text-sm font-semibold text-slate-300 inline-flex items-center gap-1.5 pt-1"
+                  className={`h-full progress-fill ${phaseStyle.progressBar}`}
+                  style={{ width: `${stepProgressPct}%` }}
+                />
+              </div>
+
+              <div className="space-y-0.5">
+                <h2
+                  data-testid="player-current-exercise"
+                  className="text-lg sm:text-2xl font-extrabold m-0 text-white"
                 >
-                  <span className="text-slate-400">{t.upNext}:</span>
-                  <span className="text-cyan-400 font-bold">{nextExercise.name[locale]}</span>
-                  <ChevronRight className="w-4 h-4 text-cyan-400" aria-hidden="true" />
-                </div>
-              )}
+                  {sessionState.phase === 'warmup'
+                    ? t.phaseWarmup
+                    : sessionState.phase === 'cooldown'
+                      ? t.phaseCooldown
+                      : sessionState.phase === 'rest' || sessionState.phase === 'round-rest'
+                        ? getPhaseDisplayLabel(sessionState.phase, locale)
+                        : currentExercise
+                          ? currentExercise.name[locale]
+                          : workoutDisplayName}
+                </h2>
+                {nextExercise && (
+                  <div
+                    data-testid="player-next-exercise"
+                    className="text-xs font-semibold text-slate-400 inline-flex items-center gap-1"
+                  >
+                    <span>{t.upNext}:</span>
+                    <span className="text-slate-200 font-bold">{nextExercise.name[locale]}</span>
+                    <ChevronRight className="w-3.5 h-3.5" aria-hidden="true" />
+                  </div>
+                )}
+              </div>
             </div>
 
-            {/* Primary Transport Controls */}
-            <div className="flex flex-wrap items-center justify-center gap-3 pt-4 w-full">
-              <button
-                type="button"
-                onClick={handlePrevious}
-                disabled={sessionState.status === 'idle'}
-                aria-label={t.previous}
-                data-testid="btn-previous"
-                className="p-4 rounded-2xl bg-slate-800 hover:bg-slate-700 disabled:opacity-40 text-white cursor-pointer transition-colors"
-              >
-                <SkipBack className="w-6 h-6" aria-hidden="true" />
-              </button>
-
-              {sessionState.status === 'idle' && (
+            {/* Transport Controls — Single Non-Wrapping Row */}
+            <div className="w-full space-y-2">
+              <div className="flex items-center justify-center gap-2 w-full">
                 <button
                   type="button"
-                  onClick={handleStart}
-                  data-testid="btn-start"
-                  className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black px-8 py-4 rounded-2xl text-lg inline-flex items-center gap-2.5 cursor-pointer shadow-lg shadow-emerald-500/25 transition-colors"
+                  onClick={handlePrevious}
+                  disabled={sessionState.status === 'idle'}
+                  aria-label={t.previous}
+                  data-testid="btn-previous"
+                  className="p-3 rounded-xl bg-slate-800 hover:bg-slate-700 disabled:opacity-35 text-white cursor-pointer transition-colors"
                 >
-                  <Play className="w-6 h-6 fill-current" aria-hidden="true" />
-                  <span>{t.start}</span>
+                  <SkipBack className="w-5 h-5" aria-hidden="true" />
                 </button>
-              )}
 
-              {sessionState.status === 'running' && (
+                {sessionState.status === 'idle' && (
+                  <button
+                    type="button"
+                    onClick={handleStart}
+                    data-testid="btn-start"
+                    className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black px-5 sm:px-7 py-3 rounded-xl text-sm sm:text-base inline-flex items-center gap-2 cursor-pointer transition-colors"
+                  >
+                    <Play className="w-5 h-5 fill-current" aria-hidden="true" />
+                    <span>{t.start}</span>
+                  </button>
+                )}
+
+                {sessionState.status === 'running' && (
+                  <button
+                    type="button"
+                    onClick={handlePause}
+                    data-testid="btn-pause"
+                    className="bg-amber-400 hover:bg-amber-300 text-slate-950 font-black px-5 sm:px-7 py-3 rounded-xl text-sm sm:text-base inline-flex items-center gap-2 cursor-pointer transition-colors"
+                  >
+                    <Pause className="w-5 h-5 fill-current" aria-hidden="true" />
+                    <span>{t.pause}</span>
+                  </button>
+                )}
+
+                {sessionState.status === 'paused' && (
+                  <button
+                    type="button"
+                    onClick={handleResume}
+                    data-testid="btn-resume"
+                    className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black px-5 sm:px-7 py-3 rounded-xl text-sm sm:text-base inline-flex items-center gap-2 cursor-pointer transition-colors"
+                  >
+                    <Play className="w-5 h-5 fill-current" aria-hidden="true" />
+                    <span>{t.resume}</span>
+                  </button>
+                )}
+
                 <button
                   type="button"
-                  onClick={handlePause}
-                  data-testid="btn-pause"
-                  className="bg-amber-400 hover:bg-amber-300 text-slate-950 font-black px-8 py-4 rounded-2xl text-lg inline-flex items-center gap-2.5 cursor-pointer shadow-lg shadow-amber-400/20 transition-colors"
+                  onClick={handleSkip}
+                  disabled={sessionState.status === 'idle'}
+                  aria-label={t.skip}
+                  data-testid="btn-skip"
+                  className="p-3 rounded-xl bg-slate-800 hover:bg-slate-700 disabled:opacity-35 text-white cursor-pointer transition-colors"
                 >
-                  <Pause className="w-6 h-6 fill-current" aria-hidden="true" />
-                  <span>{t.pause}</span>
+                  <SkipForward className="w-5 h-5" aria-hidden="true" />
                 </button>
-              )}
 
-              {sessionState.status === 'paused' && (
                 <button
                   type="button"
-                  onClick={handleResume}
-                  data-testid="btn-resume"
-                  className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black px-8 py-4 rounded-2xl text-lg inline-flex items-center gap-2.5 cursor-pointer shadow-lg shadow-emerald-500/25 transition-colors"
+                  onClick={handleRestart}
+                  aria-label={t.restart}
+                  data-testid="btn-restart"
+                  className="p-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 cursor-pointer transition-colors"
                 >
-                  <Play className="w-6 h-6 fill-current" aria-hidden="true" />
-                  <span>{t.resume}</span>
+                  <RotateCcw className="w-4 h-4" aria-hidden="true" />
                 </button>
-              )}
+              </div>
 
-              <button
-                type="button"
-                onClick={handleSkip}
-                disabled={sessionState.status === 'idle'}
-                aria-label={t.skip}
-                data-testid="btn-skip"
-                className="p-4 rounded-2xl bg-slate-800 hover:bg-slate-700 disabled:opacity-40 text-white cursor-pointer transition-colors"
-              >
-                <SkipForward className="w-6 h-6" aria-hidden="true" />
-              </button>
-
-              <button
-                type="button"
-                onClick={handleRestart}
-                aria-label={t.restart}
-                data-testid="btn-restart"
-                className="p-4 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-300 cursor-pointer transition-colors"
-              >
-                <RotateCcw className="w-5 h-5" aria-hidden="true" />
-              </button>
+              <div className="hidden md:block text-[11px] mono-readout text-slate-500">
+                {t.shortcutsHint}
+              </div>
             </div>
-          </div>
-
-          {/* Right Column: Visual Exercise Illustration & Form Cues */}
-          <div className="lg:col-span-5 bg-slate-900/80 border border-slate-800 rounded-3xl p-5 space-y-4">
-            {(sessionState.phase === 'rest' || sessionState.phase === 'round-rest') &&
-            nextExercise ? (
-              <>
-                <div className="flex items-center justify-between gap-2">
-                  <div className="text-xs font-bold uppercase tracking-wider text-cyan-400">
-                    {t.upNext}: {nextExercise.name[locale]}
-                  </div>
-                  <MotionToggleButton locale={locale} variant="dark" />
-                </div>
-                <div className="rounded-2xl overflow-hidden border border-slate-800 bg-slate-950 p-1.5">
-                  <ExerciseVisual
-                    media={nextExercise.media}
-                    locale={locale}
-                    staticOnly={sessionState.status === 'paused'}
-                    className="w-full h-48 sm:h-56 object-contain mx-auto rounded-xl"
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <div className="text-xs font-bold text-slate-400 uppercase">{t.formTips}</div>
-                  <ol className="text-xs text-slate-300 space-y-1 pl-4 m-0">
-                    {nextExercise.instructions[locale].slice(0, 3).map((step, i) => (
-                      <li key={i}>{step}</li>
-                    ))}
-                  </ol>
-                </div>
-              </>
-            ) : currentExercise ? (
-              <>
-                <div className="flex items-center justify-between gap-2">
-                  <div className="text-xs font-bold uppercase tracking-wider text-emerald-400">
-                    {currentExercise.name[locale]}
-                  </div>
-                  <MotionToggleButton locale={locale} variant="dark" />
-                </div>
-                <div className="rounded-2xl overflow-hidden border border-slate-800 bg-slate-950 p-1.5">
-                  <ExerciseVisual
-                    media={currentExercise.media}
-                    locale={locale}
-                    staticOnly={sessionState.status === 'paused'}
-                    className="w-full h-48 sm:h-56 object-contain mx-auto rounded-xl"
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <div className="text-xs font-bold text-slate-400 uppercase">{t.formTips}</div>
-                  <ol className="text-xs text-slate-300 space-y-1 pl-4 m-0">
-                    {currentExercise.instructions[locale].map((step, i) => (
-                      <li key={i}>{step}</li>
-                    ))}
-                  </ol>
-                </div>
-              </>
-            ) : null}
           </div>
         </div>
       )}
-
-      <p className="text-[11px] text-slate-400 text-center m-0 pt-2">{t.iosBackgroundNote}</p>
     </div>
   );
 };

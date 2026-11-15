@@ -56,6 +56,7 @@ export const useWorkoutStore = create<WorkoutStoreState>((set, get) => ({
     const nowIso = new Date().toISOString();
     const record: WorkoutPlan = {
       ...workout,
+      localizedName: undefined,
       isPreset: false,
       createdAt: workout.createdAt ?? nowIso,
       updatedAt: nowIso,
@@ -82,6 +83,7 @@ export const useWorkoutStore = create<WorkoutStoreState>((set, get) => ({
       ...workout,
       id: `custom-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
       name: `${workout.name} (Copy)`,
+      localizedName: undefined,
       isPreset: false,
       createdAt: nowIso,
       updatedAt: nowIso,
