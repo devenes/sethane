@@ -28,18 +28,10 @@ export const WorkoutsPage: React.FC = () => {
 
   useLightDismissDialog(confirmDialogRef, Boolean(pendingDelete));
 
-  const handleStart = (workout: WorkoutPlan, skipWarmup = false) => {
+  const handleStart = (workout: WorkoutPlan) => {
     soundService.unlock();
-    const target = skipWarmup
-      ? { ...workout, warmupSeconds: 0, cooldownSeconds: 0 }
-      : workout;
-    selectWorkoutForPlayer(target);
+    selectWorkoutForPlayer(workout);
     navigate('/player');
-  };
-
-  const handleEdit = (workout: WorkoutPlan) => {
-    setEditingWorkout(workout);
-    navigate('/builder');
   };
 
   const handleConfirmDelete = async () => {
@@ -97,7 +89,6 @@ export const WorkoutsPage: React.FC = () => {
                 workout={workout}
                 locale={locale}
                 onStart={handleStart}
-                onEdit={handleEdit}
                 onDuplicate={(w) => void duplicateWorkout(w)}
                 onDelete={(w) => setPendingDelete(w)}
               />
@@ -118,7 +109,6 @@ export const WorkoutsPage: React.FC = () => {
               workout={workout}
               locale={locale}
               onStart={handleStart}
-              onDuplicate={(w) => void duplicateWorkout(w)}
             />
           ))}
         </div>

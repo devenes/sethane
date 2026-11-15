@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import {
   CheckCircle2,
   ChevronRight,
+  Edit3,
   Maximize2,
   MessageSquare,
   MessageSquareOff,
@@ -16,18 +17,25 @@ import {
   Volume2,
   VolumeX,
   X,
+  Zap,
 } from 'lucide-react';
 import { ExerciseVisual, MotionToggleButton } from '../../components/common/ExerciseVisual';
 import { WorkoutTimerEngine } from '../../engine/timer-engine';
 import type { EngineEvent, SessionMachineState, WorkoutPhase } from '../../engine/types';
 import { getExerciseById } from '../../data/exercises/catalog';
+import { WEEKLY_DAY_ORDER } from '../../data/workouts/weekly-program';
 import { soundService } from '../../services/audio/sound-service';
 import { speechService } from '../../services/speech/speech-service';
 import { wakeLockService } from '../../services/wake-lock/wake-lock-service';
 import { useSettingsStore } from '../../stores/settings-store';
 import { useWorkoutStore } from '../../stores/workout-store';
 import { formatClock, formatHumanDuration } from '../../utils/format';
-import { getPhaseDisplayLabel, UI_STRINGS } from '../../utils/i18n';
+import {
+  getCategoryLabel,
+  getMuscleLabel,
+  getPhaseDisplayLabel,
+  UI_STRINGS,
+} from '../../utils/i18n';
 
 function getPhaseColorClasses(phase: WorkoutPhase): {
   bannerBg: string;
@@ -79,6 +87,10 @@ function getPhaseColorClasses(phase: WorkoutPhase): {
 export const WorkoutPlayerPage: React.FC = () => {
   const navigate = useNavigate();
   const activeWorkout = useWorkoutStore((s) => s.activeWorkout);
+  const presets = useWorkoutStore((s) => s.presets);
+  const customWorkouts = useWorkoutStore((s) => s.customWorkouts);
+  const selectWorkoutForPlayer = useWorkoutStore((s) => s.selectWorkoutForPlayer);
+  const setEditingWorkout = useWorkoutStore((s) => s.setEditingWorkout);
   const recordCompletedSession = useWorkoutStore((s) => s.recordCompletedSession);
 
   const locale = useSettingsStore((s) => s.locale);
@@ -92,10 +104,12 @@ export const WorkoutPlayerPage: React.FC = () => {
   const updateSettings = useSettingsStore((s) => s.updateSettings);
 
   const t = UI_STRINGS[locale].player;
+  const td = UI_STRINGS[locale].dashboard;
 
   const containerRef = useRef<HTMLDivElement>(null);
   const engineRef = useRef<WorkoutTimerEngine | null>(null);
   const completionRecordedRef = useRef(false);
+  const autoStartRef = useRef(false);
 
   const [sessionState, setSessionState] = useState<SessionMachineState>(() =>
     new WorkoutTimerEngine(activeWorkout).getState()
@@ -199,6 +213,10 @@ export const WorkoutPlayerPage: React.FC = () => {
     });
     engineRef.current = engine;
     setSessionState(engine.getState());
+    if (autoStartRef.current) {
+      autoStartRef.current = false;
+      engine.start();
+    }
 
     return () => {
       engine.destroy();
@@ -247,6 +265,52 @@ export const WorkoutPlayerPage: React.FC = () => {
     completionRecordedRef.current = false;
     engineRef.current?.start();
   }, []);
+
+  const handleStartNoWarmup = useCallback(() => {
+    soundService.unlock();
+    completionRecordedRef.current = false;
+    if (activeWorkout.warmupSeconds === 0 && activeWorkout.cooldownSeconds === 0) {
+      engineRef.current?.start();
+      return;
+    }
+    autoStartRef.current = true;
+    selectWorkoutForPlayer({
+      ...activeWorkout,
+      warmupSeconds: 0,
+      cooldownSeconds: 0,
+    });
+  }, [activeWorkout, selectWorkoutForPlayer]);
+
+  const handleEditWorkout = useCallback(() => {
+    speechService.cancel();
+    engineRef.current?.stop();
+
+    if (activeWorkout.id.startsWith('weekly-')) {
+      const dayKey = activeWorkout.id.slice('weekly-'.length);
+      if ((WEEKLY_DAY_ORDER as readonly string[]).includes(dayKey)) {
+        navigate(`/weekly?day=${dayKey}`);
+        return;
+      }
+    }
+
+    const savedCustom = customWorkouts.find((w) => w.id === activeWorkout.id);
+    if (savedCustom) {
+      setEditingWorkout(savedCustom);
+      navigate('/builder');
+      return;
+    }
+
+    const sourcePreset = presets.find((p) => p.id === activeWorkout.id) ?? activeWorkout;
+    const baseTitle = sourcePreset.localizedName?.[locale] ?? sourcePreset.name;
+    setEditingWorkout({
+      ...sourcePreset,
+      id: `custom-${Date.now()}`,
+      name: baseTitle,
+      localizedName: undefined,
+      isPreset: false,
+    });
+    navigate('/builder');
+  }, [activeWorkout, customWorkouts, locale, navigate, presets, setEditingWorkout]);
 
   const handlePause = useCallback(() => {
     speechService.cancel();
@@ -628,8 +692,8 @@ export const WorkoutPlayerPage: React.FC = () => {
               </div>
             </div>
 
-            {/* Transport Controls — Single Non-Wrapping Row */}
-            <div className="w-full space-y-2">
+            {/* Transport Controls — Primary Row + Program Actions */}
+            <div className="w-full space-y-2.5">
               <div className="flex items-center justify-center gap-2 w-full">
                 <button
                   type="button"
@@ -700,12 +764,156 @@ export const WorkoutPlayerPage: React.FC = () => {
                 </button>
               </div>
 
+              <div className="flex flex-wrap items-center justify-center gap-2">
+                {sessionState.status === 'idle' && activeWorkout.warmupSeconds > 0 && (
+                  <button
+                    type="button"
+                    onClick={handleStartNoWarmup}
+                    data-testid="btn-start-no-warmup"
+                    className="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 hover:border-emerald-500/60 text-slate-100 text-xs font-bold inline-flex items-center gap-1.5 cursor-pointer transition-colors"
+                  >
+                    <Zap className="w-3.5 h-3.5 text-emerald-400" aria-hidden="true" />
+                    <span>{t.startNoWarmup}</span>
+                  </button>
+                )}
+
+                <button
+                  type="button"
+                  onClick={handleEditWorkout}
+                  data-testid="btn-player-edit"
+                  className="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 hover:border-emerald-500/60 text-slate-100 text-xs font-bold inline-flex items-center gap-1.5 cursor-pointer transition-colors"
+                >
+                  <Edit3 className="w-3.5 h-3.5 text-emerald-400" aria-hidden="true" />
+                  <span>{t.editWorkout}</span>
+                </button>
+              </div>
+
               <div className="hidden md:block text-[11px] mono-readout text-slate-500">
                 {t.shortcutsHint}
               </div>
             </div>
           </div>
         </div>
+      )}
+
+      {/* Program Exercise Sequence Overview */}
+      {sessionState.status !== 'completed' && activeWorkout.exercises.length > 0 && (
+        <section
+          data-testid="player-exercise-list"
+          className="pt-3 sm:pt-4 border-t border-slate-800/90 space-y-2.5"
+        >
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <h2 className="text-xs sm:text-sm font-extrabold uppercase tracking-wider text-slate-300 m-0">
+              {t.programMovesHeading}
+            </h2>
+            <div className="flex flex-wrap items-center gap-1.5 text-[11px] mono-readout text-slate-400">
+              <span className="px-2 py-0.5 rounded bg-slate-900 border border-slate-800 text-slate-200 font-bold">
+                {activeWorkout.rounds} {td.roundsLabel} · {activeWorkout.exercises.length}{' '}
+                {td.exercisesLabel}
+              </span>
+              {activeWorkout.warmupSeconds > 0 && (
+                <span className="px-2 py-0.5 rounded bg-slate-900 border border-slate-800">
+                  {formatHumanDuration(activeWorkout.warmupSeconds, locale)} {t.warmupSummaryChip}
+                </span>
+              )}
+              {activeWorkout.cooldownSeconds > 0 && (
+                <span className="px-2 py-0.5 rounded bg-slate-900 border border-slate-800">
+                  {formatHumanDuration(activeWorkout.cooldownSeconds, locale)}{' '}
+                  {t.cooldownSummaryChip}
+                </span>
+              )}
+            </div>
+          </div>
+
+          <ol className="list-none m-0 p-0 grid grid-cols-1 md:grid-cols-2 gap-2.5">
+            {activeWorkout.exercises.map((item, idx) => {
+              const ex = getExerciseById(item.exerciseId);
+              const isLastInRound = idx === activeWorkout.exercises.length - 1;
+              const isActiveMove =
+                sessionState.status !== 'idle' &&
+                currentStep?.exerciseIndex === idx + 1 &&
+                (sessionState.phase === 'work' || sessionState.phase === 'rest');
+              const moveName = ex ? ex.name[locale] : item.exerciseId;
+
+              return (
+                <li
+                  key={`${item.id ?? item.exerciseId}-${idx}`}
+                  data-testid={`player-exercise-item-${idx}`}
+                  className={`rounded-xl bg-[#0d1320] border p-2.5 flex items-center gap-3 transition-colors ${
+                    isActiveMove
+                      ? 'border-emerald-500 ring-1 ring-emerald-500/40'
+                      : 'border-slate-800/90'
+                  }`}
+                >
+                  {ex && (
+                    <div className="w-24 sm:w-28 shrink-0 rounded-lg bg-[#070b14] border border-slate-800/80 overflow-hidden">
+                      <ExerciseVisual
+                        media={ex.media}
+                        locale={locale}
+                        loading="lazy"
+                        staticOnly={
+                          sessionState.status === 'paused' ||
+                          (sessionState.status === 'running' && !isActiveMove)
+                        }
+                        className="w-full aspect-[10/7] object-contain"
+                      />
+                    </div>
+                  )}
+
+                  <div className="min-w-0 flex-1 space-y-1">
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-1.5 min-w-0">
+                        <span
+                          className={`shrink-0 w-5 h-5 rounded-md text-[11px] font-black mono-readout inline-flex items-center justify-center ${
+                            isActiveMove
+                              ? 'bg-emerald-500 text-slate-950'
+                              : 'bg-slate-800 text-slate-300'
+                          }`}
+                        >
+                          {idx + 1}
+                        </span>
+                        <span className="text-xs sm:text-sm font-extrabold text-white truncate">
+                          {moveName}
+                        </span>
+                      </div>
+
+                      {isActiveMove && (
+                        <span className="shrink-0 px-1.5 py-0.5 rounded bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-[10px] font-bold uppercase tracking-wider">
+                          {t.activeMoveBadge}
+                        </span>
+                      )}
+                    </div>
+
+                    {ex && (
+                      <div className="text-[11px] text-slate-400 truncate">
+                        {getCategoryLabel(ex.category, locale)} ·{' '}
+                        {ex.muscleGroups.map((m) => getMuscleLabel(m, locale)).join(', ')}
+                      </div>
+                    )}
+
+                    <div className="flex flex-wrap items-center gap-1.5 pt-0.5 mono-readout text-[11px]">
+                      <span className="px-2 py-0.5 rounded bg-emerald-500/15 border border-emerald-500/35 text-emerald-300 font-bold">
+                        {item.workSeconds}s {t.workLabelShort}
+                      </span>
+                      {!isLastInRound && item.restSeconds > 0 && (
+                        <span className="px-2 py-0.5 rounded bg-sky-400/15 border border-sky-400/35 text-sky-300 font-semibold">
+                          {item.restSeconds}s {t.restLabelShort}
+                        </span>
+                      )}
+                      {isLastInRound &&
+                        activeWorkout.rounds > 1 &&
+                        activeWorkout.restBetweenRounds > 0 && (
+                          <span className="px-2 py-0.5 rounded bg-sky-400/15 border border-sky-400/35 text-sky-300 font-semibold">
+                            {activeWorkout.restBetweenRounds}s {t.roundRestShort}
+                          </span>
+                        )}
+                    </div>
+                  </div>
+                </li>
+              );
+            })}
+          </ol>
+        </section>
       )}
     </div>
   );

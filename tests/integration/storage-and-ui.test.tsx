@@ -129,6 +129,52 @@ describe('UI Integration — Dashboard, Localization & Exercise Catalog', () => 
     expect(await screen.findByTestId('workout-player')).toBeInTheDocument();
     expect(screen.getByTestId('btn-start')).toBeInTheDocument();
   });
+
+  it('declutters program cards (only Start button), opens /player with full move list on card click, and runs No Warm-up & Edit from inside /player', async () => {
+    await useSettingsStore.getState().setLocale('tr');
+    const user = userEvent.setup();
+    render(<App />);
+
+    expect(
+      await screen.findByRole('heading', { name: /Antrenman Seç/i })
+    ).toBeInTheDocument();
+
+    // Home screen program cards do NOT show "Isınmasız" or "Düzenle" buttons
+    expect(screen.queryByRole('button', { name: /^Isınmasız$/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /^Düzenle$/i })).not.toBeInTheDocument();
+
+    const dumbbellCard = screen.getByTestId('workout-card-dumbbell-strength-15');
+    expect(within(dumbbellCard).getAllByRole('button')).toHaveLength(1);
+    expect(
+      within(dumbbellCard).getByRole('button', { name: /^Başlat$/i })
+    ).toBeInTheDocument();
+
+    // Clicking the program card opens #/player showing all 6 exercises + Başlat, Isınmasız, Düzenle
+    await user.click(screen.getByTestId('workout-card-open-dumbbell-strength-15'));
+
+    expect(await screen.findByTestId('workout-player')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /15 Dk Dambıl Kuvvet/i })).toBeInTheDocument();
+    expect(screen.getByTestId('btn-start')).toBeInTheDocument();
+    expect(screen.getByTestId('btn-start-no-warmup')).toBeInTheDocument();
+    expect(screen.getByTestId('btn-player-edit')).toBeInTheDocument();
+
+    const exerciseList = screen.getByTestId('player-exercise-list');
+    expect(within(exerciseList).getAllByTestId(/^player-exercise-item-/)).toHaveLength(6);
+    expect(within(exerciseList).getByText(/Dambıl Goblet Squat/i)).toBeInTheDocument();
+    expect(within(exerciseList).getByText(/Dambıl Thruster/i)).toBeInTheDocument();
+
+    // Clicking Isınmasız starts immediately and skips warm-up (Prepare -> straight to Work)
+    await user.click(screen.getByTestId('btn-start-no-warmup'));
+    expect(screen.getByTestId('btn-pause')).toBeInTheDocument();
+    await user.click(screen.getByTestId('btn-skip'));
+    expect(screen.getByTestId('player-phase-badge')).toHaveTextContent(/ÇALIŞ/i);
+
+    // Clicking Düzenle from inside /player opens /builder preloaded with the program
+    await user.click(screen.getByTestId('btn-player-edit'));
+    const nameInput = await screen.findByTestId('builder-workout-name');
+    expect(nameInput).toHaveValue('15 Dk Dambıl Kuvvet');
+    expect(screen.getAllByTestId(/^builder-item-/)).toHaveLength(6);
+  });
 });
 
 describe('7-Day Weekly Program Mode — Auto-Day Selection, Full Muscle Coverage & Customization', () => {

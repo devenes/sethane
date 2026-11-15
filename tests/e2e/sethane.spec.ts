@@ -69,7 +69,26 @@ test.describe('SetHane Production Build E2E (/sethane/ subpath)', () => {
     await page.locator('header nav a[href="#/workouts"]').click();
     await expect(page.getByText('Playwright Custom Tabata')).toBeVisible();
 
-    // Launch workout player and test Start -> Pause -> Skip -> Previous
+    // Verify decluttered home cards (only Start button) & clicking anywhere on a program card opens #/player with full move list + Isınmasız & Düzenle
+    await page.locator('header nav a[href="#/"]').click();
+    const dumbbellCard = page.getByTestId('workout-card-dumbbell-strength-15');
+    await expect(dumbbellCard.locator('button')).toHaveCount(1);
+    await dumbbellCard.scrollIntoViewIfNeeded();
+    const mediaBox = await dumbbellCard.locator('.media').boundingBox();
+    expect(mediaBox).not.toBeNull();
+    await page.mouse.click(
+      mediaBox!.x + mediaBox!.width / 2,
+      mediaBox!.y + mediaBox!.height / 2
+    );
+
+    await expect(page).toHaveURL(/#\/player$/);
+    await expect(page.getByTestId('workout-player')).toBeVisible();
+    await expect(page.getByTestId('btn-start')).toBeVisible();
+    await expect(page.getByTestId('btn-start-no-warmup')).toBeVisible();
+    await expect(page.getByTestId('btn-player-edit')).toBeVisible();
+    await expect(page.locator('[data-testid^="player-exercise-item-"]')).toHaveCount(6);
+
+    // Launch signature workout player and test Start -> Pause -> Skip -> Previous
     await page.locator('header nav a[href="#/"]').click();
     await page.getByRole('button', { name: /10 Dk Tam Vücut HIIT|Start 10-Min Full Body/i }).click();
 

@@ -45,12 +45,9 @@ export const DashboardPage: React.FC = () => {
   const signatureWorkout = presets[0]!;
   const otherPresets = presets.slice(1);
 
-  const launchWorkout = (workout: WorkoutPlan, skipWarmup = false) => {
+  const launchWorkout = (workout: WorkoutPlan) => {
     soundService.unlock();
-    const target = skipWarmup
-      ? { ...workout, warmupSeconds: 0, cooldownSeconds: 0 }
-      : workout;
-    selectWorkoutForPlayer(target);
+    selectWorkoutForPlayer(workout);
     navigate('/player');
   };
 
@@ -73,19 +70,6 @@ export const DashboardPage: React.FC = () => {
       ],
     });
     navigate('/player');
-  };
-
-  const handleCustomizeCopy = (workout: WorkoutPlan) => {
-    setEditingWorkout({
-      ...workout,
-      id: workout.isPreset ? `custom-${Date.now()}` : workout.id,
-      name: workout.isPreset
-        ? `${workout.localizedName?.[locale] ?? workout.name} (Copy)`
-        : workout.name,
-      localizedName: undefined,
-      isPreset: false,
-    });
-    navigate('/builder');
   };
 
   const totalCompletedMinutes = Math.round(
@@ -217,7 +201,6 @@ export const DashboardPage: React.FC = () => {
         featured
         startLabelOverride={t.startSignature}
         onStart={launchWorkout}
-        onCustomize={handleCustomizeCopy}
       />
 
       {/* Saved Custom Workouts (shown immediately when user has created any) */}
@@ -233,10 +216,6 @@ export const DashboardPage: React.FC = () => {
                 workout={workout}
                 locale={locale}
                 onStart={launchWorkout}
-                onEdit={(w) => {
-                  setEditingWorkout(w);
-                  navigate('/builder');
-                }}
               />
             ))}
           </div>
@@ -255,7 +234,6 @@ export const DashboardPage: React.FC = () => {
               workout={workout}
               locale={locale}
               onStart={launchWorkout}
-              onCustomize={handleCustomizeCopy}
             />
           ))}
         </div>
@@ -346,7 +324,7 @@ export const DashboardPage: React.FC = () => {
         open={quickTimerOpen}
         locale={locale}
         onClose={() => setQuickTimerOpen(false)}
-        onStartQuickWorkout={(quickWorkout) => launchWorkout(quickWorkout, false)}
+        onStartQuickWorkout={(quickWorkout) => launchWorkout(quickWorkout)}
       />
     </div>
   );

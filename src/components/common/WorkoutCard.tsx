@@ -1,5 +1,6 @@
 import React from 'react';
-import { Copy, Edit3, Play, Trash2 } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Copy, Play, Trash2 } from 'lucide-react';
 import { calculateWorkoutSummary } from '../../engine/phase-resolver';
 import { getExerciseById } from '../../data/exercises/catalog';
 import type { SupportedLocale, WorkoutPlan } from '../../types';
@@ -13,9 +14,7 @@ interface WorkoutCardProps {
   featured?: boolean;
   startLabelOverride?: string;
   testId?: string;
-  onStart: (workout: WorkoutPlan, skipWarmup?: boolean) => void;
-  onCustomize?: (workout: WorkoutPlan) => void;
-  onEdit?: (workout: WorkoutPlan) => void;
+  onStart: (workout: WorkoutPlan) => void;
   onDuplicate?: (workout: WorkoutPlan) => void;
   onDelete?: (workout: WorkoutPlan) => void;
 }
@@ -27,8 +26,6 @@ export const WorkoutCard: React.FC<WorkoutCardProps> = ({
   startLabelOverride,
   testId,
   onStart,
-  onCustomize,
-  onEdit,
   onDuplicate,
   onDelete,
 }) => {
@@ -41,8 +38,8 @@ export const WorkoutCard: React.FC<WorkoutCardProps> = ({
 
   return (
     <article
-      data-testid={testId}
-      className={`adaptive-card surface-card rounded-xl overflow-hidden flex flex-col justify-between transition-colors hover:border-[var(--brand-accent)] ${
+      data-testid={testId ?? `workout-card-${workout.id}`}
+      className={`adaptive-card surface-card rounded-xl overflow-hidden flex flex-col justify-between transition-colors ${
         featured ? 'border-[var(--brand-accent)]/60' : ''
       }`}
     >
@@ -72,11 +69,7 @@ export const WorkoutCard: React.FC<WorkoutCardProps> = ({
                     width={480}
                     height={336}
                     loading={featured ? 'eager' : 'lazy'}
-                    className={
-                      featured
-                        ? 'w-full aspect-[10/7] object-contain'
-                        : 'w-full aspect-[10/7] object-contain'
-                    }
+                    className="w-full aspect-[10/7] object-contain"
                   />
                 )}
                 <span className="absolute top-1 right-1 px-1 py-0.5 rounded bg-black/75 text-[10px] font-bold mono-readout text-slate-200 leading-none">
@@ -101,17 +94,25 @@ export const WorkoutCard: React.FC<WorkoutCardProps> = ({
         )}
       </div>
 
-      {/* Header + Concise Specs */}
-      <div className="p-3.5 space-y-2 flex-1 flex flex-col justify-between">
-        <header className="flex items-start justify-between gap-2">
-          <h3 className={featured ? 'text-lg sm:text-xl font-black m-0' : 'text-base font-extrabold m-0'}>
+      {/* Header Region: Stretched Primary Link */}
+      <header className="px-3.5 pt-3.5 flex items-start justify-between gap-2">
+        <h3 className={featured ? 'text-lg sm:text-xl font-black m-0' : 'text-base font-extrabold m-0'}>
+          <Link
+            to="/player"
+            data-testid={`workout-card-open-${workout.id}`}
+            onClick={() => onStart(workout)}
+            className="card-link no-underline text-inherit"
+          >
             {displayName}
-          </h3>
-          <span className="shrink-0 surface-elevated px-2 py-0.5 rounded text-[11px] font-bold mono-readout">
-            {workout.rounds}×{workout.exercises.length}
-          </span>
-        </header>
+          </Link>
+        </h3>
+        <span className="shrink-0 surface-elevated px-2 py-0.5 rounded text-[11px] font-bold mono-readout">
+          {workout.rounds}×{workout.exercises.length}
+        </span>
+      </header>
 
+      {/* Content Region: Concise Specs */}
+      <div className="px-3.5 pt-2 pb-3.5 flex-1 flex items-end">
         <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs mono-readout text-muted-token">
           <span>
             <strong className="text-[var(--brand-accent)] font-bold">
@@ -127,11 +128,11 @@ export const WorkoutCard: React.FC<WorkoutCardProps> = ({
         </div>
       </div>
 
-      {/* Footer Actions */}
+      {/* Footer Actions: Clean Single Primary Action */}
       <footer className="px-3.5 pb-3.5 pt-2.5 border-t border-[var(--border-subtle)] flex flex-wrap items-center gap-1.5">
         <button
           type="button"
-          onClick={() => onStart(workout, false)}
+          onClick={() => onStart(workout)}
           className={`bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold rounded-lg text-xs inline-flex items-center justify-center gap-1.5 cursor-pointer transition-colors ${
             featured ? 'px-4 py-2.5 text-sm' : 'flex-1 px-3 py-2'
           }`}
@@ -139,37 +140,6 @@ export const WorkoutCard: React.FC<WorkoutCardProps> = ({
           <Play className="w-3.5 h-3.5 fill-current" aria-hidden="true" />
           <span>{startLabelOverride ?? td.startNow}</span>
         </button>
-
-        {workout.warmupSeconds > 0 && (
-          <button
-            type="button"
-            onClick={() => onStart(workout, true)}
-            className="surface-elevated hover:border-[var(--brand-accent)] px-2.5 py-2 rounded-lg text-xs font-semibold cursor-pointer transition-colors"
-          >
-            {td.skipWarmupStart}
-          </button>
-        )}
-
-        {onCustomize && (
-          <button
-            type="button"
-            onClick={() => onCustomize(workout)}
-            className="surface-elevated hover:border-[var(--brand-accent)] px-2.5 py-2 rounded-lg text-xs font-semibold cursor-pointer transition-colors"
-          >
-            {td.customizeCopy}
-          </button>
-        )}
-
-        {onEdit && (
-          <button
-            type="button"
-            onClick={() => onEdit(workout)}
-            aria-label={`${tw.editBtn} ${workout.name}`}
-            className="surface-elevated hover:border-[var(--brand-accent)] p-2 rounded-lg text-xs font-semibold inline-flex items-center justify-center cursor-pointer"
-          >
-            <Edit3 className="w-3.5 h-3.5" aria-hidden="true" />
-          </button>
-        )}
 
         {onDuplicate && (
           <button

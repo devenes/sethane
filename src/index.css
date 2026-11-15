@@ -190,9 +190,40 @@ svg {
   transform: translateY(100%);
 }
 
-/* Container-aware cards (card guide) */
+/* Container-aware cards & stretched primary link (card guide) */
 .adaptive-card {
   container-type: inline-size;
+}
+
+.adaptive-card:has(a.card-link) {
+  position: relative;
+  cursor: pointer;
+
+  a:not(.card-link),
+  button,
+  input {
+    position: relative;
+    z-index: 1;
+  }
+}
+
+.adaptive-card a.card-link::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+}
+
+.adaptive-card a.card-link:focus-visible {
+  outline: none;
+}
+
+.adaptive-card:has(a.card-link:focus-visible) {
+  outline: 2px solid var(--brand-accent);
+  outline-offset: 2px;
+}
+
+.adaptive-card:has(a.card-link:hover) {
+  border-color: var(--brand-accent);
 }
 
 /* Drag-and-drop reordering styles (drag-and-drop guide) */
