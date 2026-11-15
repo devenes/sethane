@@ -183,6 +183,47 @@ svg {
   container-type: inline-size;
 }
 
+/* Drag-and-drop reordering styles (drag-and-drop guide) */
+html.is-reordering,
+html.is-reordering * {
+  cursor: grabbing !important;
+}
+
+.builder-drag-zone {
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.builder-drag-zone:focus-visible {
+  outline: none;
+}
+
+.builder-drag-handle {
+  cursor: grab;
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.sortable-item:has(.builder-drag-zone:focus-visible) {
+  outline: 2px solid var(--brand-accent);
+  outline-offset: 2px;
+}
+
+.sortable-item:has(.builder-drag-zone:focus-visible) .builder-drag-handle {
+  background-color: rgb(16 185 129 / 0.16);
+  color: var(--brand-accent);
+}
+
+.sortable-item .drag-key-hint {
+  display: none;
+}
+
+.sortable-item:has(.builder-drag-zone:focus-visible) .drag-key-hint,
+.sortable-item[data-dragging="true"] .drag-key-hint {
+  display: block;
+}
+
 /* Native modal dialog scroll containment & light-dismiss backdrop */
 dialog:modal {
   overscroll-behavior: contain;

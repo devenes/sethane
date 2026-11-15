@@ -31,8 +31,34 @@ test.describe('SetHane Production Build E2E (/sethane/ subpath)', () => {
     await motionBtn.click();
     await expect(firstImg).toHaveAttribute('src', /\.gif$/);
 
-    // Navigate to Builder, create & save a custom workout, and verify IndexedDB persistence
+    // Navigate to Builder, verify animated GIFs, drag-and-drop reorder, and IndexedDB persistence
     await page.locator('header nav a[href="#/builder"]').click();
+    const firstBuilderImg = page.getByTestId('builder-item-0').locator('img');
+    await expect(firstBuilderImg).toHaveAttribute('src', /dumbbell-thruster\.gif$/);
+
+    // Drag item 0 below item 1 using mouse pointer and verify order updates
+    const handle0 = page.getByTestId('builder-drag-handle-0');
+    const handle1 = page.getByTestId('builder-drag-handle-1');
+    const box0 = await handle0.boundingBox();
+    const box1 = await handle1.boundingBox();
+    expect(box0).not.toBeNull();
+    expect(box1).not.toBeNull();
+
+    await page.mouse.move(box0!.x + 24, box0!.y + box0!.height / 2);
+    await page.mouse.down();
+    await page.mouse.move(box0!.x + 24, box0!.y + box0!.height / 2 + 12, { steps: 3 });
+    await page.mouse.move(box1!.x + 24, box1!.y + box1!.height - 4, { steps: 10 });
+    await page.mouse.up();
+
+    await expect(page.getByTestId('builder-item-0').locator('img')).toHaveAttribute(
+      'src',
+      /mountain-climbers\.gif$/
+    );
+    await expect(page.getByTestId('builder-item-1').locator('img')).toHaveAttribute(
+      'src',
+      /dumbbell-thruster\.gif$/
+    );
+
     const nameInput = page.getByTestId('builder-workout-name');
     await nameInput.fill('Playwright Custom Tabata');
     await page.getByTestId('builder-save-btn').click();

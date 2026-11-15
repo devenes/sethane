@@ -1,13 +1,15 @@
-import React, { useId, useMemo, useState } from 'react';
+import React, { useEffect, useId, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   DndContext,
   KeyboardSensor,
-  PointerSensor,
+  MouseSensor,
+  TouchSensor,
   closestCenter,
   useSensor,
   useSensors,
   type DragEndEvent,
+  type DragStartEvent,
 } from '@dnd-kit/core';
 import {
   SortableContext,
@@ -18,8 +20,6 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import {
-  ArrowDown,
-  ArrowUp,
   CheckCircle2,
   GripVertical,
   Play,
@@ -48,8 +48,8 @@ interface SortableBuilderRowProps {
   index: number;
   totalCount: number;
   locale: SupportedLocale;
+  reducedMotion: boolean;
   onUpdate: (uid: string, patch: Partial<WorkoutExerciseItem>) => void;
-  onMove: (index: number, direction: -1 | 1) => void;
   onRemove: (uid: string) => void;
 }
 
@@ -58,22 +58,43 @@ const SortableBuilderRow: React.FC<SortableBuilderRowProps> = ({
   index,
   totalCount,
   locale,
+  reducedMotion,
   onUpdate,
-  onMove,
   onRemove,
 }) => {
-  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    setActivatorNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({
     id: item.uid,
   });
   const workInputId = useId();
   const restInputId = useId();
   const t = UI_STRINGS[locale].builder;
   const exercise = getExerciseById(item.exerciseId);
+  const exerciseTitle = exercise ? exercise.name[locale] : item.exerciseId;
   const isLast = index === totalCount - 1;
 
+  // Lock movement strictly along the vertical axis without rotation (drag-and-drop guide)
+  const constrainedTransform = transform
+    ? {
+        ...transform,
+        x: 0,
+        scaleX: isDragging && !reducedMotion ? 1.015 : 1,
+        scaleY: isDragging && !reducedMotion ? 1.015 : 1,
+      }
+    : null;
+
   const style: React.CSSProperties = {
-    transform: CSS.Transform.toString(transform),
-    transition,
+    transform: CSS.Transform.toString(constrainedTransform),
+    transition: reducedMotion ? undefined : transition,
+    position: 'relative',
+    zIndex: isDragging ? 20 : undefined,
   };
 
   return (
@@ -81,104 +102,118 @@ const SortableBuilderRow: React.FC<SortableBuilderRowProps> = ({
       ref={setNodeRef}
       style={style}
       data-testid={`builder-item-${index}`}
-      className="surface-elevated rounded-xl p-2.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5"
+      data-dragging={isDragging ? 'true' : 'false'}
+      className={`sortable-item surface-elevated rounded-xl overflow-hidden flex items-stretch transition-shadow ${
+        isDragging
+          ? 'shadow-2xl border-[var(--brand-accent)] ring-2 ring-[var(--brand-accent)]/40'
+          : 'hover:border-[var(--brand-accent)]/50'
+      }`}
     >
-      <div className="flex items-center gap-2.5 min-w-0">
-        <button
-          type="button"
-          {...attributes}
-          {...listeners}
-          aria-label="Drag to reorder"
-          className="p-1.5 rounded-lg text-muted-token hover:text-[var(--brand-accent)] cursor-grab active:cursor-grabbing shrink-0"
-        >
+      {/* Draggable Grip + Large Live GIF Viewport (never wraps interactive inputs) */}
+      <div
+        ref={setActivatorNodeRef}
+        {...attributes}
+        {...listeners}
+        data-testid={`builder-drag-handle-${index}`}
+        aria-label={`${index + 1}. ${exerciseTitle} — ${t.dragHandleAction}`}
+        className="builder-drag-zone shrink-0 flex items-stretch cursor-grab active:cursor-grabbing"
+      >
+        <div className="builder-drag-handle w-10 sm:w-11 shrink-0 border-r border-[var(--border-subtle)] bg-black/15 hover:bg-emerald-500/10 text-muted-token hover:text-[var(--brand-accent)] flex flex-col items-center justify-center gap-1 transition-colors">
+          <span className="text-xs font-black mono-readout text-[var(--text-primary)]">
+            {index + 1}
+          </span>
           <GripVertical className="w-4 h-4" aria-hidden="true" />
-        </button>
+        </div>
 
         {exercise && (
-          <img
-            src={resolveAssetUrl(exercise.media.posterSrc ?? exercise.media.src)}
-            alt={exercise.media.alt[locale]}
-            width={480}
-            height={336}
-            loading="lazy"
-            className="w-14 h-10 rounded-md object-contain bg-[#070b14] border border-slate-800 shrink-0"
-          />
-        )}
-
-        <div className="min-w-0">
-          <div className="font-bold text-xs sm:text-sm truncate">
-            <span className="mono-readout text-muted-token mr-1">{index + 1}.</span>
-            {exercise ? exercise.name[locale] : item.exerciseId}
+          <div className="p-2 sm:p-2.5 flex items-center">
+            <div className="w-28 sm:w-44 aspect-[10/7] rounded-xl overflow-hidden bg-[#070b14] border border-slate-800 p-1">
+              <img
+                src={resolveAssetUrl(exercise.media.src)}
+                alt={exercise.media.alt[locale]}
+                width={480}
+                height={336}
+                draggable={false}
+                className="w-full h-full object-contain rounded-lg pointer-events-none"
+              />
+            </div>
           </div>
-          {isLast && (
-            <div className="text-[10px] text-muted-token">{t.lastExerciseNoRestNote}</div>
-          )}
-        </div>
+        )}
       </div>
 
-      <div className="flex flex-wrap items-center gap-2 shrink-0">
-        <div className="flex items-center gap-1">
-          <label htmlFor={workInputId} className="text-[11px] font-semibold text-muted-token">
-            {t.workSec}
-          </label>
-          <input
-            id={workInputId}
-            type="number"
-            min={5}
-            max={600}
-            value={item.workSeconds}
-            onChange={(e) =>
-              onUpdate(item.uid, { workSeconds: Math.max(5, Number(e.target.value) || 5) })
-            }
-            className="surface-card w-14 px-1.5 py-1 rounded-md text-xs font-bold mono-readout text-center"
-          />
-        </div>
+      {/* Right Column: Full-Width Title on Top + Work/Rest Inputs Below */}
+      <div className="flex-1 min-w-0 py-2.5 pr-3 pl-1 flex flex-col justify-between gap-2.5">
+        <div className="flex items-start justify-between gap-2">
+          <div className="min-w-0 space-y-0.5">
+            <div className="font-extrabold text-sm sm:text-base leading-snug">
+              {exerciseTitle}
+            </div>
+            {exercise && (
+              <div className="text-xs text-muted-token font-semibold">
+                {getCategoryLabel(exercise.category, locale)}
+              </div>
+            )}
+            <div
+              aria-hidden="true"
+              className="drag-key-hint text-[11px] font-semibold text-[var(--brand-accent)]"
+            >
+              {isDragging ? t.keyHintGrabbed : t.keyHintIdle}
+            </div>
+          </div>
 
-        <div className="flex items-center gap-1">
-          <label htmlFor={restInputId} className="text-[11px] font-semibold text-muted-token">
-            {t.restSec}
-          </label>
-          <input
-            id={restInputId}
-            type="number"
-            min={0}
-            max={600}
-            value={isLast ? 0 : item.restSeconds}
-            disabled={isLast}
-            onChange={(e) =>
-              onUpdate(item.uid, { restSeconds: Math.max(0, Number(e.target.value) || 0) })
-            }
-            className="surface-card w-14 px-1.5 py-1 rounded-md text-xs font-bold mono-readout text-center disabled:opacity-45"
-          />
-        </div>
-
-        <div className="flex items-center gap-1">
-          <button
-            type="button"
-            onClick={() => onMove(index, -1)}
-            disabled={index === 0}
-            aria-label={t.moveUp}
-            className="surface-card p-1.5 rounded-md disabled:opacity-35 cursor-pointer"
-          >
-            <ArrowUp className="w-3.5 h-3.5" aria-hidden="true" />
-          </button>
-          <button
-            type="button"
-            onClick={() => onMove(index, 1)}
-            disabled={isLast}
-            aria-label={t.moveDown}
-            className="surface-card p-1.5 rounded-md disabled:opacity-35 cursor-pointer"
-          >
-            <ArrowDown className="w-3.5 h-3.5" aria-hidden="true" />
-          </button>
           <button
             type="button"
             onClick={() => onRemove(item.uid)}
             aria-label={t.removeExercise}
-            className="surface-card p-1.5 rounded-md text-rose-500 hover:border-rose-500/50 cursor-pointer"
+            className="surface-card p-1.5 rounded-lg text-rose-500 hover:border-rose-500/60 cursor-pointer transition-colors shrink-0"
           >
-            <Trash2 className="w-3.5 h-3.5" aria-hidden="true" />
+            <Trash2 className="w-4 h-4" aria-hidden="true" />
           </button>
+        </div>
+
+        <div className="space-y-1.5">
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="flex items-center gap-1.5">
+              <label htmlFor={workInputId} className="text-xs font-semibold text-muted-token whitespace-nowrap">
+                {t.workSec}
+              </label>
+              <input
+                id={workInputId}
+                type="number"
+                min={5}
+                max={600}
+                value={item.workSeconds}
+                onChange={(e) =>
+                  onUpdate(item.uid, { workSeconds: Math.max(5, Number(e.target.value) || 5) })
+                }
+                className="surface-card w-16 px-2 py-1 rounded-lg text-xs font-bold mono-readout text-center"
+              />
+            </div>
+
+            <div className="flex items-center gap-1.5">
+              <label htmlFor={restInputId} className="text-xs font-semibold text-muted-token whitespace-nowrap">
+                {t.restSec}
+              </label>
+              <input
+                id={restInputId}
+                type="number"
+                min={0}
+                max={600}
+                value={isLast ? 0 : item.restSeconds}
+                disabled={isLast}
+                onChange={(e) =>
+                  onUpdate(item.uid, { restSeconds: Math.max(0, Number(e.target.value) || 0) })
+                }
+                className="surface-card w-16 px-2 py-1 rounded-lg text-xs font-bold mono-readout text-center disabled:opacity-45"
+              />
+            </div>
+          </div>
+
+          {isLast && (
+            <div className="text-[11px] text-amber-500 font-semibold">
+              {t.lastExerciseNoRestNote}
+            </div>
+          )}
         </div>
       </div>
     </div>
@@ -201,6 +236,7 @@ export const WorkoutBuilderPage: React.FC = () => {
   const selectWorkoutForPlayer = useWorkoutStore((s) => s.selectWorkoutForPlayer);
 
   const t = UI_STRINGS[locale].builder;
+  const isEditingExisting = Boolean(editingWorkout && !editingWorkout.isPreset);
 
   const nameInputId = useId();
   const roundsInputId = useId();
@@ -214,11 +250,11 @@ export const WorkoutBuilderPage: React.FC = () => {
   const initialSource = editingWorkout ?? presets[0]!;
 
   const [workoutId, setWorkoutId] = useState<string>(
-    editingWorkout && !editingWorkout.isPreset ? editingWorkout.id : `custom-${Date.now()}`
+    isEditingExisting ? editingWorkout!.id : `custom-${Date.now()}`
   );
   const [name, setName] = useState<string>(
     editingWorkout
-      ? editingWorkout.name
+      ? editingWorkout.localizedName?.[locale] ?? editingWorkout.name
       : locale === 'tr'
         ? 'Özel HIIT Programım'
         : 'Custom HIIT'
@@ -233,9 +269,26 @@ export const WorkoutBuilderPage: React.FC = () => {
   const [items, setItems] = useState<BuilderItem[]>(() => toBuilderItems(initialSource.exercises));
   const [catalogQuery, setCatalogQuery] = useState('');
   const [savedBanner, setSavedBanner] = useState(false);
+  const [reorderStatus, setReorderStatus] = useState('');
+
+  const reducedMotion =
+    typeof window !== 'undefined' &&
+    typeof window.matchMedia === 'function' &&
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  useEffect(() => {
+    return () => {
+      document.documentElement.classList.remove('is-reordering');
+    };
+  }, []);
 
   const sensors = useSensors(
-    useSensor(PointerSensor),
+    useSensor(MouseSensor, {
+      activationConstraint: { distance: 4 },
+    }),
+    useSensor(TouchSensor, {
+      activationConstraint: { delay: 120, tolerance: 6 },
+    }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
     })
@@ -279,14 +332,27 @@ export const WorkoutBuilderPage: React.FC = () => {
     );
   }, [catalogQuery]);
 
+  const handleDragStart = (_event: DragStartEvent) => {
+    document.documentElement.classList.add('is-reordering');
+  };
+
+  const handleDragCancel = () => {
+    document.documentElement.classList.remove('is-reordering');
+  };
+
   const handleDragEnd = (event: DragEndEvent) => {
+    document.documentElement.classList.remove('is-reordering');
     const { active, over } = event;
     if (over && active.id !== over.id) {
       setItems((prev) => {
         const oldIdx = prev.findIndex((i) => i.uid === active.id);
         const newIdx = prev.findIndex((i) => i.uid === over.id);
         if (oldIdx < 0 || newIdx < 0) return prev;
-        return arrayMove(prev, oldIdx, newIdx);
+        const next = arrayMove(prev, oldIdx, newIdx);
+        const movedEx = getExerciseById(prev[oldIdx]!.exerciseId);
+        const movedName = movedEx ? movedEx.name[locale] : prev[oldIdx]!.exerciseId;
+        setReorderStatus(`${movedName} — ${t.reorderedAnnouncement} ${newIdx + 1}/${next.length}`);
+        return next;
       });
     }
   };
@@ -311,14 +377,6 @@ export const WorkoutBuilderPage: React.FC = () => {
     setItems((prev) => prev.map((it) => (it.uid === uid ? { ...it, ...patch } : it)));
   };
 
-  const handleMoveItem = (index: number, direction: -1 | 1) => {
-    setItems((prev) => {
-      const targetIndex = index + direction;
-      if (targetIndex < 0 || targetIndex >= prev.length) return prev;
-      return arrayMove(prev, index, targetIndex);
-    });
-  };
-
   const handleRemoveItem = (uid: string) => {
     setItems((prev) => prev.filter((it) => it.uid !== uid));
   };
@@ -326,8 +384,9 @@ export const WorkoutBuilderPage: React.FC = () => {
   const handleLoadPreset = (presetId: string) => {
     const found = presets.find((p) => p.id === presetId);
     if (!found) return;
+    const baseTitle = found.localizedName?.[locale] ?? found.name;
     setWorkoutId(`custom-${Date.now()}`);
-    setName(`${found.name} (Copy)`);
+    setName(`${baseTitle} (Copy)`);
     setRounds(found.rounds);
     setRestBetweenRounds(found.restBetweenRounds);
     setWarmupSeconds(found.warmupSeconds);
@@ -350,10 +409,17 @@ export const WorkoutBuilderPage: React.FC = () => {
 
   return (
     <div className="space-y-4">
+      {/* Single polite live status region for reorder announcements (dynamic-sort guide) */}
+      <p role="status" className="visually-hidden">
+        {reorderStatus}
+      </p>
+
       {/* Compact Header Bar */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-3">
-          <h1 className="text-xl sm:text-2xl font-black m-0">{t.title}</h1>
+          <h1 className="text-xl sm:text-2xl font-black m-0">
+            {isEditingExisting ? t.editTitle : t.title}
+          </h1>
           {savedBanner && (
             <span
               role="status"
@@ -383,7 +449,7 @@ export const WorkoutBuilderPage: React.FC = () => {
             </option>
             {presets.map((p) => (
               <option key={p.id} value={p.id}>
-                {p.name}
+                {p.localizedName?.[locale] ?? p.name}
               </option>
             ))}
           </select>
@@ -413,10 +479,13 @@ export const WorkoutBuilderPage: React.FC = () => {
       </div>
 
       {/* Compact Timing & Summary Strip */}
-      <div className="surface-card rounded-xl p-3.5 space-y-3">
+      <div className="surface-card rounded-xl p-3.5">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 items-end">
           <div className="lg:col-span-4">
-            <label htmlFor={nameInputId} className="block text-[11px] font-bold text-muted-token mb-1">
+            <label
+              htmlFor={nameInputId}
+              className="block text-[11px] font-bold text-muted-token mb-1"
+            >
               {t.workoutNameLabel}
             </label>
             <input
@@ -433,7 +502,10 @@ export const WorkoutBuilderPage: React.FC = () => {
 
           <div className="lg:col-span-5 grid grid-cols-5 gap-2">
             <div>
-              <label htmlFor={roundsInputId} className="block text-[11px] font-semibold text-muted-token mb-1 truncate">
+              <label
+                htmlFor={roundsInputId}
+                className="block text-[11px] font-semibold text-muted-token mb-1 truncate"
+              >
                 {t.roundsLabel}
               </label>
               <input
@@ -449,7 +521,10 @@ export const WorkoutBuilderPage: React.FC = () => {
             </div>
 
             <div>
-              <label htmlFor={restBetweenRoundsInputId} className="block text-[11px] font-semibold text-muted-token mb-1 truncate">
+              <label
+                htmlFor={restBetweenRoundsInputId}
+                className="block text-[11px] font-semibold text-muted-token mb-1 truncate"
+              >
                 {t.restBetweenRoundsLabel}
               </label>
               <input
@@ -464,7 +539,10 @@ export const WorkoutBuilderPage: React.FC = () => {
             </div>
 
             <div>
-              <label htmlFor={warmupInputId} className="block text-[11px] font-semibold text-muted-token mb-1 truncate">
+              <label
+                htmlFor={warmupInputId}
+                className="block text-[11px] font-semibold text-muted-token mb-1 truncate"
+              >
                 {t.warmupLabel}
               </label>
               <input
@@ -479,7 +557,10 @@ export const WorkoutBuilderPage: React.FC = () => {
             </div>
 
             <div>
-              <label htmlFor={cooldownInputId} className="block text-[11px] font-semibold text-muted-token mb-1 truncate">
+              <label
+                htmlFor={cooldownInputId}
+                className="block text-[11px] font-semibold text-muted-token mb-1 truncate"
+              >
                 {t.cooldownLabel}
               </label>
               <input
@@ -494,7 +575,10 @@ export const WorkoutBuilderPage: React.FC = () => {
             </div>
 
             <div>
-              <label htmlFor={prepareInputId} className="block text-[11px] font-semibold text-muted-token mb-1 truncate">
+              <label
+                htmlFor={prepareInputId}
+                className="block text-[11px] font-semibold text-muted-token mb-1 truncate"
+              >
                 {t.prepareLabel}
               </label>
               <input
@@ -509,14 +593,14 @@ export const WorkoutBuilderPage: React.FC = () => {
             </div>
           </div>
 
-          <div className="lg:col-span-3 flex items-center justify-between gap-2 surface-elevated rounded-lg px-3 py-1.5 text-xs mono-readout">
-            <div>
+          <div className="lg:col-span-3 flex flex-wrap items-center justify-between gap-2 surface-elevated rounded-lg px-3 py-1.5 text-xs mono-readout">
+            <div className="whitespace-nowrap">
               <span className="text-muted-token">{t.summaryCoreHiit}: </span>
               <strong data-testid="builder-summary-core" className="text-[var(--brand-accent)]">
                 {formatHumanDuration(summary.coreHiitSeconds, locale)}
               </strong>
             </div>
-            <div>
+            <div className="whitespace-nowrap">
               <span className="text-muted-token">{t.summaryTotalTime}: </span>
               <strong data-testid="builder-summary-total">
                 {formatHumanDuration(summary.totalSeconds, locale)}
@@ -526,13 +610,19 @@ export const WorkoutBuilderPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Sequence & Visual Catalog Split View */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+      {/* Sequence & Visual Animated Catalog Split View */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
+        {/* Left: Drag-and-Drop Sequence with Large Live GIFs */}
         <section className="lg:col-span-7 surface-card rounded-xl p-4 space-y-3">
-          <div className="flex items-center justify-between">
-            <h2 className="text-sm font-extrabold uppercase tracking-wider text-muted-token m-0">
-              {t.selectedExercisesHeading} ({items.length})
-            </h2>
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div className="flex items-baseline gap-2.5">
+              <h2 className="text-sm font-extrabold uppercase tracking-wider text-muted-token m-0">
+                {t.selectedExercisesHeading} ({items.length})
+              </h2>
+              {items.length > 1 && (
+                <span className="text-xs text-muted-token">· {t.dragHint}</span>
+              )}
+            </div>
             <button
               type="button"
               onClick={() => setItems([])}
@@ -551,13 +641,15 @@ export const WorkoutBuilderPage: React.FC = () => {
             <DndContext
               sensors={sensors}
               collisionDetection={closestCenter}
+              onDragStart={handleDragStart}
+              onDragCancel={handleDragCancel}
               onDragEnd={handleDragEnd}
             >
               <SortableContext
                 items={items.map((i) => i.uid)}
                 strategy={verticalListSortingStrategy}
               >
-                <div className="space-y-2">
+                <div className="space-y-2.5 p-0.5">
                   {items.map((item, idx) => (
                     <SortableBuilderRow
                       key={item.uid}
@@ -565,8 +657,8 @@ export const WorkoutBuilderPage: React.FC = () => {
                       index={idx}
                       totalCount={items.length}
                       locale={locale}
+                      reducedMotion={reducedMotion}
                       onUpdate={handleUpdateItem}
-                      onMove={handleMoveItem}
                       onRemove={handleRemoveItem}
                     />
                   ))}
@@ -576,13 +668,11 @@ export const WorkoutBuilderPage: React.FC = () => {
           )}
         </section>
 
-        {/* Visual Catalog Picker with Instant Search */}
+        {/* Right: Visual Catalog Picker with Large Live GIFs */}
         <section className="lg:col-span-5 surface-card rounded-xl p-4 space-y-3">
-          <div className="flex items-center justify-between gap-2">
-            <h2 className="text-sm font-extrabold uppercase tracking-wider text-muted-token m-0">
-              {t.addExercisesHeading}
-            </h2>
-          </div>
+          <h2 className="text-sm font-extrabold uppercase tracking-wider text-muted-token m-0">
+            {t.addExercisesHeading}
+          </h2>
 
           <div className="relative">
             <label htmlFor={catalogFilterId} className="visually-hidden">
@@ -602,24 +692,29 @@ export const WorkoutBuilderPage: React.FC = () => {
             />
           </div>
 
-          <div className="space-y-1.5 max-h-[520px] overflow-y-auto pr-1">
+          <div className="space-y-2.5 max-h-[720px] overflow-y-auto pr-1">
             {filteredCatalog.map((ex) => (
               <div
                 key={ex.id}
-                className="surface-elevated rounded-lg p-2 flex items-center justify-between gap-2"
+                className="surface-elevated rounded-xl p-2.5 flex items-center justify-between gap-3 hover:border-[var(--brand-accent)]/50 transition-colors"
               >
-                <div className="flex items-center gap-2.5 min-w-0">
-                  <img
-                    src={resolveAssetUrl(ex.media.posterSrc ?? ex.media.src)}
-                    alt={ex.media.alt[locale]}
-                    width={480}
-                    height={336}
-                    loading="lazy"
-                    className="w-14 h-10 rounded-md object-contain bg-[#070b14] border border-slate-800 shrink-0"
-                  />
-                  <div className="min-w-0">
-                    <div className="text-xs font-bold truncate">{ex.name[locale]}</div>
-                    <div className="text-[10px] mono-readout text-muted-token">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="w-28 sm:w-32 aspect-[10/7] rounded-xl overflow-hidden bg-[#070b14] border border-slate-800 shrink-0 p-1">
+                    <img
+                      src={resolveAssetUrl(ex.media.src)}
+                      alt={ex.media.alt[locale]}
+                      width={480}
+                      height={336}
+                      loading="lazy"
+                      draggable={false}
+                      className="w-full h-full object-contain rounded-lg"
+                    />
+                  </div>
+                  <div className="min-w-0 space-y-0.5">
+                    <div className="text-xs sm:text-sm font-extrabold leading-snug">
+                      {ex.name[locale]}
+                    </div>
+                    <div className="text-[11px] mono-readout text-muted-token">
                       {getCategoryLabel(ex.category, locale)} · {ex.defaultWorkSeconds}s/
                       {ex.defaultRestSeconds}s
                     </div>
@@ -630,9 +725,9 @@ export const WorkoutBuilderPage: React.FC = () => {
                   onClick={() => handleAddExercise(ex.id)}
                   data-testid={`add-exercise-${ex.id}`}
                   aria-label={`Add ${ex.name[locale]}`}
-                  className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold p-2 rounded-lg text-xs inline-flex items-center justify-center cursor-pointer transition-colors shrink-0"
+                  className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold p-2.5 rounded-xl text-xs inline-flex items-center justify-center cursor-pointer transition-colors shrink-0"
                 >
-                  <Plus className="w-3.5 h-3.5" aria-hidden="true" />
+                  <Plus className="w-4 h-4" aria-hidden="true" />
                 </button>
               </div>
             ))}
