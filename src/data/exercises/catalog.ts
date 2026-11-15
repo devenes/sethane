@@ -1169,6 +1169,390 @@ export const EXERCISES_CATALOG: Exercise[] = [
       },
     },
   },
+  {
+    id: 'dumbbell-floor-press',
+    name: {
+      en: 'Dumbbell Floor Press',
+      tr: 'Yerde Dambıl Göğüs Pres',
+    },
+    category: 'dumbbell',
+    muscleGroups: ['chest', 'arms', 'shoulders'],
+    equipment: ['dumbbells', 'mat'],
+    difficulty: 'beginner',
+    defaultWorkSeconds: 40,
+    defaultRestSeconds: 15,
+    instructions: {
+      en: [
+        'Lie flat on your back with knees bent, feet planted firmly on the mat, and dumbbells held above your chest.',
+        'Lower your upper arms slowly at a 45-degree angle until the backs of your triceps touch the mat lightly.',
+        'Pause briefly without bouncing, then press the dumbbells powerfully back over your chest.',
+      ],
+      tr: [
+        'Dizler bükülü ve ayaklar mata tam basılı şekilde sırtüstü uzanın; dambılları göğüs hizasında yukarıda tutun.',
+        'Dirsekleriniz gövdenizle 45 derece açı yapacak şekilde üst kollarınız mata hafifçe değene kadar kontrollüce indirin.',
+        'Yerde zıplatmadan kısa bir an duraklayın ve göğüs kaslarınızı sıkarak dambılları tekrar yukarı itin.',
+      ],
+    },
+    commonMistakes: {
+      en: [
+        'Bouncing the elbows harshly off the floor to generate momentum.',
+        'Flaring elbows straight out in line with the shoulders.',
+      ],
+      tr: [
+        'İvme kazanmak için dirsekleri yere sertçe çarptırmak.',
+        'Dirsekleri omuz hizasında 90 derece yana açmak.',
+      ],
+    },
+    easierVariation: {
+      en: 'Use lighter dumbbells or press one arm at a time for smoother shoulder control.',
+      tr: 'Daha hafif dambıl seçin veya omuz kontrolünü artırmak için kolları sırayla itin.',
+    },
+    media: {
+      type: 'gif',
+      src: 'assets/exercises/dumbbell-floor-press.gif',
+      posterSrc: 'assets/exercises/dumbbell-floor-press-poster.png',
+      alt: {
+        en: 'Athlete lying supine on a mat pressing dumbbells vertically above the chest.',
+        tr: 'Mat üzerinde sırtüstü uzanarak dambılları göğüs hizasında yukarı presleyen sporcu illüstrasyonu.',
+      },
+    },
+  },
+  {
+    id: 'diamond-push-ups',
+    name: {
+      en: 'Diamond Push-Ups',
+      tr: 'Elmas Şınav (Triceps & İç Göğüs)',
+    },
+    category: 'bodyweight',
+    muscleGroups: ['arms', 'chest', 'shoulders', 'core'],
+    equipment: ['mat'],
+    difficulty: 'intermediate',
+    defaultWorkSeconds: 35,
+    defaultRestSeconds: 15,
+    instructions: {
+      en: [
+        'Start in a high plank with hands placed close together directly beneath your sternum.',
+        'Brace your abs and glutes while lowering your chest toward your hands, keeping elbows tucked near your ribs.',
+        'Drive firmly through your palms to extend your elbows and lock in triceps tension at the top.',
+      ],
+      tr: [
+        'Ellerinizi göğüs kemiğinizin tam altında birbirine yakın konumlandırarak yüksek plank pozisyonu alın.',
+        'Dirseklerinizi gövdenize yakın tutarak karın ve kalçayı sıkıp göğsünüzü ellerinize yaklaştırın.',
+        'Avuç içlerinizle yeri güçlüce iterek kollarınızı uzatın ve arka kol (triceps) kaslarınızı sıkın.',
+      ],
+    },
+    commonMistakes: {
+      en: [
+        'Placing the hands too far forward under the face instead of beneath the mid-chest.',
+        'Letting the hips sag or elbows splay wide.',
+      ],
+      tr: [
+        'Elleri göğüs altı yerine yüzün altına fazla ileri yerleştirmek.',
+        'Kalçayı düşürmek veya dirsekleri dışarı savurmak.',
+      ],
+    },
+    easierVariation: {
+      en: 'Perform close-grip push-ups from your knees or with hands elevated on a sturdy bench.',
+      tr: 'Dar tutuş şınavı dizler yerde veya eller sağlam bir yükseltide olacak şekilde uygulayın.',
+    },
+    media: {
+      type: 'gif',
+      src: 'assets/exercises/diamond-push-ups.gif',
+      posterSrc: 'assets/exercises/diamond-push-ups-poster.png',
+      alt: {
+        en: 'Athlete performing a close-grip diamond push-up targeting triceps and chest.',
+        tr: 'Arka kol ve iç göğsü hedefleyen dar tutuş elmas şınav yapan sporcu illüstrasyonu.',
+      },
+    },
+  },
+  {
+    id: 'dumbbell-bent-over-row',
+    name: {
+      en: 'Dumbbell Bent-Over Row',
+      tr: 'Eğilerek Dambıl Sırt Çekiş',
+    },
+    category: 'dumbbell',
+    muscleGroups: ['back', 'arms', 'core'],
+    equipment: ['dumbbells'],
+    difficulty: 'beginner',
+    defaultWorkSeconds: 40,
+    defaultRestSeconds: 15,
+    instructions: {
+      en: [
+        'Stand with feet hip-width apart, hinge your hips back to a 45-degree torso angle, and let dumbbells hang below shoulders.',
+        'Keep your spine flat and core braced as you pull both dumbbells toward your lower ribs.',
+        'Squeeze your shoulder blades together briefly at the top, then lower the weights slowly.',
+      ],
+      tr: [
+        'Ayaklar kalça genişliğinde açık, kalçayı geriye vererek gövdenizi 45 derece öne eğin; dambıllar omuz altından sarksın.',
+        'Sırtınızı düz ve merkez bölgenizi sıkı tutarak dambılları alt kaburgalarınıza doğru çekin.',
+        'Üst noktada kürek kemiklerinizi birbirine yaklaştırıp sıkın, ardından kontrollüce indirin.',
+      ],
+    },
+    commonMistakes: {
+      en: [
+        'Shrugging the shoulders up toward the ears instead of pulling elbows back toward the hips.',
+        'Rounding the lumbar spine as fatigue builds.',
+      ],
+      tr: [
+        'Dirsekleri kalçaya doğru çekmek yerine omuzları kulaklara doğru kaldırmak.',
+        'Yoruldukça bel ve sırt kavisini bozarak kamburlaşmak.',
+      ],
+    },
+    easierVariation: {
+      en: 'Row one arm at a time while bracing the opposite hand on your thigh or a bench.',
+      tr: 'Boştaki elinizle dizinizden veya bir sehpadan destek alarak tek kol çekiş yapın.',
+    },
+    media: {
+      type: 'gif',
+      src: 'assets/exercises/dumbbell-bent-over-row.gif',
+      posterSrc: 'assets/exercises/dumbbell-bent-over-row-poster.png',
+      alt: {
+        en: 'Athlete hinged forward rowing dumbbells toward the lower ribs with back engaged.',
+        tr: 'Öne eğilmiş pozisyonda dambılları alt kaburgalarına çekerek sırt çalıştıran sporcu illüstrasyonu.',
+      },
+    },
+  },
+  {
+    id: 'superman-back-extension',
+    name: {
+      en: 'Superman Lat Pull',
+      tr: 'Yüzüstü Superman Sırt Çekiş',
+    },
+    category: 'low-impact',
+    muscleGroups: ['back', 'glutes', 'shoulders', 'core'],
+    equipment: ['mat'],
+    difficulty: 'beginner',
+    defaultWorkSeconds: 35,
+    defaultRestSeconds: 15,
+    instructions: {
+      en: [
+        'Lie face down on the mat with legs extended and arms reaching overhead.',
+        'Gently lift your chest, arms, and thighs a few inches off the mat while squeezing your glutes.',
+        'Pull your elbows back into a W-shape to engage your upper back, then extend forward and lower smoothly.',
+      ],
+      tr: [
+        'Bacaklar uzatılmış ve kollar baş ilerisinde olacak şekilde mat üzerine yüzüstü uzanın.',
+        'Kalçanızı sıkarak göğsünüzü, kollarınızı ve uyluklarınızı yerden birkaç santimetre kaldırın.',
+        'Dirseklerinizi W harfi çizecek şekilde geriye çekip üst sırtınızı sıkın, ardından ileri uzanıp yavaşça inin.',
+      ],
+    },
+    commonMistakes: {
+      en: [
+        'Cranking the neck upward instead of keeping eyes pointed down toward the mat.',
+        'Jerking too high with momentum rather than smooth posterior-chain contraction.',
+      ],
+      tr: [
+        'Bakışları yere dönük nötr tutmak yerine başı sertçe geriye kaldırmak.',
+        'Kontrollü sırt kasılması yerine ivmeyle beli aşırı zorlamak.',
+      ],
+    },
+    easierVariation: {
+      en: 'Keep your feet resting on the mat and lift only your chest and elbows off the floor.',
+      tr: 'Ayaklarınızı matta sabit bırakarak yalnızca göğüs ve kollarınızı hafifçe kaldırıp çekin.',
+    },
+    media: {
+      type: 'gif',
+      src: 'assets/exercises/superman-back-extension.gif',
+      posterSrc: 'assets/exercises/superman-back-extension-poster.png',
+      alt: {
+        en: 'Athlete lying prone lifting chest and legs while pulling elbows back to engage the posterior chain.',
+        tr: 'Yüzüstü pozisyonda göğüs ve bacaklarını kaldırıp dirseklerini geriye çekerek arka zinciri çalıştıran sporcu illüstrasyonu.',
+      },
+    },
+  },
+  {
+    id: 'dumbbell-lateral-raise',
+    name: {
+      en: 'Dumbbell Lateral Raise',
+      tr: 'Dambıl Yana Açış (Yan Omuz)',
+    },
+    category: 'dumbbell',
+    muscleGroups: ['shoulders', 'core'],
+    equipment: ['dumbbells'],
+    difficulty: 'beginner',
+    defaultWorkSeconds: 35,
+    defaultRestSeconds: 15,
+    instructions: {
+      en: [
+        'Stand tall with feet hip-width apart holding light-to-moderate dumbbells at your sides with a soft bend in the elbows.',
+        'Sweep both arms out laterally in a wide arc until your elbows reach shoulder height.',
+        'Lower the dumbbells down slowly over 2 seconds without letting tension drop completely.',
+      ],
+      tr: [
+        'Ayaklar kalça genişliğinde açık, dirsekler hafif bükülü şekilde dambılları yanlarınızda tutun.',
+        'Omuzlarınızı kulaklarınıza çekmeden kollarınızı yanlara doğru omuz hizasına kadar açın.',
+        'Kas gerilimini koruyarak dambılları 2 saniyede kontrollüce başlangıç noktasına indirin.',
+      ],
+    },
+    commonMistakes: {
+      en: [
+        'Swinging the torso or using hip momentum to heave overly heavy weights upward.',
+        'Raising hands high above shoulder level with shrugged upper traps.',
+      ],
+      tr: [
+        'Çok ağır dambıl seçip gövdeyi sallayarak ivmeyle kaldırmak.',
+        'Trapez kaslarını sıkarak elleri omuz hizasının çok üzerine çıkarmak.',
+      ],
+    },
+    easierVariation: {
+      en: 'Raise one arm at a time (alternating lateral raises) or bend elbows to 90 degrees.',
+      tr: 'Sağ ve sol kolu sırayla yana açın veya kaldıraç boyunu kısaltmak için dirsekleri biraz daha bükün.',
+    },
+    media: {
+      type: 'gif',
+      src: 'assets/exercises/dumbbell-lateral-raise.gif',
+      posterSrc: 'assets/exercises/dumbbell-lateral-raise-poster.png',
+      alt: {
+        en: 'Athlete standing upright raising dumbbells out to shoulder level to target medial deltoids.',
+        tr: 'Dik duruşta dambılları omuz hizasına yana açarak yan omuz kaslarını çalıştıran sporcu illüstrasyonu.',
+      },
+    },
+  },
+  {
+    id: 'dumbbell-tricep-extension',
+    name: {
+      en: 'Overhead Dumbbell Tricep Extension',
+      tr: 'Baş Üstü Dambıl Triceps Ekstansiyon',
+    },
+    category: 'dumbbell',
+    muscleGroups: ['arms', 'shoulders', 'core'],
+    equipment: ['dumbbells'],
+    difficulty: 'beginner',
+    defaultWorkSeconds: 35,
+    defaultRestSeconds: 15,
+    instructions: {
+      en: [
+        'Stand tall with core braced and hold one dumbbell vertically overhead with both hands cupping the top plate.',
+        'Keep your upper arms stationary beside your ears as you bend your elbows to lower the weight behind your head.',
+        'Extend your forearms smoothly back to full lockout overhead, squeezing your triceps.',
+      ],
+      tr: [
+        'Karın kaslarınızı sıkın ve tek bir dambılı üst plakasından iki elle kavrayarak baş üstünde dikey tutun.',
+        'Dirseklerinizi dışa açmadan kulaklarınızın yanında sabit tutarak dambılı başınızın arkasına indirin.',
+        'Arka kol (triceps) kaslarınızı sıkarak ön kollarınızı tekrar baş üstünde tam uzatın.',
+      ],
+    },
+    commonMistakes: {
+      en: [
+        'Arching the lower back instead of keeping ribs stacked over the pelvis.',
+        'Letting elbows flare wide out to the sides on every rep.',
+      ],
+      tr: [
+        'Kaburgaları içeride tutmak yerine beli aşırı çukurlaştırmak.',
+        'Her tekrarda dirseklerin yanlara doğru açılmasına izin vermek.',
+      ],
+    },
+    easierVariation: {
+      en: 'Perform seated on a chair for extra lumbar stability or use a lighter dumbbell.',
+      tr: 'Ekstra bel dengesi için sandalyede oturarak uygulayın veya daha hafif dambıl kullanın.',
+    },
+    media: {
+      type: 'gif',
+      src: 'assets/exercises/dumbbell-tricep-extension.gif',
+      posterSrc: 'assets/exercises/dumbbell-tricep-extension-poster.png',
+      alt: {
+        en: 'Athlete extending a dumbbell overhead from behind the head to isolate the triceps.',
+        tr: 'Baş arkasından dambılı yukarı uzatarak arka kol kaslarını izole eden sporcu illüstrasyonu.',
+      },
+    },
+  },
+  {
+    id: 'lateral-lunges',
+    name: {
+      en: 'Alternating Lateral Lunges',
+      tr: 'Alternatif Yan Lunge (Yan Hamle)',
+    },
+    category: 'bodyweight',
+    muscleGroups: ['legs', 'glutes', 'core'],
+    equipment: ['none'],
+    difficulty: 'beginner',
+    defaultWorkSeconds: 40,
+    defaultRestSeconds: 15,
+    instructions: {
+      en: [
+        'Take a wide stance with toes pointing forward and chest tall.',
+        'Shift your hips back and over to the right, bending your right knee deeply while keeping your left leg straight.',
+        'Push through your right heel to return to center, then flow smoothly into a left lateral lunge.',
+      ],
+      tr: [
+        'Ayak uçlarınız karşıya bakacak şekilde geniş bir duruş alın ve göğsünüzü dik tutun.',
+        'Kalçanızı geriye ve sağa doğru indirerek sağ dizinizi bükün; sol bacağınızı düz ve tabanı yerde tutun.',
+        'Sağ topuğunuzdan güç alarak merkeze dönün ve akıcı şekilde sol tarafa yan hamle yapın.',
+      ],
+    },
+    commonMistakes: {
+      en: [
+        'Letting the heel of the bent leg peel off the floor.',
+        'Rounding the chest down instead of sitting the hips backward.',
+      ],
+      tr: [
+        'Bükülen taraftaki topuğun yerden kalkmasına izin vermek.',
+        'Kalçayı geriye oturtmak yerine sadece gövdeyi öne eğmek.',
+      ],
+    },
+    easierVariation: {
+      en: 'Reduce the lunge depth and keep hands lightly on your thighs for support.',
+      tr: 'İniş derinliğini azaltın ve denge için ellerinizden hafifçe destek alın.',
+    },
+    media: {
+      type: 'gif',
+      src: 'assets/exercises/lateral-lunges.gif',
+      posterSrc: 'assets/exercises/lateral-lunges-poster.png',
+      alt: {
+        en: 'Athlete shifting hips side to side in a wide alternating lateral lunge.',
+        tr: 'Geniş duruşta kalçasını sağa ve sola indirerek yan hamle yapan sporcu illüstrasyonu.',
+      },
+    },
+  },
+  {
+    id: 'dead-bug',
+    name: {
+      en: 'Dead Bug Core Control',
+      tr: 'Dead Bug (Derin Core Stabilizasyon)',
+    },
+    category: 'core',
+    muscleGroups: ['core'],
+    equipment: ['mat'],
+    difficulty: 'beginner',
+    defaultWorkSeconds: 40,
+    defaultRestSeconds: 15,
+    instructions: {
+      en: [
+        'Lie supine on the mat with arms reaching straight toward the ceiling and knees bent at 90 degrees over your hips.',
+        'Flatten your lower back against the mat, then slowly extend your right leg forward and left arm overhead.',
+        'Return to center with control while exhaling, then repeat with your left leg and right arm.',
+      ],
+      tr: [
+        'Sırtüstü uzanın; kollarınızı tavana dik uzatın ve dizlerinizi kalça üzerinde 90 derece masa pozisyonuna getirin.',
+        'Bel boşluğunuzu mata tam bastırarak sağ bacağınızı ileri, sol kolunuzu baş gerisine doğru yavaşça uzatın.',
+        'Nefes vererek kontrollüce merkeze dönün ve sol bacak ile sağ kolla tekrarlayın.',
+      ],
+    },
+    commonMistakes: {
+      en: [
+        'Allowing the lower back to arch off the mat as the leg extends.',
+        'Moving both limbs on the same side or rushing without core tension.',
+      ],
+      tr: [
+        'Bacak uzanırken belin mattan kalkıp çukurlaşmasına izin vermek.',
+        'Karın kontrolünü bırakıp hareketi çok hızlı savurarak yapmak.',
+      ],
+    },
+    easierVariation: {
+      en: 'Keep arms stationary pointing up and tap one bent heel lightly toward the mat at a time.',
+      tr: 'Kolları sabit tutun ve diz açısını bozmadan sırayla tek topuğunuzu mata hafifçe dokundurun.',
+    },
+    media: {
+      type: 'gif',
+      src: 'assets/exercises/dead-bug.gif',
+      posterSrc: 'assets/exercises/dead-bug-poster.png',
+      alt: {
+        en: 'Athlete lying supine extending opposite arm and leg with lumbar spine pressed into the mat.',
+        tr: 'Sırtüstü pozisyonda belini mata bastırarak çapraz kol ve bacağını uzatan sporcu illüstrasyonu.',
+      },
+    },
+  },
 ];
 
 export const EXERCISES_BY_ID: Record<string, Exercise> = Object.fromEntries(

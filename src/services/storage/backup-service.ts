@@ -1,5 +1,12 @@
 import { z } from 'zod';
-import type { BackupPayloadV1, UserSettings, WorkoutHistoryEntry, WorkoutPlan } from '../../types';
+import type {
+  BackupPayloadV1,
+  DayOfWeekKey,
+  UserSettings,
+  WeeklyDayScheduleRecord,
+  WorkoutHistoryEntry,
+  WorkoutPlan,
+} from '../../types';
 import { db, DEFAULT_USER_SETTINGS } from './db';
 
 export const WorkoutExerciseItemSchema = z.object({
@@ -58,6 +65,16 @@ export const UserSettingsPayloadSchema = z.object({
   defaultPrepareSeconds: z.number().int().min(0).max(60),
 });
 
+const DayOfWeekKeySchema = z.enum([
+  'monday',
+  'tuesday',
+  'wednesday',
+  'thursday',
+  'friday',
+  'saturday',
+  'sunday',
+]);
+
 export const BackupPayloadV1Schema = z.object({
   schemaVersion: z.literal(1),
   exportedAt: z.string(),
@@ -65,13 +82,15 @@ export const BackupPayloadV1Schema = z.object({
   customWorkouts: z.array(WorkoutPlanSchema),
   history: z.array(WorkoutHistoryEntrySchema),
   settings: UserSettingsPayloadSchema,
+  weeklySchedule: z.record(DayOfWeekKeySchema, WorkoutPlanSchema).optional(),
 });
 
 export async function createBackupPayload(): Promise<BackupPayloadV1> {
-  const [customWorkouts, history, storedSettings] = await Promise.all([
+  const [customWorkouts, history, storedSettings, weeklyRows] = await Promise.all([
     db.customWorkouts.toArray(),
     db.history.toArray(),
     db.settings.get('default'),
+    db.weeklySchedule.toArray(),
   ]);
 
   const mergedSettings: UserSettings = {
@@ -82,6 +101,11 @@ export async function createBackupPayload(): Promise<BackupPayloadV1> {
 
   const { id: _ignored, ...settingsWithoutId } = mergedSettings;
 
+  const weeklySchedule: Partial<Record<DayOfWeekKey, WorkoutPlan>> = {};
+  for (const row of weeklyRows) {
+    weeklySchedule[row.dayKey] = row.workout;
+  }
+
   return {
     schemaVersion: 1,
     exportedAt: new Date().toISOString(),
@@ -89,6 +113,7 @@ export async function createBackupPayload(): Promise<BackupPayloadV1> {
     customWorkouts,
     history,
     settings: settingsWithoutId,
+    ...(weeklyRows.length > 0 ? { weeklySchedule } : {}),
   };
 }
 
@@ -138,23 +163,41 @@ export async function importBackupFromJsonString(
     isPreset: false,
   }));
   const sanitizedHistory: WorkoutHistoryEntry[] = data.history;
+  const nowIso = new Date().toISOString();
+  const sanitizedWeeklyRows: WeeklyDayScheduleRecord[] = data.weeklySchedule
+    ? (Object.entries(data.weeklySchedule) as Array<[DayOfWeekKey, WorkoutPlan | undefined]>)
+        .filter((entry): entry is [DayOfWeekKey, WorkoutPlan] => Boolean(entry[1]))
+        .map(([dayKey, workout]) => ({
+          dayKey,
+          workout,
+          updatedAt: workout.updatedAt ?? nowIso,
+        }))
+    : [];
 
-  await db.transaction('rw', db.customWorkouts, db.history, db.settings, async () => {
-    if (mode === 'replace') {
-      await db.customWorkouts.clear();
-      await db.history.clear();
+  await db.transaction(
+    'rw',
+    [db.customWorkouts, db.history, db.settings, db.weeklySchedule],
+    async () => {
+      if (mode === 'replace') {
+        await db.customWorkouts.clear();
+        await db.history.clear();
+        await db.weeklySchedule.clear();
+      }
+      if (sanitizedWorkouts.length > 0) {
+        await db.customWorkouts.bulkPut(sanitizedWorkouts);
+      }
+      if (sanitizedHistory.length > 0) {
+        await db.history.bulkPut(sanitizedHistory);
+      }
+      if (sanitizedWeeklyRows.length > 0) {
+        await db.weeklySchedule.bulkPut(sanitizedWeeklyRows);
+      }
+      await db.settings.put({
+        id: 'default',
+        ...data.settings,
+      });
     }
-    if (sanitizedWorkouts.length > 0) {
-      await db.customWorkouts.bulkPut(sanitizedWorkouts);
-    }
-    if (sanitizedHistory.length > 0) {
-      await db.history.bulkPut(sanitizedHistory);
-    }
-    await db.settings.put({
-      id: 'default',
-      ...data.settings,
-    });
-  });
+  );
 
   return {
     success: true,

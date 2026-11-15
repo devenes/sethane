@@ -1,11 +1,18 @@
 import { create } from 'zustand';
 import { PRESET_WORKOUTS } from '../data/workouts/presets';
+import {
+  cloneWorkoutPlan,
+  createDefaultWeeklySchedule,
+  WEEKLY_DEFINITIONS_BY_DAY,
+} from '../data/workouts/weekly-program';
 import { db } from '../services/storage/db';
-import type { WorkoutHistoryEntry, WorkoutPlan } from '../types';
+import type { DayOfWeekKey, WorkoutHistoryEntry, WorkoutPlan } from '../types';
 
 interface WorkoutStoreState {
   presets: WorkoutPlan[];
   customWorkouts: WorkoutPlan[];
+  weeklySchedule: Record<DayOfWeekKey, WorkoutPlan>;
+  customizedWeeklyDays: Partial<Record<DayOfWeekKey, boolean>>;
   history: WorkoutHistoryEntry[];
   activeWorkout: WorkoutPlan;
   editingWorkout: WorkoutPlan | null;
@@ -16,6 +23,9 @@ interface WorkoutStoreState {
   saveCustomWorkout: (workout: WorkoutPlan) => Promise<WorkoutPlan>;
   deleteCustomWorkout: (id: string) => Promise<void>;
   duplicateWorkout: (workout: WorkoutPlan) => Promise<WorkoutPlan>;
+  updateWeeklyDayWorkout: (dayKey: DayOfWeekKey, workout: WorkoutPlan) => Promise<void>;
+  resetWeeklyDay: (dayKey: DayOfWeekKey) => Promise<void>;
+  resetAllWeeklyDays: () => Promise<void>;
   recordCompletedSession: (entry: Omit<WorkoutHistoryEntry, 'id' | 'completedAt'>) => Promise<void>;
   clearHistory: () => Promise<void>;
 }
@@ -23,6 +33,8 @@ interface WorkoutStoreState {
 export const useWorkoutStore = create<WorkoutStoreState>((set, get) => ({
   presets: PRESET_WORKOUTS,
   customWorkouts: [],
+  weeklySchedule: createDefaultWeeklySchedule(),
+  customizedWeeklyDays: {},
   history: [],
   activeWorkout: PRESET_WORKOUTS[0]!,
   editingWorkout: null,
@@ -30,12 +42,21 @@ export const useWorkoutStore = create<WorkoutStoreState>((set, get) => ({
 
   hydrate: async () => {
     try {
-      const [customWorkouts, history] = await Promise.all([
+      const [customWorkouts, history, weeklyRows] = await Promise.all([
         db.customWorkouts.orderBy('updatedAt').reverse().toArray(),
         db.history.orderBy('completedAt').reverse().toArray(),
+        db.weeklySchedule.toArray(),
       ]);
+      const weeklySchedule = createDefaultWeeklySchedule();
+      const customizedWeeklyDays: Partial<Record<DayOfWeekKey, boolean>> = {};
+      for (const row of weeklyRows) {
+        weeklySchedule[row.dayKey] = cloneWorkoutPlan(row.workout);
+        customizedWeeklyDays[row.dayKey] = true;
+      }
       set({
         customWorkouts,
+        weeklySchedule,
+        customizedWeeklyDays,
         history,
         hydrated: true,
       });
@@ -96,6 +117,75 @@ export const useWorkoutStore = create<WorkoutStoreState>((set, get) => ({
     const customWorkouts = await db.customWorkouts.orderBy('updatedAt').reverse().toArray();
     set({ customWorkouts });
     return copy;
+  },
+
+  updateWeeklyDayWorkout: async (dayKey, workout) => {
+    const nowIso = new Date().toISOString();
+    const normalized: WorkoutPlan = {
+      ...cloneWorkoutPlan(workout),
+      id: `weekly-${dayKey}`,
+      isPreset: false,
+      updatedAt: nowIso,
+      exercises: workout.exercises.map((ex, idx) => ({
+        ...ex,
+        id: ex.id ?? `${dayKey}-${Date.now()}-${idx}`,
+        restSeconds: idx === workout.exercises.length - 1 ? 0 : ex.restSeconds,
+      })),
+    };
+
+    try {
+      await db.weeklySchedule.put({
+        dayKey,
+        workout: normalized,
+        updatedAt: nowIso,
+      });
+    } catch {
+      // Fallback to in-memory state if IndexedDB is restricted
+    }
+
+    set((s) => ({
+      weeklySchedule: {
+        ...s.weeklySchedule,
+        [dayKey]: normalized,
+      },
+      customizedWeeklyDays: {
+        ...s.customizedWeeklyDays,
+        [dayKey]: true,
+      },
+    }));
+  },
+
+  resetWeeklyDay: async (dayKey) => {
+    const def = WEEKLY_DEFINITIONS_BY_DAY[dayKey];
+    const fresh = cloneWorkoutPlan(def.defaultWorkout);
+    try {
+      await db.weeklySchedule.delete(dayKey);
+    } catch {
+      // Ignore IndexedDB error
+    }
+    set((s) => {
+      const nextCustom = { ...s.customizedWeeklyDays };
+      delete nextCustom[dayKey];
+      return {
+        weeklySchedule: {
+          ...s.weeklySchedule,
+          [dayKey]: fresh,
+        },
+        customizedWeeklyDays: nextCustom,
+      };
+    });
+  },
+
+  resetAllWeeklyDays: async () => {
+    try {
+      await db.weeklySchedule.clear();
+    } catch {
+      // Ignore IndexedDB error
+    }
+    set({
+      weeklySchedule: createDefaultWeeklySchedule(),
+      customizedWeeklyDays: {},
+    });
   },
 
   recordCompletedSession: async (entry) => {

@@ -1,5 +1,17 @@
 @import "tailwindcss";
 
+@property --fade-start {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
+}
+
+@property --fade-end {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
+}
+
 :root {
   --target-size: 24px;
 
@@ -292,4 +304,81 @@ dialog::backdrop {
       width 120ms linear,
       background-color 150ms ease;
   }
+}
+
+/* Single-row accessible weekly tablist with scroll-driven edge fades (tabs guide) */
+.weekly-tablist-scroller {
+  display: flex;
+  overflow-x: auto;
+  scrollbar-width: none;
+  scroll-snap-type: inline proximity;
+  --fade-size: 2.25rem;
+  scroll-padding-inline: var(--fade-size);
+  --fade-dir: right;
+  --fade-start-pos: 0;
+  --fade-end-pos: 100%;
+  mask:
+    linear-gradient(black, black) no-clip subtract,
+    linear-gradient(to var(--fade-dir), black, transparent) var(--fade-start-pos) 0 / var(--fade-start) 100% no-repeat no-clip,
+    linear-gradient(to var(--fade-dir), transparent, black) var(--fade-end-pos) 0 / var(--fade-end) 100% no-repeat no-clip;
+  animation:
+    reveal-fade-start linear both,
+    hide-fade-end linear both;
+  animation-timeline: scroll(self inline);
+  animation-range:
+    0 var(--fade-size),
+    calc(100% - var(--fade-size)) 100%;
+  transition:
+    --fade-start 0.2s,
+    --fade-end 0.2s;
+}
+
+.weekly-tablist-scroller::-webkit-scrollbar {
+  display: none;
+}
+
+.weekly-tablist-scroller.more-start {
+  --fade-start: var(--fade-size);
+}
+
+.weekly-tablist-scroller.more-end {
+  --fade-end: var(--fade-size);
+}
+
+@keyframes reveal-fade-start {
+  to {
+    --fade-start: var(--fade-size);
+  }
+}
+
+@keyframes hide-fade-end {
+  from {
+    --fade-end: var(--fade-size);
+  }
+}
+
+.weekly-tab[role="tab"] {
+  position: relative;
+  flex: none;
+  scroll-snap-align: start;
+}
+
+.weekly-tab[role="tab"][aria-selected="true"] {
+  color: var(--brand-accent);
+}
+
+.weekly-tab[role="tab"][aria-selected="true"]::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0;
+  border-block-end: 3px solid var(--brand-accent);
+}
+
+/* Stack all 7 tabpanels in a single grid cell so hidden="until-found" panels take 0 extra gap */
+.weekly-tabpanels-stack {
+  display: grid;
+}
+
+.weekly-tabpanels-stack > [role="tabpanel"] {
+  grid-area: 1 / 1;
 }

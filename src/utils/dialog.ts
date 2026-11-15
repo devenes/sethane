@@ -25,19 +25,32 @@ export function useLightDismissDialog(
     if (!dialog) return;
     if ('closedBy' in HTMLDialogElement.prototype) return;
 
-    const handleClick = (event: MouseEvent) => {
-      if (event.target !== dialog) return;
+    const isOutside = (event: PointerEvent) => {
       const rect = dialog.getBoundingClientRect();
-      const isDialogContent =
-        rect.top <= event.clientY &&
-        event.clientY <= rect.top + rect.height &&
-        rect.left <= event.clientX &&
-        event.clientX <= rect.left + rect.width;
-      if (isDialogContent) return;
-      dialog.close();
+      return (
+        event.clientX < rect.left ||
+        event.clientX > rect.right ||
+        event.clientY < rect.top ||
+        event.clientY > rect.bottom
+      );
     };
 
-    dialog.addEventListener('click', handleClick);
-    return () => dialog.removeEventListener('click', handleClick);
+    let pressedOutside = false;
+    const handlePointerDown = (event: PointerEvent) => {
+      pressedOutside = event.target === dialog && isOutside(event);
+    };
+    const handlePointerUp = (event: PointerEvent) => {
+      if (pressedOutside && event.target === dialog && isOutside(event)) {
+        dialog.close();
+      }
+      pressedOutside = false;
+    };
+
+    dialog.addEventListener('pointerdown', handlePointerDown);
+    dialog.addEventListener('pointerup', handlePointerUp);
+    return () => {
+      dialog.removeEventListener('pointerdown', handlePointerDown);
+      dialog.removeEventListener('pointerup', handlePointerUp);
+    };
   }, [dialogRef]);
 }

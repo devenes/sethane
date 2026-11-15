@@ -24,8 +24,9 @@
   - `workout-store.ts`: Coordinates bundled presets, user-created custom workouts, and workout completion history.
 - **`src/features/` (Feature Screens)**
   - `dashboard/`: Quick launch for the 10-Minute Full Body HIIT program, Quick HIIT Timer modal, stats summary, and recent history.
+  - `weekly/`: 7-Day Balanced Weekly Program Mode auto-selecting today's workout with per-day sequence editing and live muscle-coverage tracking.
   - `timer/`: High-contrast, distance-readable Workout Player with fullscreen support.
-  - `exercises/`: Visual catalog of 24 SVG-illustrated exercises with filters and coaching modal.
+  - `exercises/`: Visual catalog of 32 animated GIF + poster exercises with filters and coaching modal.
   - `builder/`: Drag-and-drop (`@dnd-kit`) and keyboard-accessible workout builder.
   - `workouts/`: Preset and custom workout management.
   - `settings/`: Language, theme, voice selection, and JSON backup/restore.

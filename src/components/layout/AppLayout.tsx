@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { NavLink, Outlet, useLocation } from 'react-router-dom';
 import {
+  CalendarDays,
   Dumbbell,
   Layers,
   Moon,
@@ -35,6 +36,7 @@ export const AppLayout: React.FC = () => {
   useEffect(() => {
     const pageMap: Record<string, string> = {
       '/': `${t.nav.dashboard} · SetHane`,
+      '/weekly': `${t.nav.weekly} · SetHane`,
       '/workouts': `${t.nav.workouts} · SetHane`,
       '/exercises': `${t.nav.exercises} · SetHane`,
       '/builder': `${t.nav.builder} · SetHane`,
@@ -74,6 +76,7 @@ export const AppLayout: React.FC = () => {
 
   const navItems = [
     { to: '/', label: t.nav.dashboard, icon: Play },
+    { to: '/weekly', label: t.nav.weekly, icon: CalendarDays },
     { to: '/exercises', label: t.nav.exercises, icon: Dumbbell },
     { to: '/workouts', label: t.nav.workouts, icon: Layers },
     { to: '/builder', label: t.nav.builder, icon: Plus },
@@ -168,7 +171,7 @@ export const AppLayout: React.FC = () => {
         aria-label="Mobile"
         className="bottom-bar md:hidden surface-card border-t bottom-nav-safe"
       >
-        <div className="grid grid-cols-5 gap-0.5 pt-1">
+        <div className="grid grid-cols-6 gap-0.5 pt-1">
           {navItems.map(({ to, label, icon: Icon }) => (
             <NavLink
               key={to}

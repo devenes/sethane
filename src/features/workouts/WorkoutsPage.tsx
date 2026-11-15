@@ -1,6 +1,6 @@
 import React, { useId, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Plus } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { ArrowRight, CalendarDays, Plus } from 'lucide-react';
 import { WorkoutCard } from '../../components/common/WorkoutCard';
 import { soundService } from '../../services/audio/sound-service';
 import { useSettingsStore } from '../../stores/settings-store';
@@ -64,6 +64,24 @@ export const WorkoutsPage: React.FC = () => {
           <span>{td.createCustomBtn}</span>
         </button>
       </div>
+
+      {/* 7-Day Weekly Program Mode Spotlight */}
+      <section className="surface-card rounded-xl p-4 flex flex-wrap items-center justify-between gap-3 border-[var(--brand-accent)]/50">
+        <div className="space-y-1 max-w-2xl">
+          <div className="text-xs font-extrabold text-[var(--brand-accent)] inline-flex items-center gap-1.5">
+            <CalendarDays className="w-3.5 h-3.5" aria-hidden="true" />
+            <span>{t.weeklyCardTitle}</span>
+          </div>
+          <p className="text-xs text-muted-token m-0">{t.weeklyCardBody}</p>
+        </div>
+        <Link
+          to="/weekly"
+          className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold px-4 py-2 rounded-lg text-xs no-underline inline-flex items-center gap-1.5 transition-colors"
+        >
+          <span>{t.weeklyCardCta}</span>
+          <ArrowRight className="w-3.5 h-3.5" aria-hidden="true" />
+        </Link>
+      </section>
 
       {/* Custom Workouts Section */}
       {customWorkouts.length > 0 && (

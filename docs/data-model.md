@@ -3,13 +3,15 @@
 ## 1. Static Bundled Catalogs (`src/data/`)
 
 Static data is version-controlled in TypeScript so updates ship automatically with application releases:
-- **Exercises (`src/data/exercises/catalog.ts`):** 24 exercises conforming to `Exercise` (`id`, bilingual `name`, `category`, `muscleGroups`, `equipment`, `difficulty`, bilingual `instructions`, `commonMistakes`, `easierVariation`, and SVG `media`).
+- **Exercises (`src/data/exercises/catalog.ts`):** 32 exercises conforming to `Exercise` (`id`, bilingual `name`, `category`, `muscleGroups`, `equipment`, `difficulty`, bilingual `instructions`, `commonMistakes`, `easierVariation`, and animated GIF + poster `media`).
 - **Preset Workouts (`src/data/workouts/presets.ts`):** 5 ready-made programs conforming to `WorkoutPlan` (`isPreset: true`).
+- **Weekly Program (`src/data/workouts/weekly-program.ts`):** 7 daily splits (`monday`–`sunday`) covering every muscle group evenly across the week.
 
 ## 2. IndexedDB Schema (`SetHaneDB` via Dexie.js)
 
-User data is stored locally in the browser's `IndexedDB` database `SetHaneDB` (version `1`):
+User data is stored locally in the browser's `IndexedDB` database `SetHaneDB` (version `2`):
 - **`customWorkouts`** (`id, name, updatedAt`): Stores user-created and customized `WorkoutPlan` records.
+- **`weeklySchedule`** (`dayKey, updatedAt`): Stores per-day user customizations for the 7-Day Weekly Program Mode.
 - **`history`** (`id, workoutId, completedAt`): Stores completed workout sessions (`WorkoutHistoryEntry`).
 - **`settings`** (`id`): Stores the singleton `'default'` `UserSettings` record (`locale`, `theme`, `soundEnabled`, `speechEnabled`, `countdownBeepsEnabled`, `wakeLockEnabled`, `preferredVoiceURI`, `speechRate`, `soundVolume`, `defaultPrepareSeconds`).
 

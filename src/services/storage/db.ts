@@ -1,5 +1,11 @@
 import Dexie, { type Table } from 'dexie';
-import type { UserSettings, WorkoutHistoryEntry, WorkoutPlan } from '../../types';
+import type {
+  DayOfWeekKey,
+  UserSettings,
+  WeeklyDayScheduleRecord,
+  WorkoutHistoryEntry,
+  WorkoutPlan,
+} from '../../types';
 
 export const DEFAULT_USER_SETTINGS: UserSettings = {
   id: 'default',
@@ -19,6 +25,7 @@ export class SetHaneDatabase extends Dexie {
   customWorkouts!: Table<WorkoutPlan, string>;
   history!: Table<WorkoutHistoryEntry, string>;
   settings!: Table<UserSettings, string>;
+  weeklySchedule!: Table<WeeklyDayScheduleRecord, DayOfWeekKey>;
 
   constructor() {
     super('SetHaneDB');
@@ -26,6 +33,12 @@ export class SetHaneDatabase extends Dexie {
       customWorkouts: 'id, name, updatedAt',
       history: 'id, workoutId, completedAt',
       settings: 'id',
+    });
+    this.version(2).stores({
+      customWorkouts: 'id, name, updatedAt',
+      history: 'id, workoutId, completedAt',
+      settings: 'id',
+      weeklySchedule: 'dayKey, updatedAt',
     });
   }
 }

@@ -19,22 +19,26 @@
    - Web Audio API synthesized sound cues (Work, Rest, 3-2-1 Countdown, Completion fanfare) and Web Speech API spoken coaching in **Turkish (`tr`)** and **English (`en`)**.
    - Screen Wake Lock API integration to keep your display awake while training.
 
-2. **Visual Exercise Library (24 Animated GIF Demonstrations + Static Posters)**
-   - 24 curated exercises across **Bodyweight**, **Dumbbell**, **Core**, **Cardio**, and **Low-Impact** categories.
+2. **Visual Exercise Library (32 Animated GIF Demonstrations + Static Posters)**
+   - 32 curated exercises across **Bodyweight**, **Dumbbell**, **Core**, **Cardio**, and **Low-Impact** categories.
    - Smooth 20fps biomechanical movement GIFs (`public/assets/exercises/*.gif`) showing full range-of-motion execution, paired with static peak-form PNG posters (`*-poster.png`), native `prefers-reduced-motion` support, and a WCAG 2.2.2 **Pause / Play Animations** toggle.
    - Step-by-step execution instructions, common mistakes to avoid, and easier/low-impact variations in both English and Turkish.
    - 100% original MIT-licensed visual assets documented in [`ASSETS-LICENSE.md`](./ASSETS-LICENSE.md).
 
-3. **Drag-and-Drop Workout Builder & 5 Ready-Made Programs**
+3. **7-Day Balanced Weekly Program Mode (`src/features/weekly/`)**
+   - Dedicated Monday–Sunday schedule with a distinct movement focus each day so every major muscle group (Chest, Back, Shoulders, Arms, Legs, Glutes, Core, Cardio) is hit evenly across the week.
+   - Automatically detects and opens today's workout (e.g., Sunday) while letting users switch days, add/remove/reorder exercises, adjust intervals, or reset any day back to defaults with IndexedDB persistence.
+
+4. **Drag-and-Drop Workout Builder & 5 Ready-Made Programs**
    - Includes **10-Minute Full Body HIIT**, **15-Minute Dumbbell Workout**, **Bodyweight HIIT**, **Beginner Low-Impact HIIT**, and **Tabata Workout**.
    - Reorder exercises via `@dnd-kit` drag-and-drop or accessible keyboard controls (`Move Up` / `Move Down`).
    - Customize individual exercise work/rest durations, warm-up, cooldown, rounds, and rest between rounds with live duration calculation.
 
-4. **Local-First Persistence & Portable JSON Backups**
-   - Powered by **Dexie.js (`IndexedDB`)** for custom workouts, completion history, and user settings.
+5. **Local-First Persistence & Portable JSON Backups**
+   - Powered by **Dexie.js (`IndexedDB`)** for custom workouts, weekly program customizations, completion history, and user settings.
    - Full **JSON Export & Import** validated with **Zod** schemas (`schemaVersion: 1`).
 
-5. **Installable Offline-First PWA**
+6. **Installable Offline-First PWA**
    - Configured via `vite-plugin-pwa` and Workbox with full support for the `/sethane/` GitHub Pages subpath.
 
 ---

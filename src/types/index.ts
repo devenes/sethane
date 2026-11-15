@@ -19,6 +19,15 @@ export type EquipmentType = 'none' | 'dumbbells' | 'mat';
 
 export type DifficultyLevel = 'beginner' | 'intermediate' | 'advanced';
 
+export type DayOfWeekKey =
+  | 'monday'
+  | 'tuesday'
+  | 'wednesday'
+  | 'thursday'
+  | 'friday'
+  | 'saturday'
+  | 'sunday';
+
 export interface LocalizedText {
   en: string;
   tr: string;
@@ -98,6 +107,21 @@ export interface UserSettings {
   defaultPrepareSeconds: number;
 }
 
+export interface WeeklyDayScheduleRecord {
+  dayKey: DayOfWeekKey;
+  workout: WorkoutPlan;
+  updatedAt: string;
+}
+
+export interface WeeklyDayDefinition {
+  dayKey: DayOfWeekKey;
+  dayLabel: LocalizedText;
+  dayShortLabel: LocalizedText;
+  focusBadge: LocalizedText;
+  focusMuscles: MuscleGroup[];
+  defaultWorkout: WorkoutPlan;
+}
+
 export interface BackupPayloadV1 {
   schemaVersion: 1;
   exportedAt: string;
@@ -105,4 +129,5 @@ export interface BackupPayloadV1 {
   customWorkouts: WorkoutPlan[];
   history: WorkoutHistoryEntry[];
   settings: Omit<UserSettings, 'id'>;
+  weeklySchedule?: Partial<Record<DayOfWeekKey, WorkoutPlan>>;
 }

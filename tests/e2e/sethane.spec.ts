@@ -10,10 +10,10 @@ test.describe('SetHane Production Build E2E (/sethane/ subpath)', () => {
     await expect(page).toHaveTitle(/SetHane/);
     await expect(page.locator('h1')).toContainText(/Antrenman Seç|Ready to Train/);
 
-    // Navigate to Exercises page and verify 24 animated GIF exercise demonstrations + Pause/Play toggle
+    // Navigate to Exercises page and verify 32 animated GIF exercise demonstrations + Pause/Play toggle
     await page.locator('header nav a[href="#/exercises"]').click();
     const cards = page.locator('[data-testid^="exercise-card-"]');
-    await expect(cards).toHaveCount(24);
+    await expect(cards).toHaveCount(32);
 
     const firstImg = cards.first().locator('img');
     await expect(firstImg).toBeVisible();
@@ -87,5 +87,49 @@ test.describe('SetHane Production Build E2E (/sethane/ subpath)', () => {
     await expect(page.getByTestId('btn-resume')).toBeVisible();
     await page.getByTestId('btn-resume').click();
     await expect(page.getByTestId('btn-pause')).toBeVisible();
+  });
+
+  test('opens 7-day Weekly Program Mode on current day, switches days, customizes moves, and persists across reload', async ({
+    page,
+  }) => {
+    await page.goto('/sethane/#/weekly');
+    await expect(page.getByTestId('weekly-program-page')).toBeVisible();
+
+    const dayOrder = [
+      'sunday',
+      'monday',
+      'tuesday',
+      'wednesday',
+      'thursday',
+      'friday',
+      'saturday',
+    ] as const;
+    const expectedToday = await page.evaluate((map) => map[new Date().getDay()], dayOrder);
+
+    await expect(page.getByTestId(`weekly-day-tab-${expectedToday}`)).toHaveAttribute(
+      'aria-selected',
+      'true'
+    );
+
+    // Switch to Tuesday and customize moves (remove one, add Dead Bug)
+    await page.getByTestId('weekly-day-tab-tuesday').click();
+    await expect(page.getByTestId('weekly-day-tab-tuesday')).toHaveAttribute(
+      'aria-selected',
+      'true'
+    );
+    await expect(page.locator('[data-testid^="weekly-exercise-row-"]')).toHaveCount(6);
+
+    await page.getByTestId('weekly-remove-exercise-0').click();
+    await expect(page.locator('[data-testid^="weekly-exercise-row-"]')).toHaveCount(5);
+
+    await page.getByTestId('weekly-open-picker-btn').click();
+    await page.getByTestId('weekly-picker-add-dead-bug').click();
+    await page.keyboard.press('Escape');
+    await expect(page.locator('[data-testid^="weekly-exercise-row-"]')).toHaveCount(6);
+
+    // Reload and verify Tuesday customization persisted in IndexedDB
+    await page.reload();
+    await page.getByTestId('weekly-day-tab-tuesday').click();
+    await expect(page.getByTestId('weekly-reset-day-btn')).toBeVisible();
   });
 });

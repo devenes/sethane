@@ -5,6 +5,7 @@ import { DashboardPage } from '../features/dashboard/DashboardPage';
 import { WorkoutPlayerPage } from '../features/timer/WorkoutPlayerPage';
 import { ExercisesPage } from '../features/exercises/ExercisesPage';
 import { WorkoutsPage } from '../features/workouts/WorkoutsPage';
+import { WeeklyProgramPage } from '../features/weekly/WeeklyProgramPage';
 import { WorkoutBuilderPage } from '../features/builder/WorkoutBuilderPage';
 import { SettingsPage } from '../features/settings/SettingsPage';
 
@@ -14,6 +15,7 @@ export const AppRouter: React.FC = () => {
       <Routes>
         <Route element={<AppLayout />}>
           <Route index element={<DashboardPage />} />
+          <Route path="weekly" element={<WeeklyProgramPage />} />
           <Route path="player" element={<WorkoutPlayerPage />} />
           <Route path="workouts" element={<WorkoutsPage />} />
           <Route path="exercises" element={<ExercisesPage />} />
