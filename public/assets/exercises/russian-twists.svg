@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="280" viewBox="0 0 400 280" role="img" aria-label="Russian Twists">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f172a" />
+      <stop offset="100%" stop-color="#1e293b" />
+    </linearGradient>
+    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#06b6d4" />
+      <stop offset="100%" stop-color="#10b981" />
+    </linearGradient>
+    <pattern id="grid" width="28" height="28" patternUnits="userSpaceOnUse">
+      <path d="M 28 0 L 0 0 0 28" fill="none" stroke="#334155" stroke-width="0.6" opacity="0.45" />
+    </pattern>
+  </defs>
+  <rect width="400" height="280" rx="24" fill="url(#bg)" />
+  <rect width="400" height="280" rx="24" fill="url(#grid)" />
+  <rect x="16" y="14" width="180" height="22" rx="11" fill="#0f172a" opacity="0.8" />
+  <text x="26" y="29" fill="#94a3b8" font-family="system-ui, -apple-system, sans-serif" font-size="10" font-weight="700" letter-spacing="0.8">CORE · ROTATIONAL CONTROL</text>
+  
+      <line x1="60" y1="238" x2="340" y2="238" stroke="#334155" stroke-width="5" stroke-linecap="round"/>
+      <g stroke="url(#grad)" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" fill="none">
+        <circle cx="152" cy="112" r="14" fill="#0f172a" stroke="#06b6d4" stroke-width="7"/>
+        <!-- V-sit torso -->
+        <line x1="160" y1="126" x2="195" y2="226" />
+        <!-- V-sit bent legs -->
+        <path d="M195 226 L245 172 L285 224" />
+        <!-- Clasped hands rotating -->
+        <path d="M172 152 L222 158" stroke="#f59e0b" />
+      </g>
+      <path d="M140 165 Q195 190 245 160" fill="none" stroke="#10b981" stroke-width="4" stroke-dasharray="5 4"/>
+    
+</svg>
