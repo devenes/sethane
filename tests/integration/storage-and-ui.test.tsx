@@ -202,13 +202,13 @@ describe('7-Day Weekly Program Mode — Auto-Day Selection, Full Muscle Coverage
     vi.useRealTimers();
   });
 
-  it('covers all 8 muscle/conditioning groups thoroughly across 7 distinct daily movement patterns using the 32-move catalog', () => {
-    expect(EXERCISES_CATALOG.length).toBe(32);
+  it('covers all 8 muscle/conditioning groups thoroughly across 7 distinct daily movement patterns using the 40-move catalog', () => {
+    expect(EXERCISES_CATALOG.length).toBe(40);
     expect(WEEKLY_PROGRAM_DEFINITIONS).toHaveLength(7);
 
     const sequenceSignatures = new Set<string>();
     for (const def of WEEKLY_PROGRAM_DEFINITIONS) {
-      expect(def.defaultWorkout.exercises.length).toBeGreaterThanOrEqual(5);
+      expect(def.defaultWorkout.exercises.length).toBeGreaterThanOrEqual(7);
       const sig = def.defaultWorkout.exercises.map((e) => e.exerciseId).join(',');
       sequenceSignatures.add(sig);
       for (const item of def.defaultWorkout.exercises) {
@@ -221,7 +221,7 @@ describe('7-Day Weekly Program Mode — Auto-Day Selection, Full Muscle Coverage
     const schedule = createDefaultWeeklySchedule();
     const coverage = computeWeeklyMuscleSets(schedule);
     for (const muscle of TRACKED_WEEKLY_MUSCLES) {
-      expect(coverage[muscle]).toBeGreaterThanOrEqual(12);
+      expect(coverage[muscle]).toBeGreaterThanOrEqual(20);
     }
 
     // Verify local day mapping including Sunday (Pazar) and Monday (Pazartesi)
@@ -230,7 +230,7 @@ describe('7-Day Weekly Program Mode — Auto-Day Selection, Full Muscle Coverage
     expect(WEEKLY_DAY_ORDER).toHaveLength(7);
   });
 
-  it('auto-selects Sunday (Pazar) when opened on Sunday, lets user switch days, add/remove moves, and persists edits in IndexedDB', async () => {
+  it('auto-selects Sunday (Pazar) when opened on Sunday, lets user switch days, add/remove moves, apply fat-burn preset templates, and persists edits in IndexedDB', async () => {
     vi.setSystemTime(new Date(2026, 10, 15, 16, 30, 0)); // Sunday, Nov 15, 2026
     const user = userEvent.setup();
     render(<App />);
@@ -253,15 +253,15 @@ describe('7-Day Weekly Program Mode — Auto-Day Selection, Full Muscle Coverage
     expect(mondayTab).toHaveAttribute('aria-selected', 'true');
     expect(screen.getByTestId('weekly-active-day-heading')).toHaveTextContent(/Pazartesi/i);
 
-    // Remove the first exercise from Monday (starts with 6 -> becomes 5)
-    expect(screen.getAllByTestId(/^weekly-exercise-row-/)).toHaveLength(6);
+    // Remove the first exercise from Monday (starts with 7 -> becomes 6)
+    expect(screen.getAllByTestId(/^weekly-exercise-row-/)).toHaveLength(7);
     await user.click(screen.getByTestId('weekly-remove-exercise-0'));
-    expect(screen.getAllByTestId(/^weekly-exercise-row-/)).toHaveLength(5);
+    expect(screen.getAllByTestId(/^weekly-exercise-row-/)).toHaveLength(6);
 
-    // Open Add Move picker and add Burpees to Monday (5 -> 6)
+    // Open Add Move picker and add Burpees to Monday (6 -> 7)
     await user.click(screen.getByTestId('weekly-open-picker-btn'));
     await user.click(screen.getByTestId('weekly-picker-add-burpees'));
-    expect(screen.getAllByTestId(/^weekly-exercise-row-/)).toHaveLength(6);
+    expect(screen.getAllByTestId(/^weekly-exercise-row-/)).toHaveLength(7);
 
     // Verify persisted in IndexedDB & JSON backup
     const storedMonday = await db.weeklySchedule.get('monday');
@@ -271,8 +271,15 @@ describe('7-Day Weekly Program Mode — Auto-Day Selection, Full Muscle Coverage
     const exported = JSON.parse(await exportBackupAsJsonString());
     expect(exported.weeklySchedule?.monday?.exercises?.at(-1)?.exerciseId).toBe('burpees');
 
+    // Apply a Fat-Burn Preset template ('metabolic-pha-shred', 6 moves) directly to Monday
+    const presetSelect = screen.getByTestId('weekly-apply-preset-select');
+    await user.selectOptions(presetSelect, 'metabolic-pha-shred');
+    expect(screen.getAllByTestId(/^weekly-exercise-row-/)).toHaveLength(6);
+    expect(screen.getByTestId('weekly-active-day-heading')).toHaveTextContent(/PHA Metabolik Yağ Yakım/i);
+
     // Reset Monday back to default
     await user.click(screen.getByTestId('weekly-reset-day-btn'));
     expect(await db.weeklySchedule.get('monday')).toBeUndefined();
+    expect(screen.getAllByTestId(/^weekly-exercise-row-/)).toHaveLength(7);
   });
 });

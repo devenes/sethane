@@ -26,7 +26,7 @@
   - `dashboard/`: Quick launch for the 10-Minute Full Body HIIT program, Quick HIIT Timer modal, stats summary, and recent history.
   - `weekly/`: 7-Day Balanced Weekly Program Mode auto-selecting today's workout with per-day sequence editing and live muscle-coverage tracking.
   - `timer/`: High-contrast, distance-readable Workout Player with fullscreen support.
-  - `exercises/`: Visual catalog of 32 animated GIF + poster exercises with filters and coaching modal.
+  - `exercises/`: Visual catalog of 40 animated GIF + poster exercises with filters and coaching modal.
   - `builder/`: Drag-and-drop (`@dnd-kit`) and keyboard-accessible workout builder.
   - `workouts/`: Preset and custom workout management.
   - `settings/`: Language, theme, voice selection, and JSON backup/restore.

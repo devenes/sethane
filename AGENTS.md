@@ -35,8 +35,8 @@ npm run test:e2e       # Playwright against `vite preview` on :4173 (NOT run in 
 | `src/engine/` | `phase-resolver.ts` (plan → flat `TimelineStep[]`), `session-machine.ts` (pure state transitions), `timer-engine.ts` (`WorkoutTimerEngine`, deadline-based clock + events), `types.ts` |
 | `src/services/` | Browser adapters: `audio/` (Web Audio synth), `speech/` (speechSynthesis), `wake-lock/`, `storage/db.ts` (Dexie `SetHaneDB` v1), `storage/backup-service.ts` (Zod import/export) |
 | `src/stores/` | Zustand: `settings-store.ts` (locale/theme/audio/motion), `workout-store.ts` (presets, custom workouts, history) |
-| `src/data/exercises/catalog.ts` | `EXERCISES_CATALOG` (32 exercises) |
-| `src/data/workouts/presets.ts` | `PRESET_WORKOUTS` (5 programs, `isPreset: true`) |
+| `src/data/exercises/catalog.ts` | `EXERCISES_CATALOG` (40 exercises) |
+| `src/data/workouts/presets.ts` | `PRESET_WORKOUTS` (9 programs, `isPreset: true`) |
 | `src/data/workouts/weekly-program.ts` | `WEEKLY_PROGRAM_DEFINITIONS` (7-day balanced weekly split) |
 | `src/features/<name>/` | Route screens: dashboard, weekly (`WeeklyProgramPage`), timer (`WorkoutPlayerPage`), exercises, workouts, builder, settings |
 | `src/components/` | `layout/AppLayout.tsx`, `common/` shared components |

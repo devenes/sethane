@@ -173,7 +173,14 @@ const WeeklySortableRow: React.FC<WeeklySortableRowProps> = ({
       <div className="flex-1 min-w-0 py-2.5 pr-3 pl-1 flex flex-col justify-between gap-2">
         <div className="flex items-start justify-between gap-2">
           <div className="min-w-0 space-y-0.5">
-            <div className="font-extrabold text-sm sm:text-base leading-snug">{exerciseTitle}</div>
+            <div className="flex flex-wrap items-center gap-1.5">
+              <div className="font-extrabold text-sm sm:text-base leading-snug">{exerciseTitle}</div>
+              {isLast && totalCount >= 3 && (
+                <span className="px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-400 text-[10px] font-extrabold uppercase tracking-wide">
+                  {tw.finisherBadge}
+                </span>
+              )}
+            </div>
             {exercise && (
               <div className="flex flex-wrap items-center gap-1 text-[11px] text-muted-token">
                 <span className="font-semibold text-[var(--brand-accent)]">
@@ -263,6 +270,7 @@ export const WeeklyProgramPage: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const locale = useSettingsStore((s) => s.locale);
+  const presets = useWorkoutStore((s) => s.presets);
   const weeklySchedule = useWorkoutStore((s) => s.weeklySchedule);
   const customizedWeeklyDays = useWorkoutStore((s) => s.customizedWeeklyDays);
   const history = useWorkoutStore((s) => s.history);
@@ -298,6 +306,7 @@ export const WeeklyProgramPage: React.FC = () => {
   const roundRestInputId = useId();
   const warmupInputId = useId();
   const cooldownInputId = useId();
+  const applyPresetSelectId = useId();
 
   const tw = UI_STRINGS[locale].weekly;
   const tn = UI_STRINGS[locale].nav;
@@ -392,6 +401,18 @@ export const WeeklyProgramPage: React.FC = () => {
     () => computeWeeklyMuscleSets(weeklySchedule),
     [weeklySchedule]
   );
+
+  const weeklyTotals = useMemo(() => {
+    let coreHiitSeconds = 0;
+    let totalSets = 0;
+    for (const dayKey of WEEKLY_DAY_ORDER) {
+      const plan = weeklySchedule[dayKey] ?? WEEKLY_DEFINITIONS_BY_DAY[dayKey].defaultWorkout;
+      const daySummary = calculateWorkoutSummary(plan);
+      coreHiitSeconds += daySummary.coreHiitSeconds;
+      totalSets += Math.max(1, plan.rounds) * plan.exercises.length;
+    }
+    return { coreHiitSeconds, totalSets };
+  }, [weeklySchedule]);
 
   const activeDayMuscles = useMemo(() => {
     const set = new Set<TrackedMuscleGroup>();
@@ -493,6 +514,35 @@ export const WeeklyProgramPage: React.FC = () => {
       ...selectedWorkout,
       ...patch,
     });
+  };
+
+  const handleApplyPresetToDay = (presetId: string) => {
+    if (!presetId) return;
+    const preset = presets.find((p) => p.id === presetId);
+    if (!preset) return;
+    const presetTitle = preset.localizedName?.[locale] ?? preset.name;
+    const nextPlan: WorkoutPlan = {
+      ...selectedWorkout,
+      name: `${selectedDef.dayLabel[locale]} — ${presetTitle}`,
+      localizedName: {
+        en: `${selectedDef.dayLabel.en} · ${preset.localizedName?.en ?? preset.name}`,
+        tr: `${selectedDef.dayLabel.tr} · ${preset.localizedName?.tr ?? preset.name}`,
+      },
+      description: preset.description ? { ...preset.description } : selectedWorkout.description,
+      prepareSeconds: preset.prepareSeconds ?? 5,
+      warmupSeconds: preset.warmupSeconds,
+      rounds: preset.rounds,
+      restBetweenRounds: preset.restBetweenRounds,
+      cooldownSeconds: preset.cooldownSeconds,
+      exercises: preset.exercises.map((ex, idx, arr) => ({
+        id: `${selectedDay}-preset-${Date.now()}-${idx}`,
+        exerciseId: ex.exerciseId,
+        workSeconds: ex.workSeconds,
+        restSeconds: idx === arr.length - 1 ? 0 : ex.restSeconds,
+      })),
+    };
+    void updateWeeklyDayWorkout(selectedDay, nextPlan);
+    setLiveAnnouncement(`${presetTitle} — ${selectedDef.dayLabel[locale]}`);
   };
 
   const handleUpdateExercise = (index: number, patch: Partial<WorkoutExerciseItem>) => {
@@ -665,10 +715,16 @@ export const WeeklyProgramPage: React.FC = () => {
       {/* 7-Day Weekly Muscle Coverage Bar (Live-Calculated Across All 7 Days) */}
       <section className="surface-card rounded-xl p-3.5 space-y-2.5">
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <h2 className="text-xs font-extrabold uppercase tracking-wider text-muted-token m-0 inline-flex items-center gap-1.5">
-            <Sparkles className="w-3.5 h-3.5 text-[var(--brand-accent)]" aria-hidden="true" />
-            <span>{tw.coverageHeading}</span>
-          </h2>
+          <div className="flex flex-wrap items-center gap-2.5">
+            <h2 className="text-xs font-extrabold uppercase tracking-wider text-muted-token m-0 inline-flex items-center gap-1.5">
+              <Sparkles className="w-3.5 h-3.5 text-[var(--brand-accent)]" aria-hidden="true" />
+              <span>{tw.coverageHeading}</span>
+            </h2>
+            <span className="text-[11px] font-bold mono-readout text-[var(--brand-accent)]">
+              {tw.weeklyTotalHiitLabel}: {formatHumanDuration(weeklyTotals.coreHiitSeconds, locale)} ·{' '}
+              {weeklyTotals.totalSets} {tw.weeklyTotalSetsLabel}
+            </span>
+          </div>
           <span className="text-[11px] font-semibold text-muted-token mono-readout">
             {WEEKLY_DEFINITIONS_BY_DAY[selectedDay].dayLabel[locale]}:{' '}
             {Array.from(activeDayMuscles)
@@ -982,6 +1038,24 @@ export const WeeklyProgramPage: React.FC = () => {
                         </div>
 
                         <div className="flex flex-wrap items-center gap-2">
+                          <label htmlFor={applyPresetSelectId} className="visually-hidden">
+                            {tw.applyPresetLabel}
+                          </label>
+                          <select
+                            id={applyPresetSelectId}
+                            data-testid="weekly-apply-preset-select"
+                            value=""
+                            onChange={(e) => handleApplyPresetToDay(e.target.value)}
+                            className="surface-elevated hover:border-[var(--brand-accent)] px-2.5 py-1.5 rounded-lg text-xs font-bold cursor-pointer transition-colors max-w-[210px]"
+                          >
+                            <option value="">{tw.applyPresetPlaceholder}</option>
+                            {presets.map((p) => (
+                              <option key={p.id} value={p.id}>
+                                {p.localizedName?.[locale] ?? p.name}
+                              </option>
+                            ))}
+                          </select>
+
                           {isSelectedDayCustomized && (
                             <button
                               type="button"

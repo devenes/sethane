@@ -327,13 +327,13 @@ describe('SpeechService — Turkish & English Voice Selection and Pronunciation'
     expect(spokenUtterances[1]?.text).toBe('Work! Dumbbell Thruster');
   });
 
-  it('normalizes all 32 Turkish catalog exercise names for fluent Turkish TTS without parenthetical English duplicates', () => {
+  it('normalizes all 40 Turkish catalog exercise names for fluent Turkish TTS without parenthetical English duplicates', () => {
     for (const ex of EXERCISES_CATALOG) {
       const spokenTr = formatExerciseNameForSpeech(ex.name.tr, 'tr');
       expect(spokenTr).toBeDefined();
       expect(spokenTr).not.toMatch(/[()&+]/);
       expect(spokenTr).not.toMatch(
-        /\b(Thruster|Squat|Deadlift|Burpee|Push-Up|Jumping Jack|Glute Bridge|High Knees|Russian Twist|Inchworm|Flutter Kicks|Step Jack|Biceps Curl|Triceps|Lunge|Dead Bug)\b/i
+        /\b(Thruster|Squat|Deadlift|Burpee|Push-Up|Jumping Jack|Glute Bridge|High Knees|Russian Twist|Inchworm|Flutter Kicks|Step Jack|Biceps Curl|Triceps|Lunge|Dead Bug|Swing|Plank Jack|Snatch|V-Up|High Pull)\b/i
       );
 
       const spokenEn = formatExerciseNameForSpeech(ex.name.en, 'en');

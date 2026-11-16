@@ -1553,6 +1553,404 @@ export const EXERCISES_CATALOG: Exercise[] = [
       },
     },
   },
+  {
+    id: 'jump-squats',
+    name: {
+      en: 'Jump Squats',
+      tr: 'Sıçramalı Squat (Jump Squat)',
+    },
+    category: 'cardio',
+    muscleGroups: ['legs', 'glutes', 'cardio', 'core'],
+    equipment: ['none'],
+    difficulty: 'intermediate',
+    defaultWorkSeconds: 35,
+    defaultRestSeconds: 15,
+    instructions: {
+      en: [
+        'Stand with feet shoulder-width apart, chest tall, and core braced.',
+        'Sit your hips back and down into an athletic squat while loading your arms slightly behind your hips.',
+        'Explode upward through the balls of your feet into a vertical jump, swinging arms forward for momentum.',
+        'Land softly toe-to-heel with bent knees, absorbing the impact smoothly into the next squat.',
+      ],
+      tr: [
+        'Ayaklar omuz genişliğinde açık, göğüs dik ve merkez bölgesi sıkı şekilde durun.',
+        'Kollarınızı hafifçe geriye alarak kalçanızı geriye ve aşağı doğru atletik squat pozisyonuna indirin.',
+        'Ayak parmak köklerinizden patlayıcı güç alarak dikey sıçrayın ve kollarınızı yukarı savurun.',
+        'Parmak ucundan topuğa yumuşakça ve dizleri bükerek inin; darbeyi emerek bir sonraki tekrara bağlayın.',
+      ],
+    },
+    commonMistakes: {
+      en: [
+        'Landing stiff-legged with locked knees instead of cushioning into a squat.',
+        'Allowing the knees to cave inward on takeoff or landing.',
+      ],
+      tr: [
+        'Yere inerken dizleri büküp darbeyi emmek yerine kilitli dizlerle sert inmek.',
+        'Sıçrama veya iniş anında dizlerin birbirine doğru içe çökmesine izin vermek.',
+      ],
+    },
+    easierVariation: {
+      en: 'Perform fast bodyweight squats finishing with a high calf raise instead of leaving the floor.',
+      tr: 'Yerden sıçramak yerine tempolu squat yapıp üst noktada parmak uçlarında yükselin.',
+    },
+    media: {
+      type: 'gif',
+      src: 'assets/exercises/jump-squats.gif',
+      posterSrc: 'assets/exercises/jump-squats-poster.png',
+      alt: {
+        en: 'Athlete exploding upward from a deep squat into a vertical jump.',
+        tr: 'Derin squat pozisyonundan dikey sıçrama yapan sporcu illüstrasyonu.',
+      },
+    },
+  },
+  {
+    id: 'dumbbell-swing',
+    name: {
+      en: 'Dumbbell Hip-Hinge Swing',
+      tr: 'Dambıl Kalça Savurma (Swing)',
+    },
+    category: 'dumbbell',
+    muscleGroups: ['full-body', 'glutes', 'back', 'legs', 'cardio'],
+    equipment: ['dumbbells'],
+    difficulty: 'intermediate',
+    defaultWorkSeconds: 40,
+    defaultRestSeconds: 15,
+    instructions: {
+      en: [
+        'Stand with feet slightly wider than shoulder-width, holding one dumbbell vertically with both hands.',
+        'Hinge sharply at the hips with a flat back, swinging the dumbbell between your upper thighs.',
+        'Snap your hips forward and squeeze your glutes hard to float the dumbbell up to chest height.',
+        'Let gravity guide the weight back down into the next hip hinge without rounding your spine.',
+      ],
+      tr: [
+        'Ayaklarınızı omuz genişliğinden biraz açık konumlandırın ve tek dambılı iki elinizle dikey kavrayın.',
+        'Sırtınızı düz tutarak kalçadan geriye menteşelenin ve dambılı üst bacaklarınızın arasına doğru salın.',
+        'Kalçanızı ileri doğru patlayıcı şekilde kilitleyip sıkarak dambılı göğüs hizasına yükseltin.',
+        'Omurga dikliğini bozmadan ağırlığın kontrollüce bacak arasına geri salınmasına izin verin.',
+      ],
+    },
+    commonMistakes: {
+      en: [
+        'Squatting up and down with the knees instead of hinging horizontally at the hips.',
+        'Lifting the dumbbell with the front shoulders instead of driving with hip snap.',
+      ],
+      tr: [
+        'Kalçadan menteşelenmek yerine dizleri fazla bükerek hareketi squata çevirmek.',
+        'Ağırlığı kalça itişiyle savurmak yerine sadece omuz ve kollarla kaldırmaya çalışmak.',
+      ],
+    },
+    easierVariation: {
+      en: 'Use a lighter dumbbell and limit the swing height to belly-button level.',
+      tr: 'Daha hafif bir dambıl seçin ve savurma yüksekliğini karın hizasıyla sınırlandırın.',
+    },
+    media: {
+      type: 'gif',
+      src: 'assets/exercises/dumbbell-swing.gif',
+      posterSrc: 'assets/exercises/dumbbell-swing-poster.png',
+      alt: {
+        en: 'Athlete snapping hips forward to swing a dumbbell to chest height.',
+        tr: 'Kalça itişiyle dambılı göğüs hizasına savuran sporcu illüstrasyonu.',
+      },
+    },
+  },
+  {
+    id: 'plank-jacks',
+    name: {
+      en: 'Plank Jacks',
+      tr: 'Plank Sıçrayışı (Plank Jack)',
+    },
+    category: 'cardio',
+    muscleGroups: ['core', 'shoulders', 'cardio', 'legs'],
+    equipment: ['mat'],
+    difficulty: 'intermediate',
+    defaultWorkSeconds: 35,
+    defaultRestSeconds: 15,
+    instructions: {
+      en: [
+        'Start in a strong high plank position with wrists stacked under shoulders and feet together.',
+        'Brace your abs and glutes so your lower back stays flat and level.',
+        'Jump both feet out wide like a horizontal jumping jack, then immediately hop them back together.',
+        'Keep your shoulders steady over your wrists while maintaining a brisk, rhythmic foot cadence.',
+      ],
+      tr: [
+        'Bilekler omuzların tam altında ve ayaklar bitişik olacak şekilde yüksek plank pozisyonu alın.',
+        'Belinizin çukurlaşmaması için karın ve kalça kaslarınızı sıkıca kilitleyin.',
+        'Her iki ayağınızı aynı anda yanlara doğru genişçe sıçratıp hemen tekrar merkeze birleştirin.',
+        'Omuzlarınızı bileklerinizin üzerinde sabit tutarak ritmik ve seri bir tempo koruyun.',
+      ],
+    },
+    commonMistakes: {
+      en: [
+        'Bouncing the hips high in the air on every jump.',
+        'Letting the lower back sag toward the floor as the core fatigues.',
+      ],
+      tr: [
+        'Her sıçrayışta kalçayı yukarı doğru zıplatmak.',
+        'Merkez bölgesi yoruldukça belin aşağı sarkmasına izin vermek.',
+      ],
+    },
+    easierVariation: {
+      en: 'Plank Side Taps: stay in high plank and step one foot out to the side at a time without jumping.',
+      tr: 'Sıçramasız Plank Adımı: yüksek plankta kalarak sırayla sağ ve sol ayağınızı yana dokundurup çekin.',
+    },
+    media: {
+      type: 'gif',
+      src: 'assets/exercises/plank-jacks.gif',
+      posterSrc: 'assets/exercises/plank-jacks-poster.png',
+      alt: {
+        en: 'Athlete in high plank jumping both feet wide and back together.',
+        tr: 'Yüksek plank pozisyonunda ayaklarını yanlara açıp kapatan sporcu illüstrasyonu.',
+      },
+    },
+  },
+  {
+    id: 'dumbbell-snatch',
+    name: {
+      en: 'Alternating Dumbbell Snatch',
+      tr: 'Alternatif Dambıl Koparma (Snatch)',
+    },
+    category: 'dumbbell',
+    muscleGroups: ['full-body', 'back', 'shoulders', 'legs', 'glutes', 'cardio'],
+    equipment: ['dumbbells'],
+    difficulty: 'advanced',
+    defaultWorkSeconds: 35,
+    defaultRestSeconds: 15,
+    instructions: {
+      en: [
+        'Straddle a single dumbbell on the floor with feet wider than shoulder-width and chest proud.',
+        'Hinge hips back and grip the dumbbell with one hand while bracing your core.',
+        'Drive explosively through your legs and hips, zipping the dumbbell close to your torso and punching it overhead in one fluid motion.',
+        'Lower the dumbbell with control to the mid-shin or floor, switch hands, and repeat.',
+      ],
+      tr: [
+        'Ayaklarınızı omuz genişliğinden açık konumlandırın ve dambılı iki ayağınızın ortasına alın.',
+        'Sırtınızı düz tutarak kalçayı geriye verin ve dambılı tek elinizle kavrayın.',
+        'Bacak ve kalçadan patlayıcı güç alarak dambılı gövdenize yakın bir hatla tek hamlede baş üstüne kilitleyin.',
+        'Ağırlığı kontrollüce indirip el değiştirin ve kesintisiz olarak diğer kolla tekrarlayın.',
+      ],
+    },
+    commonMistakes: {
+      en: [
+        'Swinging the dumbbell out in a wide arc away from the body instead of zipping it vertically.',
+        'Rounding the lumbar spine when reaching for the weight at the bottom.',
+      ],
+      tr: [
+        'Dambılı vücuda yakın dikey çekmek yerine önden geniş bir daire çizerek savurmak.',
+        'Alt noktada ağırlığa uzanırken beli kamburlaştırmak.',
+      ],
+    },
+    easierVariation: {
+      en: 'Perform a hang dumbbell clean-and-press from knee height using a lighter weight.',
+      tr: 'Daha hafif bir dambılla diz hizasından omuza alıp baş üstüne pres (Clean & Press) yapın.',
+    },
+    media: {
+      type: 'gif',
+      src: 'assets/exercises/dumbbell-snatch.gif',
+      posterSrc: 'assets/exercises/dumbbell-snatch-poster.png',
+      alt: {
+        en: 'Athlete explosively pulling a single dumbbell from ground to overhead lockout.',
+        tr: 'Tek dambılı yerden patlayıcı çekişle baş üstüne kilitleyen sporcu illüstrasyonu.',
+      },
+    },
+  },
+  {
+    id: 'pike-push-ups',
+    name: {
+      en: 'Pike Push-Ups',
+      tr: 'Pike Şınav (Omuz ve Üst Göğüs)',
+    },
+    category: 'bodyweight',
+    muscleGroups: ['shoulders', 'chest', 'arms', 'core'],
+    equipment: ['mat'],
+    difficulty: 'intermediate',
+    defaultWorkSeconds: 35,
+    defaultRestSeconds: 15,
+    instructions: {
+      en: [
+        'Begin in a high plank, then walk your feet forward and lift your hips high into an inverted V (pike) position.',
+        'Keep your spine straight and gaze toward your feet as you bend your elbows to lower the crown of your head forward and down.',
+        'Press firmly through your palms to drive your torso back up to the starting pike position.',
+      ],
+      tr: [
+        'Yüksek plank pozisyonundan ayaklarınızı biraz öne yürütün ve kalçanızı kaldırarak ters V (pike) formu alın.',
+        'Dirseklerinizi hafif içe bükerek başınızın tepesini ellerinizin biraz ilerisine doğru kontrollüce yaklaştırın.',
+        'Omuz ve üst göğüs kaslarınızı sıkarak avuç içlerinizle yeri itin ve başlangıç pozisyonuna yükselin.',
+      ],
+    },
+    commonMistakes: {
+      en: [
+        'Dropping the hips down into a regular push-up instead of keeping the inverted V angle.',
+        'Lowering the head straight between the hands with flared elbows.',
+      ],
+      tr: [
+        'Kalçayı düşürerek hareketi normal yatay şınava dönüştürmek.',
+        'Dirsekleri 90 derece yana açarak başı tam ellerin arasına indirmek.',
+      ],
+    },
+    easierVariation: {
+      en: 'Bend your knees slightly to relieve hamstring tension and reduce the depth of the press.',
+      tr: 'Arka bacak gerginliğini azaltmak için dizlerinizi hafif bükün ve iniş mesafesini kısaltın.',
+    },
+    media: {
+      type: 'gif',
+      src: 'assets/exercises/pike-push-ups.gif',
+      posterSrc: 'assets/exercises/pike-push-ups-poster.png',
+      alt: {
+        en: 'Athlete in inverted V pike position pressing body weight with shoulders and triceps.',
+        tr: 'Ters V pozisyonunda omuz ve arka kol kaslarıyla şınav çeken sporcu illüstrasyonu.',
+      },
+    },
+  },
+  {
+    id: 'v-up-crunches',
+    name: {
+      en: 'Alternating V-Ups',
+      tr: 'Alternatif Çakı Mekik (V-Up)',
+    },
+    category: 'core',
+    muscleGroups: ['core'],
+    equipment: ['mat'],
+    difficulty: 'intermediate',
+    defaultWorkSeconds: 35,
+    defaultRestSeconds: 15,
+    instructions: {
+      en: [
+        'Lie supine on the mat with legs extended and arms reaching straight overhead.',
+        'Exhale and simultaneously lift your upper torso and one straight leg, reaching both hands toward your shin or toes.',
+        'Lower your torso and leg back to the mat under control without letting your lower back arch.',
+        'Immediately fold up on the next rep to meet your opposite leg.',
+      ],
+      tr: [
+        'Bacaklarınız uzatılmış ve kollarınız baş gerisinde olacak şekilde mat üzerine sırtüstü uzanın.',
+        'Nefes vererek gövdenizi ve düz tuttuğunuz bir bacağınızı aynı anda kaldırıp ellerinizle ayak ucunuza uzanın.',
+        'Bel kontrolünü kaybetmeden kontrollüce başlangıç pozisyonuna inin.',
+        'Bir sonraki tekrarda diğer bacağınızı kaldırarak dönüşümlü devam edin.',
+      ],
+    },
+    commonMistakes: {
+      en: [
+        'Throwing the arms forward with momentum while barely lifting the shoulder blades.',
+        'Slamming the heels and upper back down onto the mat on the eccentric phase.',
+      ],
+      tr: [
+        'Kürek kemiklerini yerden kaldırmadan sadece kolları savurmak.',
+        'İniş aşamasında bacakları ve sırtı kontrolsüzce mata bırakmak.',
+      ],
+    },
+    easierVariation: {
+      en: 'Bend your knees to 90 degrees and perform alternating single-knee tuck crunches.',
+      tr: 'Dizlerinizi hafif bükerek tek diz çekişli mekik (Tuck Crunch) şeklinde uygulayın.',
+    },
+    media: {
+      type: 'gif',
+      src: 'assets/exercises/v-up-crunches.gif',
+      posterSrc: 'assets/exercises/v-up-crunches-poster.png',
+      alt: {
+        en: 'Athlete folding torso and straight leg upward into a V-shape abdominal crunch.',
+        tr: 'Gövde ve bacağını V formunda yukarı katlayarak çakı mekik yapan sporcu illüstrasyonu.',
+      },
+    },
+  },
+  {
+    id: 'plank-up-downs',
+    name: {
+      en: 'Commando Plank Up-Downs',
+      tr: 'Komando Plank (Dirsek-El Geçişi)',
+    },
+    category: 'bodyweight',
+    muscleGroups: ['core', 'arms', 'shoulders', 'chest'],
+    equipment: ['mat'],
+    difficulty: 'intermediate',
+    defaultWorkSeconds: 35,
+    defaultRestSeconds: 15,
+    instructions: {
+      en: [
+        'Start in a forearm plank with elbows directly under shoulders and feet set slightly wide for stability.',
+        'Brace your core and place your right palm flat on the mat where your right elbow was, then press up with your left hand into a high plank.',
+        'Lower your right forearm back to the mat followed by your left forearm to return to a forearm plank.',
+        'Alternate the leading arm on every repetition to work both sides evenly.',
+      ],
+      tr: [
+        'Dirsekler omuz altında ve ayaklar denge için biraz açık olacak şekilde ön kol plank pozisyonunda başlayın.',
+        'Karın ve kalçanızı sıkarak önce bir elinizi, ardından diğer elinizi mata basıp yüksek şınav (plank) pozisyonuna yükselin.',
+        'Aynı sırayla tekrar ön kollarınızın üzerine inerek başlangıç pozisyonuna dönün.',
+        'Her tekrarda yukarı itişi başlatan kolunuzu değiştirerek iki tarafı eşit çalıştırın.',
+      ],
+    },
+    commonMistakes: {
+      en: [
+        'Rocking the hips violently side to side as you transition between forearms and hands.',
+        'Placing the hands far forward ahead of the shoulder line.',
+      ],
+      tr: [
+        'Dirsekten ele geçerken kalçayı sağa sola aşırı devirmek.',
+        'Elleri omuz hizasının tam altı yerine çok ileriye koymak.',
+      ],
+    },
+    easierVariation: {
+      en: 'Perform plank up-downs with your knees resting on the mat while maintaining a straight torso line.',
+      tr: 'Omuzdan dize düz hattı koruyarak dizler mat üzerinde destekli şekilde uygulayın.',
+    },
+    media: {
+      type: 'gif',
+      src: 'assets/exercises/plank-up-downs.gif',
+      posterSrc: 'assets/exercises/plank-up-downs-poster.png',
+      alt: {
+        en: 'Athlete transitioning between forearm plank and high hand plank with rigid core.',
+        tr: 'Ön kol plank ile yüksek el plank arasında geçiş yapan sporcu illüstrasyonu.',
+      },
+    },
+  },
+  {
+    id: 'dumbbell-high-pull',
+    name: {
+      en: 'Dumbbell Sumo High Pull',
+      tr: 'Dambıl Sumo Çekiş (High Pull)',
+    },
+    category: 'dumbbell',
+    muscleGroups: ['full-body', 'legs', 'glutes', 'back', 'shoulders', 'cardio'],
+    equipment: ['dumbbells'],
+    difficulty: 'intermediate',
+    defaultWorkSeconds: 35,
+    defaultRestSeconds: 15,
+    instructions: {
+      en: [
+        'Take a wide sumo stance with toes turned out 30 to 45 degrees, holding dumbbells vertically between your thighs.',
+        'Sit your hips back and down into a deep sumo deadlift while keeping your chest upright.',
+        'Drive explosively through your heels and immediately pull the dumbbells up to collarbone height, leading with high elbows.',
+        'Lower the weights smoothly back down into the next sumo rep.',
+      ],
+      tr: [
+        'Ayaklarınızı geniş açıp uçlarını 30-45 derece dışa çevirin; dambılları bacaklarınızın önünde tutun.',
+        'Göğsünüzü dik tutarak kalçanızı geriye ve aşağı doğru derin sumo deadlift pozisyonuna indirin.',
+        'Topuklardan hızla güç alarak doğrulun ve dirseklerinizi yukarı-dışa açarak dambılları köprücük kemiği hizasına çekin.',
+        'Ağırlıkları kontrollüce indirerek kesintisiz bir sonraki sumo tekrarına bağlayın.',
+      ],
+    },
+    commonMistakes: {
+      en: [
+        'Pulling with the arms before the hips and legs finish extending.',
+        'Dropping the elbows below the wrists at the top of the pull.',
+      ],
+      tr: [
+        'Bacak ve kalça itişini tamamlamadan ağırlığı sadece kollarla çekmeye başlamak.',
+        'Çekişin üst noktasında dirsekleri bileklerin altında tutmak.',
+      ],
+    },
+    easierVariation: {
+      en: 'Perform a sumo deadlift to shoulder shrug without pulling the dumbbells up to the chest.',
+      tr: 'Dirsek çekişi eklemeden sadece geniş duruş sumo deadlift ve omuz silkme (shrug) yapın.',
+    },
+    media: {
+      type: 'gif',
+      src: 'assets/exercises/dumbbell-high-pull.gif',
+      posterSrc: 'assets/exercises/dumbbell-high-pull-poster.png',
+      alt: {
+        en: 'Athlete in wide sumo stance driving up and pulling dumbbells to chest level with high elbows.',
+        tr: 'Geniş sumo duruşundan doğrulurken dambılları yüksek dirseklerle göğüs hizasına çeken sporcu illüstrasyonu.',
+      },
+    },
+  },
 ];
 
 export const EXERCISES_BY_ID: Record<string, Exercise> = Object.fromEntries(

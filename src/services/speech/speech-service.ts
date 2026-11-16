@@ -48,6 +48,14 @@ const TURKISH_SPOKEN_EXERCISE_NAMES: Record<string, string> = {
   'Baş Üstü Dambıl Triceps Ekstansiyon': 'Baş Üstü Dambıl Arka Kol Açış',
   'Alternatif Yan Lunge (Yan Hamle)': 'Alternatif Yan Hamle',
   'Dead Bug (Derin Core Stabilizasyon)': 'Derin Karın Stabilizasyon',
+  'Sıçramalı Squat (Jump Squat)': 'Sıçramalı Skuat',
+  'Dambıl Kalça Savurma (Swing)': 'Dambıl Kalça Savurma',
+  'Plank Sıçrayışı (Plank Jack)': 'Plank Sıçrayışı',
+  'Alternatif Dambıl Koparma (Snatch)': 'Alternatif Dambıl Koparma',
+  'Pike Şınav (Omuz ve Üst Göğüs)': 'Dik Açılı Omuz Şınavı',
+  'Alternatif Çakı Mekik (V-Up)': 'Alternatif Çakı Mekik',
+  'Komando Plank (Dirsek-El Geçişi)': 'Komando Plank',
+  'Dambıl Sumo Çekiş (High Pull)': 'Dambıl Sumo Çekiş',
 };
 
 const TURKISH_PHONETIC_WORD_RULES: ReadonlyArray< readonly [RegExp, string] > = [
