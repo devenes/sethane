@@ -100,6 +100,16 @@ test.describe('SetHane Production Build E2E (/sethane/ subpath)', () => {
     await page.getByTestId('btn-skip').click();
     await page.getByTestId('btn-skip').click();
     await expect(page.getByTestId('player-phase-badge')).toContainText(/ÇALIŞ|WORK/);
+    await expect(page.getByTestId('workout-player')).toHaveAttribute('data-phase', 'work');
+    await expect(page.locator('body')).toHaveAttribute('data-player-phase', 'work');
+
+    // Skip to Rest and verify full blue background, then Previous back to Work
+    await page.getByTestId('btn-skip').click();
+    await expect(page.getByTestId('player-phase-badge')).toContainText(/DİNLEN|REST/);
+    await expect(page.getByTestId('workout-player')).toHaveAttribute('data-phase', 'rest');
+    await expect(page.locator('body')).toHaveAttribute('data-player-phase', 'rest');
+    await page.getByTestId('btn-previous').click();
+    await expect(page.getByTestId('workout-player')).toHaveAttribute('data-phase', 'work');
 
     // Pause and resume
     await page.getByTestId('btn-pause').click();

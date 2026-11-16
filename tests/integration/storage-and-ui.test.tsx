@@ -168,8 +168,18 @@ describe('UI Integration — Dashboard, Localization & Exercise Catalog', () => 
     expect(screen.getByTestId('btn-pause')).toBeInTheDocument();
     await user.click(screen.getByTestId('btn-skip'));
     expect(screen.getByTestId('player-phase-badge')).toHaveTextContent(/ÇALIŞ/i);
+    expect(screen.getByTestId('workout-player')).toHaveAttribute('data-phase', 'work');
+    expect(screen.getByTestId('workout-player').className).toContain('bg-emerald-700');
+    expect(document.body.dataset.playerPhase).toBe('work');
 
-    // Clicking Düzenle from inside /player opens /builder preloaded with the program
+    // Skip to Rest phase and verify full blue background
+    await user.click(screen.getByTestId('btn-skip'));
+    expect(screen.getByTestId('player-phase-badge')).toHaveTextContent(/DİNLEN/i);
+    expect(screen.getByTestId('workout-player')).toHaveAttribute('data-phase', 'rest');
+    expect(screen.getByTestId('workout-player').className).toContain('bg-sky-700');
+    expect(document.body.dataset.playerPhase).toBe('rest');
+
+    // Clicking Düzenle from inside /player opens /builder preloaded with the program and clears body phase
     await user.click(screen.getByTestId('btn-player-edit'));
     const nameInput = await screen.findByTestId('builder-workout-name');
     expect(nameInput).toHaveValue('15 Dk Dambıl Kuvvet');

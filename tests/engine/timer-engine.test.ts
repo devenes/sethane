@@ -1,8 +1,14 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { calculateWorkoutSummary, resolveWorkoutTimeline } from '../../src/engine/phase-resolver';
 import { WorkoutTimerEngine } from '../../src/engine/timer-engine';
 import type { EngineEvent, WorkoutPlanInput } from '../../src/engine/types';
+import { EXERCISES_CATALOG } from '../../src/data/exercises/catalog';
 import { PRESET_WORKOUTS } from '../../src/data/workouts/presets';
+import {
+  formatExerciseNameForSpeech,
+  normalizeTurkishSpeechText,
+  speechService,
+} from '../../src/services/speech/speech-service';
 
 const SAMPLE_WORKOUT: WorkoutPlanInput = {
   id: 'sample-2-round',
@@ -235,3 +241,109 @@ describe('WorkoutTimerEngine State Machine', () => {
     engine.destroy();
   });
 });
+
+describe('SpeechService — Turkish & English Voice Selection and Pronunciation', () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  function makeMockVoice(partial: {
+    name: string;
+    lang: string;
+    voiceURI?: string;
+    default?: boolean;
+    localService?: boolean;
+  }): SpeechSynthesisVoice {
+    return {
+      name: partial.name,
+      lang: partial.lang,
+      voiceURI: partial.voiceURI ?? partial.name,
+      default: partial.default ?? false,
+      localService: partial.localService ?? true,
+    };
+  }
+
+  it('always selects a Turkish voice for tr locale even when an English voice is default or saved in preferredVoiceURI', () => {
+    const samantha = makeMockVoice({ name: 'Samantha', lang: 'en-US', default: true });
+    const albert = makeMockVoice({ name: 'Albert', lang: 'en-US' });
+    const yelda = makeMockVoice({ name: 'Yelda', lang: 'tr_TR', voiceURI: 'Yelda' });
+    const spokenUtterances: SpeechSynthesisUtterance[] = [];
+
+    class MockUtterance {
+      public text: string;
+      public lang = '';
+      public voice: SpeechSynthesisVoice | null = null;
+      public rate = 1;
+      public volume = 1;
+      public onend: (() => void) | null = null;
+      public onerror: (() => void) | null = null;
+      constructor(text: string) {
+        this.text = text;
+      }
+    }
+
+    vi.stubGlobal('SpeechSynthesisUtterance', MockUtterance);
+    Object.defineProperty(window, 'speechSynthesis', {
+      configurable: true,
+      writable: true,
+      value: {
+        speaking: false,
+        pending: false,
+        paused: false,
+        getVoices: () => [samantha, albert, yelda],
+        cancel: vi.fn(),
+        speak: vi.fn((u: SpeechSynthesisUtterance) => {
+          spokenUtterances.push(u);
+        }),
+        addEventListener: vi.fn(),
+      },
+    });
+
+    // Turkish locale with an English preferredVoiceURI ('Samantha') must ignore Samantha and pick Yelda
+    const trVoices = speechService.getVoicesForLocale('tr');
+    expect(trVoices).toHaveLength(1);
+    expect(trVoices[0]?.name).toBe('Yelda');
+
+    speechService.speak('Hazırlan. İlk hareket: Dambıl Thruster (Squat + Pres)', {
+      locale: 'tr',
+      voiceURI: 'Samantha',
+    });
+
+    expect(spokenUtterances).toHaveLength(1);
+    expect(spokenUtterances[0]?.voice?.name).toBe('Yelda');
+    expect(spokenUtterances[0]?.lang).toBe('tr-TR');
+    expect(spokenUtterances[0]?.text).toBe(
+      'Hazırlan. İlk hareket: Dambıl Skuat ve Omuz Pres'
+    );
+
+    // English locale prefers natural voice (Samantha) over novelty voice (Albert) and keeps English text intact
+    speechService.speak('Work! Dumbbell Thruster', {
+      locale: 'en',
+    });
+
+    expect(spokenUtterances).toHaveLength(2);
+    expect(spokenUtterances[1]?.voice?.name).toBe('Samantha');
+    expect(spokenUtterances[1]?.lang).toBe('en-US');
+    expect(spokenUtterances[1]?.text).toBe('Work! Dumbbell Thruster');
+  });
+
+  it('normalizes all 32 Turkish catalog exercise names for fluent Turkish TTS without parenthetical English duplicates', () => {
+    for (const ex of EXERCISES_CATALOG) {
+      const spokenTr = formatExerciseNameForSpeech(ex.name.tr, 'tr');
+      expect(spokenTr).toBeDefined();
+      expect(spokenTr).not.toMatch(/[()&+]/);
+      expect(spokenTr).not.toMatch(
+        /\b(Thruster|Squat|Deadlift|Burpee|Push-Up|Jumping Jack|Glute Bridge|High Knees|Russian Twist|Inchworm|Flutter Kicks|Step Jack|Biceps Curl|Triceps|Lunge|Dead Bug)\b/i
+      );
+
+      const spokenEn = formatExerciseNameForSpeech(ex.name.en, 'en');
+      expect(spokenEn).toBe(ex.name.en);
+    }
+
+    expect(normalizeTurkishSpeechText('Başla! Şınav (Push-Up)')).toBe('Başla! Şınav');
+    expect(
+      normalizeTurkishSpeechText('Dinlen. Sıradaki: Jumping Jack (Yıldız Sıçrayışı)')
+    ).toBe('Dinlen. Sıradaki: Yıldız Sıçrayışı');
+  });
+});
+

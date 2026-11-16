@@ -10,6 +10,7 @@ import {
   Settings,
   Sun,
 } from 'lucide-react';
+import { speechService } from '../../services/speech/speech-service';
 import { useSettingsStore } from '../../stores/settings-store';
 import { useWorkoutStore } from '../../stores/workout-store';
 import { UI_STRINGS } from '../../utils/i18n';
@@ -31,6 +32,7 @@ export const AppLayout: React.FC = () => {
   useEffect(() => {
     void hydrateSettings();
     void hydrateWorkouts();
+    speechService.warmup();
   }, [hydrateSettings, hydrateWorkouts]);
 
   useEffect(() => {

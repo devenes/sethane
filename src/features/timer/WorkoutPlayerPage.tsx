@@ -38,48 +38,132 @@ import {
 } from '../../utils/i18n';
 
 function getPhaseColorClasses(phase: WorkoutPhase): {
+  containerBg: string;
+  dividerBorder: string;
+  mutedText: string;
+  sessionProgressTrack: string;
+  sessionProgressFill: string;
+  visualPanelBg: string;
+  timerPanelBg: string;
   bannerBg: string;
   accentText: string;
+  progressTrack: string;
   progressBar: string;
+  listCardBg: string;
+  listCardActiveBg: string;
+  listThumbBg: string;
+  summaryChipBg: string;
 } {
   switch (phase) {
     case 'work':
       return {
-        bannerBg: 'bg-emerald-500 text-slate-950',
-        accentText: 'text-emerald-400',
-        progressBar: 'bg-emerald-500',
+        containerBg: 'bg-emerald-700 border-emerald-400/60',
+        dividerBorder: 'border-emerald-400/35',
+        mutedText: 'text-emerald-100',
+        sessionProgressTrack: 'bg-emerald-950/60',
+        sessionProgressFill: 'bg-white',
+        visualPanelBg: 'bg-emerald-900/75 border-emerald-400/45',
+        timerPanelBg: 'bg-emerald-800/85 border-emerald-400/50',
+        bannerBg: 'bg-white text-emerald-950',
+        accentText: 'text-white',
+        progressTrack: 'bg-emerald-950/65',
+        progressBar: 'bg-white',
+        listCardBg: 'bg-emerald-900/65 border-emerald-400/35',
+        listCardActiveBg: 'bg-emerald-950/80 border-white ring-1 ring-white/50',
+        listThumbBg: 'bg-emerald-950/80 border-emerald-400/35',
+        summaryChipBg: 'bg-emerald-900/75 border-emerald-400/40 text-emerald-50',
       };
     case 'rest':
     case 'round-rest':
       return {
-        bannerBg: 'bg-sky-400 text-slate-950',
-        accentText: 'text-sky-400',
-        progressBar: 'bg-sky-400',
+        containerBg: 'bg-sky-700 border-sky-300/60',
+        dividerBorder: 'border-sky-300/35',
+        mutedText: 'text-sky-100',
+        sessionProgressTrack: 'bg-sky-950/60',
+        sessionProgressFill: 'bg-white',
+        visualPanelBg: 'bg-sky-900/75 border-sky-300/45',
+        timerPanelBg: 'bg-sky-800/85 border-sky-300/50',
+        bannerBg: 'bg-white text-sky-950',
+        accentText: 'text-white',
+        progressTrack: 'bg-sky-950/65',
+        progressBar: 'bg-white',
+        listCardBg: 'bg-sky-900/65 border-sky-300/35',
+        listCardActiveBg: 'bg-sky-950/80 border-white ring-1 ring-white/50',
+        listThumbBg: 'bg-sky-950/80 border-sky-300/35',
+        summaryChipBg: 'bg-sky-900/75 border-sky-300/40 text-sky-50',
       };
     case 'prepare':
     case 'warmup':
       return {
+        containerBg: 'bg-[#090d14] border-slate-800',
+        dividerBorder: 'border-slate-800/90',
+        mutedText: 'text-slate-400',
+        sessionProgressTrack: 'bg-slate-900',
+        sessionProgressFill: 'bg-emerald-500',
+        visualPanelBg: 'bg-[#070b14] border-slate-800/90',
+        timerPanelBg: 'bg-slate-900/85 border-slate-800',
         bannerBg: 'bg-amber-400 text-slate-950',
         accentText: 'text-amber-400',
+        progressTrack: 'bg-slate-800',
         progressBar: 'bg-amber-400',
+        listCardBg: 'bg-[#0d1320] border-slate-800/90',
+        listCardActiveBg: 'bg-[#0d1320] border-emerald-500 ring-1 ring-emerald-500/40',
+        listThumbBg: 'bg-[#070b14] border-slate-800/80',
+        summaryChipBg: 'bg-slate-900 border-slate-800 text-slate-200',
       };
     case 'cooldown':
       return {
+        containerBg: 'bg-[#090d14] border-slate-800',
+        dividerBorder: 'border-slate-800/90',
+        mutedText: 'text-slate-400',
+        sessionProgressTrack: 'bg-slate-900',
+        sessionProgressFill: 'bg-emerald-500',
+        visualPanelBg: 'bg-[#070b14] border-slate-800/90',
+        timerPanelBg: 'bg-slate-900/85 border-slate-800',
         bannerBg: 'bg-slate-300 text-slate-950',
         accentText: 'text-slate-200',
+        progressTrack: 'bg-slate-800',
         progressBar: 'bg-slate-300',
+        listCardBg: 'bg-[#0d1320] border-slate-800/90',
+        listCardActiveBg: 'bg-[#0d1320] border-emerald-500 ring-1 ring-emerald-500/40',
+        listThumbBg: 'bg-[#070b14] border-slate-800/80',
+        summaryChipBg: 'bg-slate-900 border-slate-800 text-slate-200',
       };
     case 'completed':
       return {
+        containerBg: 'bg-[#090d14] border-slate-800',
+        dividerBorder: 'border-slate-800/90',
+        mutedText: 'text-slate-400',
+        sessionProgressTrack: 'bg-slate-900',
+        sessionProgressFill: 'bg-emerald-500',
+        visualPanelBg: 'bg-[#070b14] border-slate-800/90',
+        timerPanelBg: 'bg-slate-900/85 border-slate-800',
         bannerBg: 'bg-emerald-500 text-slate-950',
         accentText: 'text-emerald-400',
+        progressTrack: 'bg-slate-800',
         progressBar: 'bg-emerald-400',
+        listCardBg: 'bg-[#0d1320] border-slate-800/90',
+        listCardActiveBg: 'bg-[#0d1320] border-emerald-500 ring-1 ring-emerald-500/40',
+        listThumbBg: 'bg-[#070b14] border-slate-800/80',
+        summaryChipBg: 'bg-slate-900 border-slate-800 text-slate-200',
       };
     case 'idle':
       return {
+        containerBg: 'bg-[#090d14] border-slate-800',
+        dividerBorder: 'border-slate-800/90',
+        mutedText: 'text-slate-400',
+        sessionProgressTrack: 'bg-slate-900',
+        sessionProgressFill: 'bg-emerald-500',
+        visualPanelBg: 'bg-[#070b14] border-slate-800/90',
+        timerPanelBg: 'bg-slate-900/85 border-slate-800',
         bannerBg: 'bg-slate-800 text-slate-200',
         accentText: 'text-slate-100',
+        progressTrack: 'bg-slate-800',
         progressBar: 'bg-slate-600',
+        listCardBg: 'bg-[#0d1320] border-slate-800/90',
+        listCardActiveBg: 'bg-[#0d1320] border-emerald-500 ring-1 ring-emerald-500/40',
+        listThumbBg: 'bg-[#070b14] border-slate-800/80',
+        summaryChipBg: 'bg-slate-900 border-slate-800 text-slate-200',
       };
   }
 }
@@ -200,6 +284,7 @@ export const WorkoutPlayerPage: React.FC = () => {
 
   useEffect(() => {
     window.scrollTo(0, 0);
+    speechService.warmup();
   }, []);
 
   useEffect(() => {
@@ -233,6 +318,21 @@ export const WorkoutPlayerPage: React.FC = () => {
       });
     }
   }, [handleEngineEvent]);
+
+  useEffect(() => {
+    if (
+      sessionState.phase === 'work' ||
+      sessionState.phase === 'rest' ||
+      sessionState.phase === 'round-rest'
+    ) {
+      document.body.dataset.playerPhase = sessionState.phase;
+    } else {
+      delete document.body.dataset.playerPhase;
+    }
+    return () => {
+      delete document.body.dataset.playerPhase;
+    };
+  }, [sessionState.phase]);
 
   useEffect(() => {
     const syncWakeLock = async () => {
@@ -438,7 +538,8 @@ export const WorkoutPlayerPage: React.FC = () => {
     <div
       ref={containerRef}
       data-testid="workout-player"
-      className="rounded-2xl bg-[#090d14] text-white border border-slate-800 p-3.5 sm:p-5 space-y-3 sm:space-y-4"
+      data-phase={sessionState.phase}
+      className={`rounded-2xl ${phaseStyle.containerBg} text-white border p-3.5 sm:p-5 space-y-3 sm:space-y-4 transition-colors duration-200`}
     >
       {/* Screen Reader Live Region */}
       <div className="visually-hidden" aria-live="polite" aria-atomic="true">
@@ -446,12 +547,16 @@ export const WorkoutPlayerPage: React.FC = () => {
       </div>
 
       {/* Compact Top Instrument Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-2 pb-2.5 border-b border-slate-800/90">
+      <div
+        className={`flex flex-wrap items-center justify-between gap-2 pb-2.5 border-b ${phaseStyle.dividerBorder}`}
+      >
         <div className="min-w-0">
           <h1 className="text-sm sm:text-base font-extrabold m-0 text-white truncate">
             {workoutDisplayName}
           </h1>
-          <div className="text-xs mono-readout text-slate-400 flex items-center gap-2.5 mt-0.5">
+          <div
+            className={`text-xs mono-readout ${phaseStyle.mutedText} flex items-center gap-2.5 mt-0.5`}
+          >
             {currentStep?.round && currentStep?.totalRounds && (
               <span data-testid="player-round-indicator">
                 {t.roundCounter} {currentStep.round}/{currentStep.totalRounds}
@@ -540,9 +645,9 @@ export const WorkoutPlayerPage: React.FC = () => {
       </div>
 
       {/* Session Progress Line */}
-      <div className="w-full h-1.5 bg-slate-900 rounded-full overflow-hidden">
+      <div className={`w-full h-1.5 ${phaseStyle.sessionProgressTrack} rounded-full overflow-hidden`}>
         <div
-          className="h-full bg-emerald-500 progress-fill"
+          className={`h-full ${phaseStyle.sessionProgressFill} progress-fill`}
           style={{ width: `${totalProgressPct}%` }}
         />
       </div>
@@ -598,14 +703,16 @@ export const WorkoutPlayerPage: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-3.5 sm:gap-4 items-stretch">
           {/* Visual Movement Viewport */}
           {visualExercise && (
-            <div className="lg:col-span-6 bg-[#070b14] border border-slate-800/90 rounded-xl p-2.5 sm:p-3 flex flex-col justify-between gap-2">
+            <div
+              className={`lg:col-span-6 ${phaseStyle.visualPanelBg} border rounded-xl p-2.5 sm:p-3 flex flex-col justify-between gap-2 transition-colors duration-200`}
+            >
               <div className="flex items-center justify-between gap-2 px-1">
-                <span className="text-xs font-extrabold uppercase tracking-wider text-slate-200 truncate">
+                <span className="text-xs font-extrabold uppercase tracking-wider text-white truncate">
                   {isRestPreview
                     ? `${t.upNext}: ${visualExercise.name[locale]}`
                     : visualExercise.name[locale]}
                 </span>
-                <span className="text-[11px] mono-readout text-slate-400 shrink-0">
+                <span className={`text-[11px] mono-readout ${phaseStyle.mutedText} shrink-0`}>
                   {visualExercise.defaultWorkSeconds}s
                 </span>
               </div>
@@ -618,13 +725,19 @@ export const WorkoutPlayerPage: React.FC = () => {
               />
 
               {/* Desktop inline cues; Mobile compact <details> so timer stays above fold */}
-              <ol className="hidden lg:block text-xs text-slate-300 space-y-1 pl-4 m-0 border-t border-slate-800/80 pt-2">
+              <ol
+                className={`hidden lg:block text-xs text-slate-100 space-y-1 pl-4 m-0 border-t ${phaseStyle.dividerBorder} pt-2`}
+              >
                 {visualExercise.instructions[locale].slice(0, 2).map((step, i) => (
                   <li key={i}>{step}</li>
                 ))}
               </ol>
-              <details className="lg:hidden border-t border-slate-800/80 pt-1.5 text-xs text-slate-300">
-                <summary className="cursor-pointer font-bold text-[11px] text-slate-400 select-none">
+              <details
+                className={`lg:hidden border-t ${phaseStyle.dividerBorder} pt-1.5 text-xs text-slate-100`}
+              >
+                <summary
+                  className={`cursor-pointer font-bold text-[11px] ${phaseStyle.mutedText} select-none`}
+                >
                   {t.formTips}
                 </summary>
                 <ol className="space-y-1 pl-4 m-0 pt-1.5">
@@ -640,7 +753,7 @@ export const WorkoutPlayerPage: React.FC = () => {
           <div
             className={`${
               visualExercise ? 'lg:col-span-6' : 'lg:col-span-12'
-            } flex flex-col items-center justify-between text-center p-4 sm:p-6 rounded-xl bg-slate-900/85 border border-slate-800 space-y-3 sm:space-y-4`}
+            } flex flex-col items-center justify-between text-center p-4 sm:p-6 rounded-xl ${phaseStyle.timerPanelBg} border space-y-3 sm:space-y-4 transition-colors duration-200`}
           >
             <div
               data-testid="player-phase-badge"
@@ -657,7 +770,9 @@ export const WorkoutPlayerPage: React.FC = () => {
                 {formatClock(sessionState.remainingSeconds)}
               </div>
 
-              <div className="w-full max-w-sm mx-auto h-2 bg-slate-800 rounded-full overflow-hidden">
+              <div
+                className={`w-full max-w-sm mx-auto h-2 ${phaseStyle.progressTrack} rounded-full overflow-hidden`}
+              >
                 <div
                   className={`h-full progress-fill ${phaseStyle.progressBar}`}
                   style={{ width: `${stepProgressPct}%` }}
@@ -682,10 +797,10 @@ export const WorkoutPlayerPage: React.FC = () => {
                 {nextExercise && (
                   <div
                     data-testid="player-next-exercise"
-                    className="text-xs font-semibold text-slate-400 inline-flex items-center gap-1"
+                    className={`text-xs font-semibold ${phaseStyle.mutedText} inline-flex items-center gap-1`}
                   >
                     <span>{t.upNext}:</span>
-                    <span className="text-slate-200 font-bold">{nextExercise.name[locale]}</span>
+                    <span className="text-white font-bold">{nextExercise.name[locale]}</span>
                     <ChevronRight className="w-3.5 h-3.5" aria-hidden="true" />
                   </div>
                 )}
@@ -701,7 +816,7 @@ export const WorkoutPlayerPage: React.FC = () => {
                   disabled={sessionState.status === 'idle'}
                   aria-label={t.previous}
                   data-testid="btn-previous"
-                  className="p-3 rounded-xl bg-slate-800 hover:bg-slate-700 disabled:opacity-35 text-white cursor-pointer transition-colors"
+                  className="p-3 rounded-xl bg-slate-900/90 hover:bg-slate-800 disabled:opacity-35 text-white cursor-pointer transition-colors"
                 >
                   <SkipBack className="w-5 h-5" aria-hidden="true" />
                 </button>
@@ -748,7 +863,7 @@ export const WorkoutPlayerPage: React.FC = () => {
                   disabled={sessionState.status === 'idle'}
                   aria-label={t.skip}
                   data-testid="btn-skip"
-                  className="p-3 rounded-xl bg-slate-800 hover:bg-slate-700 disabled:opacity-35 text-white cursor-pointer transition-colors"
+                  className="p-3 rounded-xl bg-slate-900/90 hover:bg-slate-800 disabled:opacity-35 text-white cursor-pointer transition-colors"
                 >
                   <SkipForward className="w-5 h-5" aria-hidden="true" />
                 </button>
@@ -758,7 +873,7 @@ export const WorkoutPlayerPage: React.FC = () => {
                   onClick={handleRestart}
                   aria-label={t.restart}
                   data-testid="btn-restart"
-                  className="p-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 cursor-pointer transition-colors"
+                  className="p-3 rounded-xl bg-slate-900/90 hover:bg-slate-800 text-slate-200 cursor-pointer transition-colors"
                 >
                   <RotateCcw className="w-4 h-4" aria-hidden="true" />
                 </button>
@@ -770,7 +885,7 @@ export const WorkoutPlayerPage: React.FC = () => {
                     type="button"
                     onClick={handleStartNoWarmup}
                     data-testid="btn-start-no-warmup"
-                    className="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 hover:border-emerald-500/60 text-slate-100 text-xs font-bold inline-flex items-center gap-1.5 cursor-pointer transition-colors"
+                    className="px-3.5 py-2 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-slate-700 hover:border-emerald-500/60 text-slate-100 text-xs font-bold inline-flex items-center gap-1.5 cursor-pointer transition-colors"
                   >
                     <Zap className="w-3.5 h-3.5 text-emerald-400" aria-hidden="true" />
                     <span>{t.startNoWarmup}</span>
@@ -781,14 +896,14 @@ export const WorkoutPlayerPage: React.FC = () => {
                   type="button"
                   onClick={handleEditWorkout}
                   data-testid="btn-player-edit"
-                  className="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 hover:border-emerald-500/60 text-slate-100 text-xs font-bold inline-flex items-center gap-1.5 cursor-pointer transition-colors"
+                  className="px-3.5 py-2 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-slate-700 hover:border-emerald-500/60 text-slate-100 text-xs font-bold inline-flex items-center gap-1.5 cursor-pointer transition-colors"
                 >
                   <Edit3 className="w-3.5 h-3.5 text-emerald-400" aria-hidden="true" />
                   <span>{t.editWorkout}</span>
                 </button>
               </div>
 
-              <div className="hidden md:block text-[11px] mono-readout text-slate-500">
+              <div className={`hidden md:block text-[11px] mono-readout ${phaseStyle.mutedText}`}>
                 {t.shortcutsHint}
               </div>
             </div>
@@ -800,24 +915,26 @@ export const WorkoutPlayerPage: React.FC = () => {
       {sessionState.status !== 'completed' && activeWorkout.exercises.length > 0 && (
         <section
           data-testid="player-exercise-list"
-          className="pt-3 sm:pt-4 border-t border-slate-800/90 space-y-2.5"
+          className={`pt-3 sm:pt-4 border-t ${phaseStyle.dividerBorder} space-y-2.5`}
         >
           <div className="flex flex-wrap items-center justify-between gap-2">
-            <h2 className="text-xs sm:text-sm font-extrabold uppercase tracking-wider text-slate-300 m-0">
+            <h2 className="text-xs sm:text-sm font-extrabold uppercase tracking-wider text-white m-0">
               {t.programMovesHeading}
             </h2>
-            <div className="flex flex-wrap items-center gap-1.5 text-[11px] mono-readout text-slate-400">
-              <span className="px-2 py-0.5 rounded bg-slate-900 border border-slate-800 text-slate-200 font-bold">
+            <div
+              className={`flex flex-wrap items-center gap-1.5 text-[11px] mono-readout ${phaseStyle.mutedText}`}
+            >
+              <span className={`px-2 py-0.5 rounded border font-bold ${phaseStyle.summaryChipBg}`}>
                 {activeWorkout.rounds} {td.roundsLabel} · {activeWorkout.exercises.length}{' '}
                 {td.exercisesLabel}
               </span>
               {activeWorkout.warmupSeconds > 0 && (
-                <span className="px-2 py-0.5 rounded bg-slate-900 border border-slate-800">
+                <span className={`px-2 py-0.5 rounded border ${phaseStyle.summaryChipBg}`}>
                   {formatHumanDuration(activeWorkout.warmupSeconds, locale)} {t.warmupSummaryChip}
                 </span>
               )}
               {activeWorkout.cooldownSeconds > 0 && (
-                <span className="px-2 py-0.5 rounded bg-slate-900 border border-slate-800">
+                <span className={`px-2 py-0.5 rounded border ${phaseStyle.summaryChipBg}`}>
                   {formatHumanDuration(activeWorkout.cooldownSeconds, locale)}{' '}
                   {t.cooldownSummaryChip}
                 </span>
@@ -839,14 +956,14 @@ export const WorkoutPlayerPage: React.FC = () => {
                 <li
                   key={`${item.id ?? item.exerciseId}-${idx}`}
                   data-testid={`player-exercise-item-${idx}`}
-                  className={`rounded-xl bg-[#0d1320] border p-2.5 flex items-center gap-3 transition-colors ${
-                    isActiveMove
-                      ? 'border-emerald-500 ring-1 ring-emerald-500/40'
-                      : 'border-slate-800/90'
+                  className={`rounded-xl border p-2.5 flex items-center gap-3 transition-colors ${
+                    isActiveMove ? phaseStyle.listCardActiveBg : phaseStyle.listCardBg
                   }`}
                 >
                   {ex && (
-                    <div className="w-24 sm:w-28 shrink-0 rounded-lg bg-[#070b14] border border-slate-800/80 overflow-hidden">
+                    <div
+                      className={`w-24 sm:w-28 shrink-0 rounded-lg border overflow-hidden ${phaseStyle.listThumbBg}`}
+                    >
                       <ExerciseVisual
                         media={ex.media}
                         locale={locale}
@@ -866,8 +983,8 @@ export const WorkoutPlayerPage: React.FC = () => {
                         <span
                           className={`shrink-0 w-5 h-5 rounded-md text-[11px] font-black mono-readout inline-flex items-center justify-center ${
                             isActiveMove
-                              ? 'bg-emerald-500 text-slate-950'
-                              : 'bg-slate-800 text-slate-300'
+                              ? 'bg-emerald-400 text-slate-950'
+                              : 'bg-slate-900/90 text-slate-200'
                           }`}
                         >
                           {idx + 1}
@@ -878,32 +995,32 @@ export const WorkoutPlayerPage: React.FC = () => {
                       </div>
 
                       {isActiveMove && (
-                        <span className="shrink-0 px-1.5 py-0.5 rounded bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-[10px] font-bold uppercase tracking-wider">
+                        <span className="shrink-0 px-1.5 py-0.5 rounded bg-slate-950/70 border border-white/40 text-white text-[10px] font-bold uppercase tracking-wider">
                           {t.activeMoveBadge}
                         </span>
                       )}
                     </div>
 
                     {ex && (
-                      <div className="text-[11px] text-slate-400 truncate">
+                      <div className={`text-[11px] ${phaseStyle.mutedText} truncate`}>
                         {getCategoryLabel(ex.category, locale)} ·{' '}
                         {ex.muscleGroups.map((m) => getMuscleLabel(m, locale)).join(', ')}
                       </div>
                     )}
 
                     <div className="flex flex-wrap items-center gap-1.5 pt-0.5 mono-readout text-[11px]">
-                      <span className="px-2 py-0.5 rounded bg-emerald-500/15 border border-emerald-500/35 text-emerald-300 font-bold">
+                      <span className="px-2 py-0.5 rounded bg-slate-950/55 border border-emerald-400/50 text-emerald-200 font-bold">
                         {item.workSeconds}s {t.workLabelShort}
                       </span>
                       {!isLastInRound && item.restSeconds > 0 && (
-                        <span className="px-2 py-0.5 rounded bg-sky-400/15 border border-sky-400/35 text-sky-300 font-semibold">
+                        <span className="px-2 py-0.5 rounded bg-slate-950/55 border border-sky-300/50 text-sky-200 font-semibold">
                           {item.restSeconds}s {t.restLabelShort}
                         </span>
                       )}
                       {isLastInRound &&
                         activeWorkout.rounds > 1 &&
                         activeWorkout.restBetweenRounds > 0 && (
-                          <span className="px-2 py-0.5 rounded bg-sky-400/15 border border-sky-400/35 text-sky-300 font-semibold">
+                          <span className="px-2 py-0.5 rounded bg-slate-950/55 border border-sky-300/50 text-sky-200 font-semibold">
                             {activeWorkout.restBetweenRounds}s {t.roundRestShort}
                           </span>
                         )}

@@ -337,6 +337,65 @@ dialog::backdrop {
   }
 }
 
+/* Full-viewport phase background during active workout (work = green, rest/round-rest = blue) */
+body[data-player-phase="work"] {
+  background-color: #065f46;
+  color: #ffffff;
+  @media (prefers-reduced-motion: no-preference) {
+    transition: background-color 200ms ease;
+  }
+}
+
+body[data-player-phase="work"] .top-bar,
+body[data-player-phase="work"] .bottom-bar {
+  background-color: #064e3b;
+  border-color: rgb(52 211 153 / 0.35);
+  color: #ffffff;
+}
+
+body[data-player-phase="work"] .top-bar .text-muted-token,
+body[data-player-phase="work"] .bottom-bar .text-muted-token {
+  color: #d1fae5;
+}
+
+body[data-player-phase="work"] .top-bar .surface-elevated {
+  background-color: #065f46;
+  border-color: rgb(52 211 153 / 0.45);
+  color: #ffffff;
+}
+
+body[data-player-phase="rest"],
+body[data-player-phase="round-rest"] {
+  background-color: #0369a1;
+  color: #ffffff;
+  @media (prefers-reduced-motion: no-preference) {
+    transition: background-color 200ms ease;
+  }
+}
+
+body[data-player-phase="rest"] .top-bar,
+body[data-player-phase="rest"] .bottom-bar,
+body[data-player-phase="round-rest"] .top-bar,
+body[data-player-phase="round-rest"] .bottom-bar {
+  background-color: #075985;
+  border-color: rgb(125 211 252 / 0.35);
+  color: #ffffff;
+}
+
+body[data-player-phase="rest"] .top-bar .text-muted-token,
+body[data-player-phase="rest"] .bottom-bar .text-muted-token,
+body[data-player-phase="round-rest"] .top-bar .text-muted-token,
+body[data-player-phase="round-rest"] .bottom-bar .text-muted-token {
+  color: #e0f2fe;
+}
+
+body[data-player-phase="rest"] .top-bar .surface-elevated,
+body[data-player-phase="round-rest"] .top-bar .surface-elevated {
+  background-color: #0369a1;
+  border-color: rgb(125 211 252 / 0.45);
+  color: #ffffff;
+}
+
 /* Single-row accessible weekly tablist with scroll-driven edge fades (tabs guide) */
 .weekly-tablist-scroller {
   display: flex;

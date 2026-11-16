@@ -46,9 +46,7 @@ export const SettingsPage: React.FC = () => {
       setVoices(speechService.getVoicesForLocale(locale));
     };
     loadVoices();
-    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
-      window.speechSynthesis.onvoiceschanged = loadVoices;
-    }
+    return speechService.subscribeVoicesChanged(loadVoices);
   }, [locale]);
 
   const handleTestAudio = () => {
@@ -226,7 +224,11 @@ export const SettingsPage: React.FC = () => {
             </label>
             <select
               id={voiceSelectId}
-              value={preferredVoiceURI ?? ''}
+              value={
+                preferredVoiceURI && voices.some((v) => v.voiceURI === preferredVoiceURI)
+                  ? preferredVoiceURI
+                  : ''
+              }
               onChange={(e) =>
                 void updateSettings({ preferredVoiceURI: e.target.value || null })
               }
