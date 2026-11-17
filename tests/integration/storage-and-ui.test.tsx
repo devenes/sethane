@@ -185,6 +185,49 @@ describe('UI Integration — Dashboard, Localization & Exercise Catalog', () => 
     expect(nameInput).toHaveValue('15 Dk Dambıl Kuvvet');
     expect(screen.getAllByTestId(/^builder-item-/)).toHaveLength(6);
   });
+
+  it('opens the large ExerciseDetailModal with visual, specs, and description when clicking exercises on Dashboard, Player, Builder, Workouts, and Weekly pages', async () => {
+    await useSettingsStore.getState().setLocale('tr');
+    const user = userEvent.setup();
+    render(<App />);
+
+    // 1. Dashboard quick move click
+    await user.click(await screen.findByTestId('dashboard-quick-move-inspect-dumbbell-thruster'));
+    const modal = screen.getByTestId('exercise-detail-modal');
+    expect(modal).toHaveAttribute('open');
+    expect(within(modal).getByTestId('exercise-detail-title')).toHaveTextContent(
+      /Dambıl Thruster/i
+    );
+    expect(within(modal).getByTestId('exercise-detail-specs')).toHaveTextContent(/Dambıl/i);
+    expect(within(modal).getByTestId('exercise-detail-description')).toHaveTextContent(
+      /Hareket Açıklaması ve Uygulanışı/i
+    );
+    await user.click(within(modal).getByTestId('exercise-detail-close'));
+
+    // 2. Player exercise list click
+    await user.click(screen.getByTestId('workout-card-open-dumbbell-strength-15'));
+    await user.click(await screen.findByTestId('player-inspect-exercise-0'));
+    const playerModal = screen.getByTestId('exercise-detail-modal');
+    expect(playerModal).toHaveAttribute('open');
+    expect(within(playerModal).getByTestId('exercise-detail-title')).toHaveTextContent(
+      /Dambıl Goblet Squat/i
+    );
+    await user.click(within(playerModal).getByTestId('exercise-detail-close'));
+
+    // 3. Builder sequence & catalog click
+    await user.click(screen.getByTestId('btn-player-edit'));
+    await user.click(await screen.findByTestId('builder-inspect-item-0'));
+    const builderModal = screen.getByTestId('exercise-detail-modal');
+    expect(builderModal).toHaveAttribute('open');
+    expect(within(builderModal).getByTestId('exercise-detail-title')).toHaveTextContent(
+      /Dambıl Goblet Squat/i
+    );
+    await user.click(within(builderModal).getByTestId('exercise-detail-close'));
+
+    await user.click(screen.getByTestId('builder-catalog-inspect-burpees'));
+    expect(within(builderModal).getByTestId('exercise-detail-title')).toHaveTextContent(/Burpee/i);
+    await user.click(within(builderModal).getByTestId('exercise-detail-close'));
+  });
 });
 
 describe('7-Day Weekly Program Mode — Auto-Day Selection, Full Muscle Coverage & Customization', () => {

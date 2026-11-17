@@ -29,12 +29,13 @@ import {
   Search,
   Trash2,
 } from 'lucide-react';
+import { ExerciseDetailModal } from '../../components/common/ExerciseDetailModal';
 import { calculateWorkoutSummary } from '../../engine/phase-resolver';
 import { EXERCISES_CATALOG, getExerciseById } from '../../data/exercises/catalog';
 import { soundService } from '../../services/audio/sound-service';
 import { useSettingsStore } from '../../stores/settings-store';
 import { useWorkoutStore } from '../../stores/workout-store';
-import type { SupportedLocale, WorkoutExerciseItem, WorkoutPlan } from '../../types';
+import type { Exercise, SupportedLocale, WorkoutExerciseItem, WorkoutPlan } from '../../types';
 import { resolveAssetUrl } from '../../utils/assets';
 import { formatHumanDuration } from '../../utils/format';
 import { getCategoryLabel, UI_STRINGS } from '../../utils/i18n';
@@ -49,6 +50,7 @@ interface SortableBuilderRowProps {
   totalCount: number;
   locale: SupportedLocale;
   reducedMotion: boolean;
+  onInspect: (exercise: Exercise) => void;
   onUpdate: (uid: string, patch: Partial<WorkoutExerciseItem>) => void;
   onRemove: (uid: string) => void;
 }
@@ -59,6 +61,7 @@ const SortableBuilderRow: React.FC<SortableBuilderRowProps> = ({
   totalCount,
   locale,
   reducedMotion,
+  onInspect,
   onUpdate,
   onRemove,
 }) => {
@@ -109,7 +112,7 @@ const SortableBuilderRow: React.FC<SortableBuilderRowProps> = ({
           : 'hover:border-[var(--brand-accent)]/50'
       }`}
     >
-      {/* Draggable Grip + Large Live GIF Viewport (never wraps interactive inputs) */}
+      {/* Draggable Grip */}
       <div
         ref={setActivatorNodeRef}
         {...attributes}
@@ -118,36 +121,53 @@ const SortableBuilderRow: React.FC<SortableBuilderRowProps> = ({
         aria-label={`${index + 1}. ${exerciseTitle} — ${t.dragHandleAction}`}
         className="builder-drag-zone shrink-0 flex items-stretch cursor-grab active:cursor-grabbing"
       >
-        <div className="builder-drag-handle w-10 sm:w-11 shrink-0 border-r border-[var(--border-subtle)] bg-black/15 hover:bg-emerald-500/10 text-muted-token hover:text-[var(--brand-accent)] flex flex-col items-center justify-center gap-1 transition-colors">
+        <div className="builder-drag-handle w-11 sm:w-12 shrink-0 border-r border-[var(--border-subtle)] bg-black/15 hover:bg-emerald-500/10 text-muted-token hover:text-[var(--brand-accent)] flex flex-col items-center justify-center gap-1 transition-colors">
           <span className="text-xs font-black mono-readout text-[var(--text-primary)]">
             {index + 1}
           </span>
           <GripVertical className="w-4 h-4" aria-hidden="true" />
         </div>
-
-        {exercise && (
-          <div className="p-2 sm:p-2.5 flex items-center">
-            <div className="w-28 sm:w-44 aspect-[10/7] rounded-xl overflow-hidden bg-[#070b14] border border-slate-800 p-1">
-              <img
-                src={resolveAssetUrl(exercise.media.src)}
-                alt={exercise.media.alt[locale]}
-                width={480}
-                height={336}
-                draggable={false}
-                className="w-full h-full object-contain rounded-lg pointer-events-none"
-              />
-            </div>
-          </div>
-        )}
       </div>
+
+      {/* Clickable Live GIF Viewport -> Opens Exercise Detail Modal */}
+      {exercise && (
+        <div className="p-2 sm:p-2.5 flex items-center shrink-0">
+          <button
+            type="button"
+            onClick={() => onInspect(exercise)}
+            data-testid={`builder-inspect-item-${index}`}
+            aria-label={`${exerciseTitle} — ${UI_STRINGS[locale].exercises.viewDetails}`}
+            className="w-28 sm:w-44 aspect-[10/7] rounded-xl overflow-hidden bg-[#070b14] border border-slate-800 hover:border-[var(--brand-accent)] p-1 cursor-pointer transition-colors"
+          >
+            <img
+              src={resolveAssetUrl(exercise.media.src)}
+              alt={exercise.media.alt[locale]}
+              width={480}
+              height={336}
+              draggable={false}
+              className="w-full h-full object-contain rounded-lg pointer-events-none"
+            />
+          </button>
+        </div>
+      )}
 
       {/* Right Column: Full-Width Title on Top + Work/Rest Inputs Below */}
       <div className="flex-1 min-w-0 py-2.5 pr-3 pl-1 flex flex-col justify-between gap-2.5">
         <div className="flex items-start justify-between gap-2">
           <div className="min-w-0 space-y-0.5">
-            <div className="font-extrabold text-sm sm:text-base leading-snug">
-              {exerciseTitle}
-            </div>
+            {exercise ? (
+              <button
+                type="button"
+                onClick={() => onInspect(exercise)}
+                className="font-extrabold text-sm sm:text-base leading-snug text-left hover:text-[var(--brand-accent)] transition-colors cursor-pointer bg-transparent border-0 p-0 text-inherit"
+              >
+                {exerciseTitle}
+              </button>
+            ) : (
+              <div className="font-extrabold text-sm sm:text-base leading-snug">
+                {exerciseTitle}
+              </div>
+            )}
             {exercise && (
               <div className="text-xs text-muted-token font-semibold">
                 {getCategoryLabel(exercise.category, locale)}
@@ -270,6 +290,7 @@ export const WorkoutBuilderPage: React.FC = () => {
   const [catalogQuery, setCatalogQuery] = useState('');
   const [savedBanner, setSavedBanner] = useState(false);
   const [reorderStatus, setReorderStatus] = useState('');
+  const [inspectedExercise, setInspectedExercise] = useState<Exercise | null>(null);
 
   const reducedMotion =
     typeof window !== 'undefined' &&
@@ -658,6 +679,7 @@ export const WorkoutBuilderPage: React.FC = () => {
                       totalCount={items.length}
                       locale={locale}
                       reducedMotion={reducedMotion}
+                      onInspect={(ex) => setInspectedExercise(ex)}
                       onUpdate={handleUpdateItem}
                       onRemove={handleRemoveItem}
                     />
@@ -698,8 +720,14 @@ export const WorkoutBuilderPage: React.FC = () => {
                 key={ex.id}
                 className="surface-elevated rounded-xl p-2.5 flex items-center justify-between gap-3 hover:border-[var(--brand-accent)]/50 transition-colors"
               >
-                <div className="flex items-center gap-3 min-w-0">
-                  <div className="w-28 sm:w-32 aspect-[10/7] rounded-xl overflow-hidden bg-[#070b14] border border-slate-800 shrink-0 p-1">
+                <button
+                  type="button"
+                  onClick={() => setInspectedExercise(ex)}
+                  data-testid={`builder-catalog-inspect-${ex.id}`}
+                  aria-label={`${ex.name[locale]} — ${UI_STRINGS[locale].exercises.viewDetails}`}
+                  className="flex items-center gap-3 min-w-0 flex-1 text-left cursor-pointer bg-transparent border-0 p-0 text-inherit group"
+                >
+                  <div className="w-28 sm:w-32 aspect-[10/7] rounded-xl overflow-hidden bg-[#070b14] border border-slate-800 group-hover:border-[var(--brand-accent)] shrink-0 p-1 transition-colors">
                     <img
                       src={resolveAssetUrl(ex.media.src)}
                       alt={ex.media.alt[locale]}
@@ -711,7 +739,7 @@ export const WorkoutBuilderPage: React.FC = () => {
                     />
                   </div>
                   <div className="min-w-0 space-y-0.5">
-                    <div className="text-xs sm:text-sm font-extrabold leading-snug">
+                    <div className="text-xs sm:text-sm font-extrabold leading-snug group-hover:text-[var(--brand-accent)] transition-colors">
                       {ex.name[locale]}
                     </div>
                     <div className="text-[11px] mono-readout text-muted-token">
@@ -719,7 +747,7 @@ export const WorkoutBuilderPage: React.FC = () => {
                       {ex.defaultRestSeconds}s
                     </div>
                   </div>
-                </div>
+                </button>
                 <button
                   type="button"
                   onClick={() => handleAddExercise(ex.id)}
@@ -734,6 +762,33 @@ export const WorkoutBuilderPage: React.FC = () => {
           </div>
         </section>
       </div>
+
+      <ExerciseDetailModal
+        exercise={inspectedExercise}
+        locale={locale}
+        onClose={() => setInspectedExercise(null)}
+        onTrainSingle={(ex) => {
+          soundService.unlock();
+          setInspectedExercise(null);
+          selectWorkoutForPlayer({
+            id: `single-${ex.id}-${Date.now()}`,
+            name: `${ex.name[locale]} (3×)`,
+            prepareSeconds: 5,
+            warmupSeconds: 0,
+            rounds: 3,
+            restBetweenRounds: ex.defaultRestSeconds,
+            cooldownSeconds: 0,
+            exercises: [
+              {
+                exerciseId: ex.id,
+                workSeconds: ex.defaultWorkSeconds,
+                restSeconds: 0,
+              },
+            ],
+          });
+          navigate('/player');
+        }}
+      />
     </div>
   );
 };

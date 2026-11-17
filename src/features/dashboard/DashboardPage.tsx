@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { ArrowRight, CalendarDays, Play, Plus, Timer } from 'lucide-react';
+import { ExerciseDetailModal } from '../../components/common/ExerciseDetailModal';
 import { ExerciseVisual } from '../../components/common/ExerciseVisual';
 import { WorkoutCard } from '../../components/common/WorkoutCard';
 import { getExerciseById } from '../../data/exercises/catalog';
@@ -36,8 +37,10 @@ export const DashboardPage: React.FC = () => {
   const setEditingWorkout = useWorkoutStore((s) => s.setEditingWorkout);
 
   const [quickTimerOpen, setQuickTimerOpen] = useState(false);
+  const [inspectedExercise, setInspectedExercise] = useState<Exercise | null>(null);
 
   const t = UI_STRINGS[locale].dashboard;
+  const te = UI_STRINGS[locale].exercises;
   const tn = UI_STRINGS[locale].nav;
   const todayKey = useMemo(() => getTodayDayKey(), []);
   const todayDef = WEEKLY_DEFINITIONS_BY_DAY[todayKey];
@@ -258,9 +261,16 @@ export const DashboardPage: React.FC = () => {
           {quickMoves.map((exercise) => (
             <article
               key={exercise.id}
+              data-testid={`dashboard-quick-move-${exercise.id}`}
               className="adaptive-card surface-card rounded-xl overflow-hidden flex flex-col justify-between hover:border-[var(--brand-accent)] transition-colors"
             >
-              <div className="bg-[#070b14] border-b border-[var(--border-subtle)] p-1">
+              <button
+                type="button"
+                onClick={() => setInspectedExercise(exercise)}
+                data-testid={`dashboard-quick-move-inspect-${exercise.id}`}
+                aria-label={`${exercise.name[locale]} — ${te.viewDetails}`}
+                className="block w-full bg-[#070b14] border-b border-[var(--border-subtle)] p-1 text-left cursor-pointer"
+              >
                 <ExerciseVisual
                   media={exercise.media}
                   locale={locale}
@@ -268,14 +278,18 @@ export const DashboardPage: React.FC = () => {
                   loading="lazy"
                   className="w-full aspect-[10/7] object-contain mx-auto rounded-lg"
                 />
-              </div>
+              </button>
               <div className="p-2.5 flex items-center justify-between gap-1.5">
-                <div className="min-w-0">
+                <button
+                  type="button"
+                  onClick={() => setInspectedExercise(exercise)}
+                  className="min-w-0 text-left cursor-pointer bg-transparent border-0 p-0 hover:text-[var(--brand-accent)] transition-colors"
+                >
                   <div className="text-xs font-bold truncate">{exercise.name[locale]}</div>
                   <div className="text-[10px] mono-readout text-muted-token">
                     3× {exercise.defaultWorkSeconds}s
                   </div>
-                </div>
+                </button>
                 <button
                   type="button"
                   onClick={() => launchSingleMove(exercise)}
@@ -325,6 +339,16 @@ export const DashboardPage: React.FC = () => {
         locale={locale}
         onClose={() => setQuickTimerOpen(false)}
         onStartQuickWorkout={(quickWorkout) => launchWorkout(quickWorkout)}
+      />
+
+      <ExerciseDetailModal
+        exercise={inspectedExercise}
+        locale={locale}
+        onClose={() => setInspectedExercise(null)}
+        onTrainSingle={(ex) => {
+          setInspectedExercise(null);
+          launchSingleMove(ex);
+        }}
       />
     </div>
   );

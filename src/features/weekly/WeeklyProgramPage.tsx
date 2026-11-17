@@ -31,6 +31,7 @@ import {
   Trash2,
   X,
 } from 'lucide-react';
+import { ExerciseDetailModal } from '../../components/common/ExerciseDetailModal';
 import { ExerciseVisual, MotionToggleButton } from '../../components/common/ExerciseVisual';
 import { EXERCISES_CATALOG, getExerciseById } from '../../data/exercises/catalog';
 import {
@@ -57,7 +58,6 @@ import { useLightDismissDialog } from '../../utils/dialog';
 import { formatHumanDuration } from '../../utils/format';
 import {
   getCategoryLabel,
-  getDifficultyLabel,
   getMuscleLabel,
   UI_STRINGS,
 } from '../../utils/i18n';
@@ -156,6 +156,7 @@ const WeeklySortableRow: React.FC<WeeklySortableRowProps> = ({
           <button
             type="button"
             onClick={() => onInspect(exercise)}
+            data-testid={`weekly-exercise-inspect-${index}`}
             aria-label={`${exerciseTitle} — ${UI_STRINGS[locale].exercises.viewDetails}`}
             className="w-24 sm:w-36 aspect-[10/7] rounded-xl overflow-hidden bg-[#070b14] border border-slate-800 p-1 cursor-pointer hover:border-[var(--brand-accent)] transition-colors"
           >
@@ -174,7 +175,19 @@ const WeeklySortableRow: React.FC<WeeklySortableRowProps> = ({
         <div className="flex items-start justify-between gap-2">
           <div className="min-w-0 space-y-0.5">
             <div className="flex flex-wrap items-center gap-1.5">
-              <div className="font-extrabold text-sm sm:text-base leading-snug">{exerciseTitle}</div>
+              {exercise ? (
+                <button
+                  type="button"
+                  onClick={() => onInspect(exercise)}
+                  className="font-extrabold text-sm sm:text-base leading-snug text-left hover:text-[var(--brand-accent)] transition-colors cursor-pointer bg-transparent border-0 p-0 text-inherit"
+                >
+                  {exerciseTitle}
+                </button>
+              ) : (
+                <div className="font-extrabold text-sm sm:text-base leading-snug">
+                  {exerciseTitle}
+                </div>
+              )}
               {isLast && totalCount >= 3 && (
                 <span className="px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-400 text-[10px] font-extrabold uppercase tracking-wide">
                   {tw.finisherBadge}
@@ -296,12 +309,10 @@ export const WeeklyProgramPage: React.FC = () => {
   const tabRefs = useRef<Partial<Record<DayOfWeekKey, HTMLButtonElement | null>>>({});
   const panelRefs = useRef<Partial<Record<DayOfWeekKey, HTMLDivElement | null>>>({});
   const pickerDialogRef = useRef<HTMLDialogElement>(null);
-  const inspectDialogRef = useRef<HTMLDialogElement>(null);
 
   const tabIdPrefix = useId();
   const pickerTitleId = useId();
   const pickerSearchId = useId();
-  const inspectTitleId = useId();
   const roundsInputId = useId();
   const roundRestInputId = useId();
   const warmupInputId = useId();
@@ -314,7 +325,6 @@ export const WeeklyProgramPage: React.FC = () => {
   const tb = UI_STRINGS[locale].builder;
 
   useLightDismissDialog(pickerDialogRef, pickerOpen);
-  useLightDismissDialog(inspectDialogRef, Boolean(inspectedExercise));
 
   const reducedMotion =
     typeof window !== 'undefined' &&
@@ -1245,8 +1255,14 @@ export const WeeklyProgramPage: React.FC = () => {
                   key={ex.id}
                   className="surface-elevated rounded-xl p-2.5 flex items-center justify-between gap-3 hover:border-[var(--brand-accent)]/50 transition-colors"
                 >
-                  <div className="flex items-center gap-3 min-w-0">
-                    <div className="w-24 sm:w-28 aspect-[10/7] rounded-xl overflow-hidden bg-[#070b14] border border-slate-800 shrink-0 p-1">
+                  <button
+                    type="button"
+                    onClick={() => setInspectedExercise(ex)}
+                    data-testid={`weekly-picker-inspect-${ex.id}`}
+                    aria-label={`${ex.name[locale]} — ${te.viewDetails}`}
+                    className="flex items-center gap-3 min-w-0 flex-1 text-left cursor-pointer bg-transparent border-0 p-0 text-inherit group"
+                  >
+                    <div className="w-24 sm:w-28 aspect-[10/7] rounded-xl overflow-hidden bg-[#070b14] border border-slate-800 group-hover:border-[var(--brand-accent)] shrink-0 p-1 transition-colors">
                       <ExerciseVisual
                         media={ex.media}
                         locale={locale}
@@ -1257,7 +1273,7 @@ export const WeeklyProgramPage: React.FC = () => {
                     </div>
                     <div className="min-w-0 space-y-0.5">
                       <div className="flex flex-wrap items-center gap-1.5">
-                        <span className="text-xs sm:text-sm font-extrabold leading-snug">
+                        <span className="text-xs sm:text-sm font-extrabold leading-snug group-hover:text-[var(--brand-accent)] transition-colors">
                           {ex.name[locale]}
                         </span>
                         {countInDay > 0 && (
@@ -1281,7 +1297,7 @@ export const WeeklyProgramPage: React.FC = () => {
                         </span>
                       </div>
                     </div>
-                  </div>
+                  </button>
 
                   <button
                     type="button"
@@ -1299,67 +1315,33 @@ export const WeeklyProgramPage: React.FC = () => {
         </div>
       </dialog>
 
-      {/* Form Guide Native Modal Dialog */}
-      <dialog
-        ref={inspectDialogRef}
-        {...({ closedby: 'any' } as Record<string, unknown>)}
-        aria-labelledby={inspectTitleId}
+      <ExerciseDetailModal
+        exercise={inspectedExercise}
+        locale={locale}
         onClose={() => setInspectedExercise(null)}
-        className="surface-card rounded-2xl p-5 max-w-xl w-[calc(100%-1.5rem)] m-auto shadow-2xl"
-      >
-        {inspectedExercise && (
-          <div className="space-y-4">
-            <div className="flex items-start justify-between gap-3">
-              <div>
-                <div className="text-xs font-bold text-[var(--brand-accent)]">
-                  {getCategoryLabel(inspectedExercise.category, locale)} ·{' '}
-                  {getDifficultyLabel(inspectedExercise.difficulty, locale)}
-                </div>
-                <h2 id={inspectTitleId} className="text-xl font-black m-0 mt-0.5">
-                  {inspectedExercise.name[locale]}
-                </h2>
-              </div>
-              <button
-                type="button"
-                onClick={() => setInspectedExercise(null)}
-                aria-label={te.closeDialog}
-                className="surface-elevated p-1.5 rounded-lg cursor-pointer"
-              >
-                <X className="w-4 h-4" aria-hidden="true" />
-              </button>
-            </div>
-
-            <div className="rounded-xl overflow-hidden bg-[#070b14] border border-slate-800 p-2">
-              <ExerciseVisual
-                media={inspectedExercise.media}
-                locale={locale}
-                className="w-full h-56 object-contain mx-auto rounded-lg"
-              />
-            </div>
-
-            <div className="space-y-1.5">
-              <h3 className="text-xs font-extrabold uppercase tracking-wider text-muted-token m-0">
-                {te.instructionsTitle}
-              </h3>
-              <ol className="text-sm space-y-1 pl-5 m-0">
-                {inspectedExercise.instructions[locale].map((inst, idx) => (
-                  <li key={idx}>{inst}</li>
-                ))}
-              </ol>
-            </div>
-
-            <div className="flex justify-end">
-              <button
-                type="button"
-                onClick={() => setInspectedExercise(null)}
-                className="surface-elevated px-4 py-2 rounded-lg text-xs font-bold cursor-pointer"
-              >
-                {te.closeDialog}
-              </button>
-            </div>
-          </div>
-        )}
-      </dialog>
+        onTrainSingle={(ex) => {
+          soundService.unlock();
+          setInspectedExercise(null);
+          setPickerOpen(false);
+          selectWorkoutForPlayer({
+            id: `single-${ex.id}-${Date.now()}`,
+            name: `${ex.name[locale]} (3×)`,
+            prepareSeconds: 5,
+            warmupSeconds: 0,
+            rounds: 3,
+            restBetweenRounds: ex.defaultRestSeconds,
+            cooldownSeconds: 0,
+            exercises: [
+              {
+                exerciseId: ex.id,
+                workSeconds: ex.defaultWorkSeconds,
+                restSeconds: 0,
+              },
+            ],
+          });
+          navigate('/player');
+        }}
+      />
     </div>
   );
 };

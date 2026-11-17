@@ -19,6 +19,7 @@ import {
   X,
   Zap,
 } from 'lucide-react';
+import { ExerciseDetailModal } from '../../components/common/ExerciseDetailModal';
 import { ExerciseVisual, MotionToggleButton } from '../../components/common/ExerciseVisual';
 import { WorkoutTimerEngine } from '../../engine/timer-engine';
 import type { EngineEvent, SessionMachineState, WorkoutPhase } from '../../engine/types';
@@ -29,6 +30,7 @@ import { speechService } from '../../services/speech/speech-service';
 import { wakeLockService } from '../../services/wake-lock/wake-lock-service';
 import { useSettingsStore } from '../../stores/settings-store';
 import { useWorkoutStore } from '../../stores/workout-store';
+import type { Exercise } from '../../types';
 import { formatClock, formatHumanDuration } from '../../utils/format';
 import {
   getCategoryLabel,
@@ -201,6 +203,7 @@ export const WorkoutPlayerPage: React.FC = () => {
   const [liveAnnouncement, setLiveAnnouncement] = useState('');
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [wakeLockActive, setWakeLockActive] = useState(false);
+  const [inspectedExercise, setInspectedExercise] = useState<Exercise | null>(null);
 
   const handleEngineEvent = useCallback(
     (event: EngineEvent, state: SessionMachineState) => {
@@ -448,10 +451,12 @@ export const WorkoutPlayerPage: React.FC = () => {
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.metaKey || e.ctrlKey || e.altKey) return;
+      if (inspectedExercise) return;
       const target = e.target as HTMLElement | null;
       if (
         target &&
-        (target.tagName === 'BUTTON' ||
+        (target.closest('dialog') ||
+          target.tagName === 'BUTTON' ||
           target.tagName === 'INPUT' ||
           target.tagName === 'SELECT' ||
           target.tagName === 'TEXTAREA' ||
@@ -482,7 +487,7 @@ export const WorkoutPlayerPage: React.FC = () => {
 
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
-  }, [handlePause, handlePrevious, handleRestart, handleResume, handleSkip, handleStart]);
+  }, [handlePause, handlePrevious, handleRestart, handleResume, handleSkip, handleStart, inspectedExercise]);
 
   const toggleFullscreen = async () => {
     if (!document.fullscreenElement) {
@@ -706,23 +711,31 @@ export const WorkoutPlayerPage: React.FC = () => {
             <div
               className={`lg:col-span-6 ${phaseStyle.visualPanelBg} border rounded-xl p-2.5 sm:p-3 flex flex-col justify-between gap-2 transition-colors duration-200`}
             >
-              <div className="flex items-center justify-between gap-2 px-1">
-                <span className="text-xs font-extrabold uppercase tracking-wider text-white truncate">
-                  {isRestPreview
-                    ? `${t.upNext}: ${visualExercise.name[locale]}`
-                    : visualExercise.name[locale]}
-                </span>
-                <span className={`text-[11px] mono-readout ${phaseStyle.mutedText} shrink-0`}>
-                  {visualExercise.defaultWorkSeconds}s
-                </span>
-              </div>
+              <button
+                type="button"
+                onClick={() => setInspectedExercise(visualExercise)}
+                data-testid="player-visual-inspect"
+                aria-label={`${visualExercise.name[locale]} — ${UI_STRINGS[locale].exercises.viewDetails}`}
+                className="w-full text-left cursor-pointer bg-transparent border-0 p-0 text-inherit space-y-2 group"
+              >
+                <div className="flex items-center justify-between gap-2 px-1">
+                  <span className="text-xs font-extrabold uppercase tracking-wider text-white group-hover:underline truncate">
+                    {isRestPreview
+                      ? `${t.upNext}: ${visualExercise.name[locale]}`
+                      : visualExercise.name[locale]}
+                  </span>
+                  <span className={`text-[11px] mono-readout ${phaseStyle.mutedText} shrink-0`}>
+                    {visualExercise.defaultWorkSeconds}s
+                  </span>
+                </div>
 
-              <ExerciseVisual
-                media={visualExercise.media}
-                locale={locale}
-                staticOnly={sessionState.status === 'paused'}
-                className="w-full h-44 sm:h-60 lg:h-72 object-contain mx-auto rounded-lg"
-              />
+                <ExerciseVisual
+                  media={visualExercise.media}
+                  locale={locale}
+                  staticOnly={sessionState.status === 'paused'}
+                  className="w-full h-44 sm:h-60 lg:h-72 object-contain mx-auto rounded-lg"
+                />
+              </button>
 
               {/* Desktop inline cues; Mobile compact <details> so timer stays above fold */}
               <ol
@@ -784,25 +797,35 @@ export const WorkoutPlayerPage: React.FC = () => {
                   data-testid="player-current-exercise"
                   className="text-lg sm:text-2xl font-extrabold m-0 text-white"
                 >
-                  {sessionState.phase === 'warmup'
-                    ? t.phaseWarmup
-                    : sessionState.phase === 'cooldown'
-                      ? t.phaseCooldown
-                      : sessionState.phase === 'rest' || sessionState.phase === 'round-rest'
-                        ? getPhaseDisplayLabel(sessionState.phase, locale)
-                        : currentExercise
-                          ? currentExercise.name[locale]
-                          : workoutDisplayName}
+                  {sessionState.phase === 'warmup' ? (
+                    t.phaseWarmup
+                  ) : sessionState.phase === 'cooldown' ? (
+                    t.phaseCooldown
+                  ) : sessionState.phase === 'rest' || sessionState.phase === 'round-rest' ? (
+                    getPhaseDisplayLabel(sessionState.phase, locale)
+                  ) : currentExercise ? (
+                    <button
+                      type="button"
+                      onClick={() => setInspectedExercise(currentExercise)}
+                      className="text-white hover:underline cursor-pointer bg-transparent border-0 p-0 font-inherit text-inherit"
+                    >
+                      {currentExercise.name[locale]}
+                    </button>
+                  ) : (
+                    workoutDisplayName
+                  )}
                 </h2>
                 {nextExercise && (
-                  <div
+                  <button
+                    type="button"
+                    onClick={() => setInspectedExercise(nextExercise)}
                     data-testid="player-next-exercise"
-                    className={`text-xs font-semibold ${phaseStyle.mutedText} inline-flex items-center gap-1`}
+                    className={`text-xs font-semibold ${phaseStyle.mutedText} hover:underline inline-flex items-center gap-1 cursor-pointer bg-transparent border-0 p-0`}
                   >
                     <span>{t.upNext}:</span>
                     <span className="text-white font-bold">{nextExercise.name[locale]}</span>
                     <ChevronRight className="w-3.5 h-3.5" aria-hidden="true" />
-                  </div>
+                  </button>
                 )}
               </div>
             </div>
@@ -960,78 +983,101 @@ export const WorkoutPlayerPage: React.FC = () => {
                     isActiveMove ? phaseStyle.listCardActiveBg : phaseStyle.listCardBg
                   }`}
                 >
-                  {ex && (
-                    <div
-                      className={`w-24 sm:w-28 shrink-0 rounded-lg border overflow-hidden ${phaseStyle.listThumbBg}`}
+                  {ex ? (
+                    <button
+                      type="button"
+                      onClick={() => setInspectedExercise(ex)}
+                      data-testid={`player-inspect-exercise-${idx}`}
+                      aria-label={`${moveName} — ${UI_STRINGS[locale].exercises.viewDetails}`}
+                      className="w-full flex items-center gap-3 text-left cursor-pointer bg-transparent border-0 p-0 text-inherit group"
                     >
-                      <ExerciseVisual
-                        media={ex.media}
-                        locale={locale}
-                        loading="lazy"
-                        staticOnly={
-                          sessionState.status === 'paused' ||
-                          (sessionState.status === 'running' && !isActiveMove)
-                        }
-                        className="w-full aspect-[10/7] object-contain"
-                      />
-                    </div>
-                  )}
+                      <div
+                        className={`w-24 sm:w-28 shrink-0 rounded-lg border overflow-hidden group-hover:border-white/60 transition-colors ${phaseStyle.listThumbBg}`}
+                      >
+                        <ExerciseVisual
+                          media={ex.media}
+                          locale={locale}
+                          loading="lazy"
+                          staticOnly={
+                            sessionState.status === 'paused' ||
+                            (sessionState.status === 'running' && !isActiveMove)
+                          }
+                          className="w-full aspect-[10/7] object-contain"
+                        />
+                      </div>
 
-                  <div className="min-w-0 flex-1 space-y-1">
-                    <div className="flex items-center justify-between gap-2">
+                      <div className="min-w-0 flex-1 space-y-1">
+                        <div className="flex items-center justify-between gap-2">
+                          <div className="flex items-center gap-1.5 min-w-0">
+                            <span
+                              className={`shrink-0 w-5 h-5 rounded-md text-[11px] font-black mono-readout inline-flex items-center justify-center ${
+                                isActiveMove
+                                  ? 'bg-emerald-400 text-slate-950'
+                                  : 'bg-slate-900/90 text-slate-200'
+                              }`}
+                            >
+                              {idx + 1}
+                            </span>
+                            <span className="text-xs sm:text-sm font-extrabold text-white group-hover:underline truncate">
+                              {moveName}
+                            </span>
+                          </div>
+
+                          {isActiveMove && (
+                            <span className="shrink-0 px-1.5 py-0.5 rounded bg-slate-950/70 border border-white/40 text-white text-[10px] font-bold uppercase tracking-wider">
+                              {t.activeMoveBadge}
+                            </span>
+                          )}
+                        </div>
+
+                        <div className={`text-[11px] ${phaseStyle.mutedText} truncate`}>
+                          {getCategoryLabel(ex.category, locale)} ·{' '}
+                          {ex.muscleGroups.map((m) => getMuscleLabel(m, locale)).join(', ')}
+                        </div>
+
+                        <div className="flex flex-wrap items-center gap-1.5 pt-0.5 mono-readout text-[11px]">
+                          <span className="px-2 py-0.5 rounded bg-slate-950/55 border border-emerald-400/50 text-emerald-200 font-bold">
+                            {item.workSeconds}s {t.workLabelShort}
+                          </span>
+                          {!isLastInRound && item.restSeconds > 0 && (
+                            <span className="px-2 py-0.5 rounded bg-slate-950/55 border border-sky-300/50 text-sky-200 font-semibold">
+                              {item.restSeconds}s {t.restLabelShort}
+                            </span>
+                          )}
+                          {isLastInRound &&
+                            activeWorkout.rounds > 1 &&
+                            activeWorkout.restBetweenRounds > 0 && (
+                              <span className="px-2 py-0.5 rounded bg-slate-950/55 border border-sky-300/50 text-sky-200 font-semibold">
+                                {activeWorkout.restBetweenRounds}s {t.roundRestShort}
+                              </span>
+                            )}
+                        </div>
+                      </div>
+                    </button>
+                  ) : (
+                    <div className="min-w-0 flex-1 space-y-1">
                       <div className="flex items-center gap-1.5 min-w-0">
-                        <span
-                          className={`shrink-0 w-5 h-5 rounded-md text-[11px] font-black mono-readout inline-flex items-center justify-center ${
-                            isActiveMove
-                              ? 'bg-emerald-400 text-slate-950'
-                              : 'bg-slate-900/90 text-slate-200'
-                          }`}
-                        >
+                        <span className="shrink-0 w-5 h-5 rounded-md text-[11px] font-black mono-readout inline-flex items-center justify-center bg-slate-900/90 text-slate-200">
                           {idx + 1}
                         </span>
                         <span className="text-xs sm:text-sm font-extrabold text-white truncate">
                           {moveName}
                         </span>
                       </div>
-
-                      {isActiveMove && (
-                        <span className="shrink-0 px-1.5 py-0.5 rounded bg-slate-950/70 border border-white/40 text-white text-[10px] font-bold uppercase tracking-wider">
-                          {t.activeMoveBadge}
-                        </span>
-                      )}
                     </div>
-
-                    {ex && (
-                      <div className={`text-[11px] ${phaseStyle.mutedText} truncate`}>
-                        {getCategoryLabel(ex.category, locale)} ·{' '}
-                        {ex.muscleGroups.map((m) => getMuscleLabel(m, locale)).join(', ')}
-                      </div>
-                    )}
-
-                    <div className="flex flex-wrap items-center gap-1.5 pt-0.5 mono-readout text-[11px]">
-                      <span className="px-2 py-0.5 rounded bg-slate-950/55 border border-emerald-400/50 text-emerald-200 font-bold">
-                        {item.workSeconds}s {t.workLabelShort}
-                      </span>
-                      {!isLastInRound && item.restSeconds > 0 && (
-                        <span className="px-2 py-0.5 rounded bg-slate-950/55 border border-sky-300/50 text-sky-200 font-semibold">
-                          {item.restSeconds}s {t.restLabelShort}
-                        </span>
-                      )}
-                      {isLastInRound &&
-                        activeWorkout.rounds > 1 &&
-                        activeWorkout.restBetweenRounds > 0 && (
-                          <span className="px-2 py-0.5 rounded bg-slate-950/55 border border-sky-300/50 text-sky-200 font-semibold">
-                            {activeWorkout.restBetweenRounds}s {t.roundRestShort}
-                          </span>
-                        )}
-                    </div>
-                  </div>
+                  )}
                 </li>
               );
             })}
           </ol>
         </section>
       )}
+
+      <ExerciseDetailModal
+        exercise={inspectedExercise}
+        locale={locale}
+        onClose={() => setInspectedExercise(null)}
+      />
     </div>
   );
 };

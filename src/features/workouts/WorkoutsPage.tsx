@@ -1,11 +1,12 @@
 import React, { useId, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ArrowRight, CalendarDays, Plus } from 'lucide-react';
+import { ExerciseDetailModal } from '../../components/common/ExerciseDetailModal';
 import { WorkoutCard } from '../../components/common/WorkoutCard';
 import { soundService } from '../../services/audio/sound-service';
 import { useSettingsStore } from '../../stores/settings-store';
 import { useWorkoutStore } from '../../stores/workout-store';
-import type { WorkoutPlan } from '../../types';
+import type { Exercise, WorkoutPlan } from '../../types';
 import { useLightDismissDialog } from '../../utils/dialog';
 import { UI_STRINGS } from '../../utils/i18n';
 
@@ -20,6 +21,7 @@ export const WorkoutsPage: React.FC = () => {
   const deleteCustomWorkout = useWorkoutStore((s) => s.deleteCustomWorkout);
 
   const [pendingDelete, setPendingDelete] = useState<WorkoutPlan | null>(null);
+  const [inspectedExercise, setInspectedExercise] = useState<Exercise | null>(null);
   const confirmDialogRef = useRef<HTMLDialogElement>(null);
   const confirmTitleId = useId();
 
@@ -91,6 +93,7 @@ export const WorkoutsPage: React.FC = () => {
                 onStart={handleStart}
                 onDuplicate={(w) => void duplicateWorkout(w)}
                 onDelete={(w) => setPendingDelete(w)}
+                onInspectExercise={(ex) => setInspectedExercise(ex)}
               />
             ))}
           </div>
@@ -109,10 +112,38 @@ export const WorkoutsPage: React.FC = () => {
               workout={workout}
               locale={locale}
               onStart={handleStart}
+              onInspectExercise={(ex) => setInspectedExercise(ex)}
             />
           ))}
         </div>
       </section>
+
+      <ExerciseDetailModal
+        exercise={inspectedExercise}
+        locale={locale}
+        onClose={() => setInspectedExercise(null)}
+        onTrainSingle={(ex) => {
+          soundService.unlock();
+          setInspectedExercise(null);
+          selectWorkoutForPlayer({
+            id: `single-${ex.id}-${Date.now()}`,
+            name: `${ex.name[locale]} (3×)`,
+            prepareSeconds: 5,
+            warmupSeconds: 0,
+            rounds: 3,
+            restBetweenRounds: ex.defaultRestSeconds,
+            cooldownSeconds: 0,
+            exercises: [
+              {
+                exerciseId: ex.id,
+                workSeconds: ex.defaultWorkSeconds,
+                restSeconds: 0,
+              },
+            ],
+          });
+          navigate('/player');
+        }}
+      />
 
       {/* Light-Dismissable Native Confirm Delete Dialog */}
       <dialog

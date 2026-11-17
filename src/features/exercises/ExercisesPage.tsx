@@ -1,6 +1,7 @@
-import React, { useId, useMemo, useRef, useState } from 'react';
+import React, { useId, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Play, Search, X } from 'lucide-react';
+import { Play, Search } from 'lucide-react';
+import { ExerciseDetailModal } from '../../components/common/ExerciseDetailModal';
 import { ExerciseVisual, MotionToggleButton } from '../../components/common/ExerciseVisual';
 import { EXERCISES_CATALOG } from '../../data/exercises/catalog';
 import { soundService } from '../../services/audio/sound-service';
@@ -12,7 +13,6 @@ import type {
   Exercise,
   ExerciseCategory,
 } from '../../types';
-import { useLightDismissDialog } from '../../utils/dialog';
 import {
   getCategoryLabel,
   getDifficultyLabel,
@@ -30,16 +30,12 @@ export const ExercisesPage: React.FC = () => {
   const searchInputId = useId();
   const equipmentSelectId = useId();
   const difficultySelectId = useId();
-  const dialogTitleId = useId();
-  const dialogRef = useRef<HTMLDialogElement>(null);
 
   const [query, setQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState<ExerciseCategory | 'all'>('all');
   const [equipmentFilter, setEquipmentFilter] = useState<EquipmentType | 'all'>('all');
   const [difficultyFilter, setDifficultyFilter] = useState<DifficultyLevel | 'all'>('all');
   const [selectedExercise, setSelectedExercise] = useState<Exercise | null>(null);
-
-  useLightDismissDialog(dialogRef, Boolean(selectedExercise));
 
   const launchSingleExercise = (exercise: Exercise) => {
     soundService.unlock();
@@ -191,6 +187,7 @@ export const ExercisesPage: React.FC = () => {
             <button
               type="button"
               onClick={() => setSelectedExercise(exercise)}
+              data-testid={`exercise-inspect-${exercise.id}`}
               aria-label={`${exercise.name[locale]} — ${t.viewDetails}`}
               className="relative block w-full bg-[#070b14] border-b border-[var(--border-subtle)] p-1.5 text-left cursor-pointer"
             >
@@ -208,7 +205,13 @@ export const ExercisesPage: React.FC = () => {
             <div className="p-3 flex-1 flex flex-col justify-between gap-2.5">
               <div className="space-y-1.5">
                 <h2 className="text-sm font-extrabold m-0 leading-snug">
-                  {exercise.name[locale]}
+                  <button
+                    type="button"
+                    onClick={() => setSelectedExercise(exercise)}
+                    className="text-left hover:text-[var(--brand-accent)] transition-colors cursor-pointer bg-transparent border-0 p-0 font-inherit text-inherit"
+                  >
+                    {exercise.name[locale]}
+                  </button>
                 </h2>
                 <div className="flex flex-wrap items-center gap-1 text-[11px] text-muted-token">
                   <span className="font-semibold text-[var(--brand-accent)]">
@@ -242,111 +245,12 @@ export const ExercisesPage: React.FC = () => {
         ))}
       </div>
 
-      {/* Light-Dismissable Native Modal Dialog */}
-      <dialog
-        ref={dialogRef}
-        {...({ closedby: 'any' } as Record<string, unknown>)}
-        aria-labelledby={dialogTitleId}
+      <ExerciseDetailModal
+        exercise={selectedExercise}
+        locale={locale}
         onClose={() => setSelectedExercise(null)}
-        className="surface-card rounded-2xl p-5 max-w-xl w-[calc(100%-1.5rem)] m-auto shadow-2xl"
-      >
-        {selectedExercise && (
-          <div className="space-y-4">
-            <div className="flex items-start justify-between gap-3">
-              <div>
-                <div className="text-xs font-bold text-[var(--brand-accent)]">
-                  {getCategoryLabel(selectedExercise.category, locale)} ·{' '}
-                  {getDifficultyLabel(selectedExercise.difficulty, locale)} ·{' '}
-                  <span className="mono-readout">
-                    {selectedExercise.defaultWorkSeconds}s/{selectedExercise.defaultRestSeconds}s
-                  </span>
-                </div>
-                <h2 id={dialogTitleId} className="text-xl font-black m-0 mt-0.5">
-                  {selectedExercise.name[locale]}
-                </h2>
-              </div>
-              <button
-                type="button"
-                onClick={() => setSelectedExercise(null)}
-                aria-label={t.closeDialog}
-                className="surface-elevated p-1.5 rounded-lg cursor-pointer"
-              >
-                <X className="w-4 h-4" aria-hidden="true" />
-              </button>
-            </div>
-
-            <div className="rounded-xl overflow-hidden bg-[#070b14] border border-slate-800 p-2 space-y-2">
-              <ExerciseVisual
-                media={selectedExercise.media}
-                locale={locale}
-                className="w-full h-56 sm:h-64 object-contain mx-auto rounded-lg"
-              />
-              <div className="flex items-center justify-between px-1 pb-0.5">
-                <div className="flex flex-wrap gap-1">
-                  {selectedExercise.muscleGroups.map((m) => (
-                    <span
-                      key={m}
-                      className="px-2 py-0.5 rounded bg-slate-900 text-slate-300 text-[11px] font-semibold"
-                    >
-                      {getMuscleLabel(m, locale)}
-                    </span>
-                  ))}
-                </div>
-                <MotionToggleButton locale={locale} variant="dark" />
-              </div>
-            </div>
-
-            <div className="space-y-1.5">
-              <h3 className="text-xs font-extrabold uppercase tracking-wider text-muted-token m-0">
-                {t.instructionsTitle}
-              </h3>
-              <ol className="text-sm space-y-1 pl-5 m-0">
-                {selectedExercise.instructions[locale].map((inst, idx) => (
-                  <li key={idx}>{inst}</li>
-                ))}
-              </ol>
-            </div>
-
-            {/* Secondary details collapsed on demand per content-first-noise-reduction */}
-            <details className="surface-elevated rounded-xl px-3.5 py-2.5 text-sm">
-              <summary className="font-bold text-xs cursor-pointer select-none">
-                {t.mistakesTitle}
-                {selectedExercise.easierVariation ? ` & ${t.easierTitle}` : ''}
-              </summary>
-              <div className="pt-2.5 space-y-2.5 text-xs">
-                <ul className="space-y-1 pl-4 m-0">
-                  {selectedExercise.commonMistakes[locale].map((mistake, idx) => (
-                    <li key={idx}>{mistake}</li>
-                  ))}
-                </ul>
-                {selectedExercise.easierVariation && (
-                  <p className="m-0 pt-1.5 border-t border-[var(--border-subtle)]">
-                    <strong>{t.easierTitle}:</strong> {selectedExercise.easierVariation[locale]}
-                  </p>
-                )}
-              </div>
-            </details>
-
-            <div className="flex items-center justify-end gap-2 pt-1">
-              <button
-                type="button"
-                onClick={() => setSelectedExercise(null)}
-                className="surface-elevated px-4 py-2 rounded-lg text-xs font-bold cursor-pointer"
-              >
-                {t.closeDialog}
-              </button>
-              <button
-                type="button"
-                onClick={() => launchSingleExercise(selectedExercise)}
-                className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold px-4 py-2 rounded-lg text-xs inline-flex items-center gap-1.5 cursor-pointer transition-colors"
-              >
-                <Play className="w-3.5 h-3.5 fill-current" aria-hidden="true" />
-                <span>{t.trainSingle}</span>
-              </button>
-            </div>
-          </div>
-        )}
-      </dialog>
+        onTrainSingle={launchSingleExercise}
+      />
     </div>
   );
 };

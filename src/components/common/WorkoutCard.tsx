@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { Copy, Play, Trash2 } from 'lucide-react';
 import { calculateWorkoutSummary } from '../../engine/phase-resolver';
 import { getExerciseById } from '../../data/exercises/catalog';
-import type { SupportedLocale, WorkoutPlan } from '../../types';
+import type { Exercise, SupportedLocale, WorkoutPlan } from '../../types';
 import { resolveAssetUrl } from '../../utils/assets';
 import { formatHumanDuration } from '../../utils/format';
 import { UI_STRINGS } from '../../utils/i18n';
@@ -17,6 +17,7 @@ interface WorkoutCardProps {
   onStart: (workout: WorkoutPlan) => void;
   onDuplicate?: (workout: WorkoutPlan) => void;
   onDelete?: (workout: WorkoutPlan) => void;
+  onInspectExercise?: (exercise: Exercise) => void;
 }
 
 export const WorkoutCard: React.FC<WorkoutCardProps> = ({
@@ -28,6 +29,7 @@ export const WorkoutCard: React.FC<WorkoutCardProps> = ({
   onStart,
   onDuplicate,
   onDelete,
+  onInspectExercise,
 }) => {
   const td = UI_STRINGS[locale].dashboard;
   const tw = UI_STRINGS[locale].workoutsPage;
@@ -57,11 +59,8 @@ export const WorkoutCard: React.FC<WorkoutCardProps> = ({
             const thumbSrc = ex
               ? resolveAssetUrl(ex.media.posterSrc ?? ex.media.src)
               : undefined;
-            return (
-              <div
-                key={`${workout.id}-${item.exerciseId}-${idx}`}
-                className="relative rounded-lg bg-[#0d1322] border border-slate-800/80 overflow-hidden"
-              >
+            const innerContent = (
+              <>
                 {thumbSrc && (
                   <img
                     src={thumbSrc}
@@ -85,6 +84,30 @@ export const WorkoutCard: React.FC<WorkoutCardProps> = ({
                     +{workout.exercises.length - 3}
                   </span>
                 )}
+              </>
+            );
+
+            if (onInspectExercise && ex) {
+              return (
+                <button
+                  key={`${workout.id}-${item.exerciseId}-${idx}`}
+                  type="button"
+                  onClick={() => onInspectExercise(ex)}
+                  data-testid={`workout-card-inspect-${workout.id}-${idx}`}
+                  aria-label={`${ex.name[locale]} — ${UI_STRINGS[locale].exercises.viewDetails}`}
+                  className="relative rounded-lg bg-[#0d1322] border border-slate-800/80 hover:border-[var(--brand-accent)] overflow-hidden p-0 text-left cursor-pointer transition-colors"
+                >
+                  {innerContent}
+                </button>
+              );
+            }
+
+            return (
+              <div
+                key={`${workout.id}-${item.exerciseId}-${idx}`}
+                className="relative rounded-lg bg-[#0d1322] border border-slate-800/80 overflow-hidden"
+              >
+                {innerContent}
               </div>
             );
           })}
@@ -111,8 +134,27 @@ export const WorkoutCard: React.FC<WorkoutCardProps> = ({
         </span>
       </header>
 
-      {/* Content Region: Concise Specs */}
-      <div className="px-3.5 pt-2 pb-3.5 flex-1 flex items-end">
+      {/* Content Region: Concise Specs & Optional Clickable Exercise Chips */}
+      <div className="px-3.5 pt-2 pb-3.5 flex-1 flex flex-col justify-end gap-2">
+        {onInspectExercise && workout.exercises.length > 0 && (
+          <div className="flex flex-wrap gap-1">
+            {workout.exercises.map((item, idx) => {
+              const ex = getExerciseById(item.exerciseId);
+              if (!ex) return null;
+              return (
+                <button
+                  key={`${workout.id}-chip-${item.exerciseId}-${idx}`}
+                  type="button"
+                  onClick={() => onInspectExercise(ex)}
+                  data-testid={`workout-card-move-chip-${workout.id}-${idx}`}
+                  className="surface-elevated hover:border-[var(--brand-accent)] hover:text-[var(--brand-accent)] px-2 py-0.5 rounded-md text-[11px] font-semibold cursor-pointer transition-colors"
+                >
+                  {ex.name[locale]}
+                </button>
+              );
+            })}
+          </div>
+        )}
         <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs mono-readout text-muted-token">
           <span>
             <strong className="text-[var(--brand-accent)] font-bold">
